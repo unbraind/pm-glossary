@@ -52,3 +52,24 @@ test('installation docs bootstrap local runners and declare source corpus prereq
   assert.match(prerequisites,/revision pinned in `test\/fixtures\/public-corpus.json`/);
   assert.match(prerequisites,/npm package does not include.*test fixtures.*runner/);
 });
+
+
+test('documentation matches measured receipt and privacy admission limits',()=>{
+  const document=readFileSync('docs/real-data.md','utf8');
+  const receipts=JSON.parse(document.split('```json\n')[1].split('```')[0]) as {repository:string;selected_bytes:number}[];
+  for(const receipt of receipts){
+    const domain=receipt.repository.split('/')[1];const bytes=Buffer.byteLength(readFileSync(`test/fixtures/${domain}.md`));
+    assert.equal(receipt.selected_bytes,bytes);
+    const row=document.split('\n').find(line=>line.startsWith(`| ${receipt.repository} README |`));assert.ok(row);assert.equal(Number(row.split('|')[3].trim()),bytes);
+  }
+  const readme=readFileSync('README.md','utf8');assert.match(readme,/Email detection is a heuristic/);assert.match(readme,/`a@b` without a public suffix may pass/);assert.match(readme,/Do not rely on it to prevent personal data from entering retained history/);
+  guardSubmitted('a@b');assert.throws(()=>guardSubmitted('a@b.invalid'),{code:'invalid_input'});
+});
+
+test('npm and Bun setup each initialize before activating in fresh consumers',()=>{
+  const readme=readFileSync('README.md','utf8');
+  for(const suffix of ['./node_modules/pm-glossary','npm:pm-glossary'])for(const runner of ['npx --no-install','bunx --bun --no-install']){
+    const activation=`${runner} pm package install ${suffix}`;const offset=readme.indexOf(activation);assert.ok(offset>=0);
+    assert.equal(readme.slice(0,offset).trimEnd().split('\n').at(-1),`${runner} pm init terminology --defaults --agent-guidance skip`);
+  }
+});

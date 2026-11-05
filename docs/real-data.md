@@ -10,7 +10,7 @@ Run this command from a source checkout of `unbraind/pm-glossary`, with the publ
 | --- | --- | --- |
 | unbraind/pm-vcs README | `131dc3a6ff15ab3d127611f041b5385e5d54257e` | 45848 |
 | unbraind/pm-rl README | `8a0b5e933d2d70acce1dea4849b6300216438c33` | 62314 |
-| unbraind/pm-evidence README | `1435931270505fb81cbafa84141269a43285dfc6` | 22200 |
+| unbraind/pm-evidence README | `1435931270505fb81cbafa84141269a43285dfc6` | 22199 |
 
 Full-source and selected-passage SHA-256 digests:
 

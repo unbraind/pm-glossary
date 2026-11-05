@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, cpSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { gitEnvironment, npmEnvironment, testEnvironment } from '../scripts/environment.ts';
@@ -23,6 +24,14 @@ test('identity policy admits GitHub merge committers while preserving strict aut
       return spawnSync(process.execPath,['scripts/identity-gate.ts'],{cwd:root,env:{...env,GITHUB_EVENT_NAME:eventName,GITHUB_EVENT_PATH:eventPath},encoding:'utf8',timeout:30000});
     };
     assert.equal(run().status,0);
+    const shallow=join(root,'shallow');
+    git(['clone','--depth=1',pathToFileURL(root).href,shallow]);
+    const shallowResult=spawnSync(process.execPath,['scripts/identity-gate.ts'],{cwd:shallow,env,encoding:'utf8',timeout:30000});
+    assert.equal(shallowResult.status,1);assert.match(shallowResult.stderr,/Shallow clone.*full history.*git fetch --unshallow/);assert.doesNotMatch(shallowResult.stdout,/zero violations/);
+    execFileSync('git',['fetch','--unshallow'],{cwd:shallow,env,stdio:'pipe'});
+    const completeResult=spawnSync(process.execPath,['scripts/identity-gate.ts'],{cwd:shallow,env,encoding:'utf8',timeout:30000});
+    assert.equal(completeResult.status,0,completeResult.stderr);assert.match(completeResult.stdout,/zero violations/);
+
     for(const [name,author,committer,committerName,allowed] of [
       ['rebase',maintainer,'noreply@github.com','GitHub',true],
       ['squash','41898282+github-actions[bot]@users.noreply.github.com','noreply@github.com','GitHub',true],

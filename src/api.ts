@@ -1,7 +1,7 @@
 import { isItemAlreadyExistsError } from '@unbrained/pm-cli/sdk';
 import { capable } from './host.ts';
 import type { Host, Snapshot } from './host.ts';
-import { insist, refusal } from './errors.ts';
+import { GlossaryRefusal, insist, refusal } from './errors.ts';
 import { parse, digest, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema, resolveTermInputSchema, checkGlossaryInputSchema, glossaryPacketInputSchema } from './schema.ts';
 import type { CreateGlossaryInput, DefineSenseInput, AddAliasInput, ResolveTermInput, CheckGlossaryInput, GlossaryPacketInput, GlossaryState } from './schema.ts';
 import { readState, validateScopes, resolveInValidState } from './kernel.ts';
@@ -37,7 +37,7 @@ export async function readGlossary(host: Host, id: string): Promise<Snapshot> {
     insist(got.item.type === 'Glossary', 'invalid_record', 'Selected owner is not a Glossary');
     return { id: got.item.id, revision: got.item_hash, state: readState(got.item.glossary_state) };
   } catch (error) {
-    if (refusal(error).code === 'item_not_found') throw refusal({ code: 'not_found', remedy: 'Select an existing authorized glossary owner' });
+    if (refusal(error).code === 'item_not_found') throw new GlossaryRefusal('not_found', 'Glossary owner was not found', 'Select an existing authorized glossary owner');
     throw refusal(error);
   }
 }
@@ -112,7 +112,7 @@ async function mutate(host: Host, input: ReturnType<typeof defineSenseInputSchem
       if (failed.code !== 'revision_conflict' || !addition) throw failed;
     }
   }
-  throw refusal({ code: 'contention', remedy: 'Reread and retry the original request and operation key; no write was acknowledged' });
+  throw new GlossaryRefusal('contention', 'Concurrent changes exhausted the retry limit', 'Reread and retry the original request and operation key; no write was acknowledged');
 }
 /** Define or explicitly redefine a reviewed sense at a native revision. */
 export async function defineSense(host: Host, input: DefineSenseInput): Promise<GlossaryMutationReceipt> { return mutate(host, parse(defineSenseInputSchema, input), 'define'); }

@@ -1,3 +1,4 @@
+import { createPmCliExpectedError } from '@unbrained/pm-cli/sdk';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createGlossary, defineSense, addAlias, resolveTerm, readGlossary, checkGlossary, glossaryPacket, resolveTermInState, readState, digest, GlossaryRefusal, exitCode, envelope, fitEnvelope } from '../dist/index.js';
@@ -95,5 +96,5 @@ test('packet and single-term reads validate stored state once per request',async
  });
  test('typed refusal categories and native errors preserve useful recovery',()=>{
   assert.equal(exitCode('not_found'),3);assert.equal(exitCode('revision_conflict'),4);assert.equal(exitCode('backend_unsupported'),5);assert.equal(exitCode('invalid_input'),2);
-  const e=new GlossaryRefusal('contention','Retry');assert.equal(e.retryable,true);assert.equal(refusal(e),e);assert.equal(refusal({code:'item_revision_conflict'}).code,'revision_conflict');assert.equal(refusal({code:'permission_denied',remedy:'Ask host'}).remedy,'Ask host');assert.equal(refusal(new Error()).code,'outcome_unknown');assert.throws(()=>insist(false,'invalid_input','Missing'),hasCode('invalid_input'));insist(true,'invalid_input','Present');
+  const e=new GlossaryRefusal('contention','Retry');assert.equal(e.retryable,true);assert.equal(refusal(e),e);assert.equal(refusal(createPmCliExpectedError('Fixture',{context:{code:'item_revision_conflict'}})).code,'revision_conflict');assert.equal(refusal(Object.assign(createPmCliExpectedError('Fixture',{context:{code:'permission_denied'}}),{remedy:'Ask host'})).remedy,'Ask host');assert.equal(refusal(new Error()).code,'outcome_unknown');assert.throws(()=>insist(false,'invalid_input','Missing'),hasCode('invalid_input'));insist(true,'invalid_input','Present');
  });

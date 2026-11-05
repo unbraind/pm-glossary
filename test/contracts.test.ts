@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
 import { createExtensionTestHarness } from '@unbrained/pm-cli/sdk/testing';
 import { defineCommand } from '@unbrained/pm-cli/sdk/authoring';
-import { PmClient, fitOutputEnvelope, OutputEnvelopeFitError, readSettings } from '@unbrained/pm-cli/sdk';
+import { createPmCliExpectedError, PmClient, fitOutputEnvelope, OutputEnvelopeFitError, readSettings } from '@unbrained/pm-cli/sdk';
 import extension, { exitCode, createDirectoryHost, createGlossary, defineSense, readGlossary, resolveTerm, resolveTermInState, envelope, fitEnvelope, glossaryOutputSchema } from '../dist/index.js';
 import { inputJson, runCommand } from '../dist/src/commands.js';
 import { wire } from '../dist/src/output.js';
@@ -72,9 +72,9 @@ test('fault-decorated native host receipts never certify incomplete reads or unc
   host.boundary=async step=>{if(step==='before_create')return;if(step==='after_create')throw new Error('Synthetic crash after native create');};
   await assert.rejects(createGlossary(host,{...birth,id:'corpus-crash-create',op:'crash-birth'}),hasCode('outcome_unknown'));delete host.boundary;assert.equal((await createGlossary(host,{...birth,id:'corpus-crash-create',op:'crash-birth'})).replayed,true);
   await assert.rejects(host.client.create(),{message:/title/i});const before=await readGlossary(host,id);await host.client.update(id);assert.equal((await readGlossary(host,id)).revision,before.revision);
-  assert.equal(refusal({code:'permission_denied',context:{required:'Obtain authorization'}}).remedy,'Obtain authorization');
-  assert.equal(refusal({code:'permission_denied',context:null}).code,'permission_denied');
-  const nativeError=refusal({code:'ownership_conflict',exitCode:4,context:{required:'Reread the claim'}});assert.equal(exitCode(nativeError.code,nativeError.nativeExit),4);assert.equal(refusal({code:'bad_status',exitCode:0}).nativeExit,undefined);
+  assert.equal(refusal(createPmCliExpectedError('Fixture',{context:{code:'permission_denied',required:'Obtain authorization'}})).remedy,'Obtain authorization');
+  assert.equal(refusal(createPmCliExpectedError('Fixture',{context:{code:'permission_denied'}})).code,'permission_denied');
+  const nativeError=refusal(createPmCliExpectedError('Fixture',{exitCode:4,context:{code:'ownership_conflict',required:'Reread the claim'}}));assert.equal(exitCode(nativeError.code,nativeError.nativeExit),4);assert.equal(refusal({code:'bad_status',exitCode:0}).nativeExit,undefined);
 });
 
 test('native fitting failures and strict output unions cannot turn omitted witnesses into success',async t=>{

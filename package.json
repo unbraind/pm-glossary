@@ -28,7 +28,7 @@
     "test": "npm run build && npm run build:test && node --test --test-concurrency=2 test/*.test.ts",
     "test:install": "npm run build && node --test --test-concurrency=2 test/install.acceptance.ts",
     "prepack": "npm run build",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "typecheck": "npm run build && tsc -p tsconfig.test.json",
     "check": "npm run typecheck",
     "docstring": "node scripts/docstring-gate.ts",
     "lint": "node scripts/lint.ts",
@@ -45,7 +45,7 @@
     "verify:release-publish-attestation": "node scripts/verify-release-publish-attestation.ts",
     "identity:check": "node scripts/identity-gate.ts",
     "test:real-data": "npm run build && node test/real-data.acceptance.ts",
-    "test:revert": "node test/revert.acceptance.ts",
+    "test:revert": "npm run build && node test/revert.acceptance.ts",
     "tracker:health": "node scripts/tracker-health.ts"
   },
   "peerDependencies": {

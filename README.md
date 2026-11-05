@@ -7,18 +7,24 @@ This is an unpublished first release under local review. It implements create, d
 Requires Node **22.19+**, Bun **1.3+**, and **pm-cli 2026.11.4+**. The package has no standalone binary. Its default export is the pm extension and its named exports are the SDK.
 
 ```sh
-# Local review: use the packed artifact in a fresh consumer.
+# Local review: choose npm or Bun in a fresh consumer.
+# npm:
 npm install ./pm-glossary-2026.11.5.tgz @unbrained/pm-cli
 npx --no-install pm init terminology --defaults --agent-guidance skip
 npx --no-install pm package install ./node_modules/pm-glossary
 
+# Alternatively, Bun:
 bun add ./pm-glossary-2026.11.5.tgz @unbrained/pm-cli
+bunx --bun --no-install pm init terminology --defaults --agent-guidance skip
 bunx --bun --no-install pm package install ./node_modules/pm-glossary
 
 # After the owner approves initial publication:
 npm install pm-glossary @unbrained/pm-cli
+npx --no-install pm init terminology --defaults --agent-guidance skip
 npx --no-install pm package install npm:pm-glossary
+# Alternatively, Bun:
 bun add pm-glossary @unbrained/pm-cli
+bunx --bun --no-install pm init terminology --defaults --agent-guidance skip
 bunx --bun --no-install pm package install npm:pm-glossary
 npx --no-install pm glossary --help
 bunx --bun --no-install pm glossary --help
@@ -113,7 +119,7 @@ Mutation receipts contain the original committed semantic result and digest, ope
 
 Without git, every runtime glossary command and SDK kernel works in plain trackers. The exact native-control contract remains blocked on the host capability described in `pm-glossary-yrza`; the fallback flags are tested on the packed artifact. Package development, identity auditing and release automation use Git; those are tooling paths. There is no runtime subprocess, Git dependency, side database, file journal, model call, network request or private-source crawling in the domain implementation. Source data is never copied automatically. Host authorization, consent and retained history policy remain host-owned. Attribution is not authentication.
 
-Submit only reviewed shareable text. The SDK secret scanner rejects token-shaped values; additional checks reject absolute home paths, emails, malformed Unicode, control and bidi sequences, prototype keys, cyclic inputs and expression-shaped injection. Terms and definitions are rendered as inert data. Native immutable history retains earlier submissions; removing a current value cannot erase historical sensitive content. Use the host's history-redaction and retention policy when needed.
+Submit only reviewed shareable text. The SDK secret scanner rejects token-shaped values; additional checks reject absolute home paths, email-like strings, malformed Unicode, control and bidi sequences, prototype keys, cyclic inputs and expression-shaped injection. Email detection is a heuristic: addresses such as `a@b` without a public suffix may pass. Do not rely on it to prevent personal data from entering retained history. Terms and definitions are rendered as inert data. Native immutable history retains earlier submissions; removing a current value cannot erase historical sensitive content. Use the host's history-redaction and retention policy when needed.
 
 Real-data evidence ([full receipt](docs/real-data.md)): a non-git scratch copy of the public pm-vcs tracker contained **173 items**. The reviewed corpus covered **38 terms / 48 senses**, with **46/46** correct declared-scope probes and **10/10** ambiguity/unknown abstentions. Four bounded packets totaled **40,217 bytes / 10,056 estimated tokens** versus **132,732 bytes / 33,183 tokens** for the same selected public source passages: **69.70% fewer bytes**. Raw copied item text was **1,530,456 bytes / 382,614 tokens**. Wall time was **18.880 s**. One ambiguity was resolved by narrowing scope; **0 bindings** were made because bindings belong to the deferred slice. These numbers measure this explicit corpus, not universal semantic correctness or a model benchmark.
 
@@ -125,6 +131,6 @@ Exit codes:
 | 2 | Invalid input/record, unsupported version, scope, capacity or output budget |
 | 3 | Authorized owner not found |
 | 4 | Revision/operation conflict, contention, stale cursor or unresolved binding decision |
-| 5 | Unsupported backend, permission/completeness failure or unknown write outcome |
+| 5 | Unsupported backend, permission/completeness or I/O failure, or unknown write outcome |
 
 Run `npm run release:check` and `bun run release:check` before review. The gate inventories every emitted production file and independently counts statements, branches, functions and lines at exactly 100%, without ignores or rounded passes. Tests include 500 seeded operation sequences, each public interleaving boundary, crash/replay convergence and two real OS writers. Release automation derives CHANGELOG.md and notes from native tracker context, validates the exact packed bytes and uses OIDC provenance. Its main-only daily schedule and manual dispatch remain gated on `vars.PM_RELEASE_APPROVED == 'true'`; enabling it and creating the public repository are owner work.

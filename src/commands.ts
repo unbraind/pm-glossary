@@ -2,7 +2,7 @@ import { normalizeItemId, readSettings } from '@unbrained/pm-cli/sdk';
 import { defineCommand } from '@unbrained/pm-cli/sdk/authoring';
 import type { CommandHandlerContext, ExtensionApi, FlagDefinition } from '@unbrained/pm-cli/sdk/authoring';
 import { createGlossary, defineSense, addAlias, resolveTerm, checkGlossary, glossaryPacket } from './api.ts';
-import { refusal, exitCode, insist } from './errors.ts';
+import { GlossaryRefusal, refusal, exitCode, insist } from './errors.ts';
 import { envelope, fitEnvelope, refusalEnvelope, wire } from './output.ts';
 import type { GlossaryData } from './output.ts';
 import { persistedSchemaPort } from './host.ts';
@@ -23,11 +23,11 @@ export async function inputJson(value: unknown, source: AsyncIterable<Uint8Array
     const chunks: Buffer[] = []; let bytes = 0;
     for await (const chunk of source) { const buffer = Buffer.from(chunk as Uint8Array); bytes += buffer.length; insist(bytes <= 32768, 'invalid_input', 'JSON input exceeds 32 KiB'); chunks.push(buffer); }
     try { text = new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks)); }
-    catch { throw refusal({ code: 'invalid_input', remedy: 'Provide well-formed UTF-8 JSON on stdin' }); }
+    catch { throw new GlossaryRefusal('invalid_input', 'Malformed UTF-8 JSON', 'Provide well-formed UTF-8 JSON on stdin'); }
   }
   insist(Buffer.byteLength(text) <= 32768, 'invalid_input', 'JSON input exceeds 32 KiB');
   let parsed: unknown;
-  try { parsed = JSON.parse(text) as unknown; } catch { throw refusal({ code: 'invalid_input', remedy: 'Pass a strict JSON object inline or with --input -' }); }
+  try { parsed = JSON.parse(text) as unknown; } catch { throw new GlossaryRefusal('invalid_input', 'Malformed JSON', 'Pass a strict JSON object inline or with --input -'); }
   insist(typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed), 'invalid_input', 'JSON input must be an object'); return parsed as Record<string, unknown>;
 }
 /** Run CLI and SDK requests through identical schemas and the deterministic domain API. */

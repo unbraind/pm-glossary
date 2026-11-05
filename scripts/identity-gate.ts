@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { gitEnvironment } from './environment.ts';
 const env = { ...gitEnvironment(process.env), GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
 const approved = new Set(readFileSync('.github/approved-git-identities.txt','utf8').split('\n').filter(line=>line !== '' && !line.startsWith('#')));
+if (execFileSync('git', ['rev-parse', '--is-shallow-repository'], { encoding: 'utf8', env }).trim() === 'true') throw new Error('Shallow clone: the identity audit needs full history. Run git fetch --unshallow, then rerun the check.');
 let revisions = ['HEAD'];
 // GitHub's PR checkout is a synthetic merge whose author is outside this branch's policy.
 // Scope the audit to the real event head, including every side-branch commit after the fork.
