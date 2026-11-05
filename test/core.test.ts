@@ -18,6 +18,7 @@ import { fixture, request, hasCode } from './helpers.ts';
   assert.equal((await resolveTerm(host,{id,term:'gate',scope_key:'delivery'})).candidates[0].sense_id,'sense-2');
   for(const input of inputs) { const r=await resolveTerm(host,{id,term:input.sense.term,scope_key:input.sense.scope_key,language:input.sense.language});assert.equal(r.candidates[0].sense_id,input.sense.sense_id); }
   assert.equal((await resolveTerm(host,{id,term:'gate',scope_key:'research',language:'fr'})).resolution,'unknown');
+  const undefinedOptional=await request(host,id,'optional');undefinedOptional.sense.entity_ref=undefined;await defineSense(host,undefinedOptional);assert.equal((await defineSense(host,JSON.parse(JSON.stringify(undefinedOptional)))).replayed,true);assert.equal(digest({optional:undefined}),digest({}));
   const old=inputs[0];const before=(await readGlossary(host,id)).revision;assert.equal((await defineSense(host,old)).replayed,true);assert.equal((await readGlossary(host,id)).revision,before);
   await assert.rejects(defineSense(host,{...old,op:'stale-edit',sense:{...old.sense,definition:'Changed'}}),hasCode('revision_conflict'));
   const raw=await native.get(id,{outputInclude:'full',outputBudget:'unbounded'});assert.ok('item' in raw);assert.equal(raw.item.body,'Peer prose');assert.equal(raw.item.status,'open');assert.ok(raw.item.comments?.some(c=>c.text==='Peer annotation'));

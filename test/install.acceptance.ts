@@ -25,7 +25,7 @@ test('one packed artifact works with npm, bun, npx, bunx and native SDK without 
     for(const manager of ['npm','bun']){
       const cwd=join(root,manager);mkdirSync(cwd);writeFileSync(join(cwd,'package.json'),JSON.stringify({name:'glossary-consumer',version:'1.0.0',private:true,type:'module'}));
       execute(manager,manager==='npm'?['install','--ignore-scripts','--no-audit','--no-fund',archive,'@unbrained/pm-cli@2026.11.4']:['add','--ignore-scripts',archive,'@unbrained/pm-cli@2026.11.4'],cwd,env);
-      const safe={...env,PATH:bin,GIT_CEILING_DIRECTORIES:root,HOME:join(root,'isolated-home')};mkdirSync(safe.HOME,{recursive:true});
+      const safe={...env,PM_PATH:join(cwd,'.agents/pm'),PM_AUTHOR:'consumer',PATH:bin,GIT_CEILING_DIRECTORIES:root,HOME:join(root,'isolated-home')};mkdirSync(safe.HOME,{recursive:true});
       const runner=manager==='npm'?'npx':'bunx';const prefix=manager==='npm'?['--no-install','pm']:['--bun','--no-install','pm'];
       const run=(args:string[],input?:string,expected=0)=>execute(runner,[...prefix,...args],cwd,safe,input,expected);
       run(['init','packed','--defaults','--agent-guidance','skip','--no-merge-fence']);

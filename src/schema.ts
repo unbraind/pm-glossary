@@ -55,7 +55,7 @@ export type GlossaryPacketInput = z.input<typeof glossaryPacketInputSchema>;
 /** Canonical JSON sorts object keys and preserves exact array/text values. */
 export function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
-  if (value !== null && typeof value === 'object') return `{${Object.keys(value).sort().map(name => `${JSON.stringify(name)}:${canonical((value as Record<string, unknown>)[name])}`).join(',')}}`;
+  if (value !== null && typeof value === 'object') return `{${Object.keys(value).filter(name => (value as Record<string, unknown>)[name] !== undefined).sort().map(name => `${JSON.stringify(name)}:${canonical((value as Record<string, unknown>)[name])}`).join(',')}}`;
   return JSON.stringify(value);
 }
 /** Content fingerprint used for operation identity and immutable result verification. */
