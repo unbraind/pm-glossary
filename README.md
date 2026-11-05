@@ -16,9 +16,10 @@ bun add ./pm-glossary-2026.11.5.tgz @unbrained/pm-cli
 bunx --bun --no-install pm package install ./node_modules/pm-glossary
 
 # After the owner approves initial publication:
-pm package install npm:pm-glossary
 npm install pm-glossary @unbrained/pm-cli
+npx --no-install pm package install npm:pm-glossary
 bun add pm-glossary @unbrained/pm-cli
+bunx --bun --no-install pm package install npm:pm-glossary
 npx --no-install pm glossary --help
 bunx --bun --no-install pm glossary --help
 ```

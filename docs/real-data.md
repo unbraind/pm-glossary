@@ -4,6 +4,8 @@ The corpus and definitions are reviewable in `test/fixtures/`. The measurement a
 
 `npm run test:real-data` copies only committed native tracker text from the public pm-vcs checkout into a newly created plain directory, certifies its complete SDK read, and writes only that scratch copy. The original tracker is read-only. Functional CI uses the pinned public source-passage snapshots instead of requiring sibling checkouts.
 
+Run this command from a source checkout of `unbraind/pm-glossary`, with the public `pm-vcs` repository at `../pm-vcs` and the revision pinned in `test/fixtures/public-corpus.json`. The npm package does not include the test fixtures, `test/corpus.ts`, or the `test:real-data` runner.
+
 | Public input | Git revision | Selected UTF-8 bytes |
 | --- | --- | --- |
 | unbraind/pm-vcs README | `131dc3a6ff15ab3d127611f041b5385e5d54257e` | 45848 |
