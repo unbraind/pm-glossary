@@ -1,8 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, appendFileSync } from 'node:fs';
+import { resolve, join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { decideDailyRelease } from 'pm-ops/daily-release';
 import { verify } from 'pm-ops/attestation';
+import { fixture } from './helpers.ts';
+import { npmEnvironment } from '../scripts/environment.ts';
+
+test('CI health accepts a plain tracker but rejects corrupt native history',async t=>{
+  const {root,pmRoot,id}=await fixture(t);const script=resolve('scripts/tracker-health.ts');
+  const env={...npmEnvironment(process.env),PM_PATH:pmRoot,PM_AUTHOR:'fixture',HOME:root,GIT_CEILING_DIRECTORIES:root};
+  const accepted=spawnSync(process.execPath,[script],{cwd:root,env,encoding:'utf8',timeout:30000});assert.equal(accepted.status,0,accepted.stderr);assert.equal(JSON.parse(accepted.stdout).ok,true);
+  appendFileSync(join(pmRoot,'history',`${id}.jsonl`),'not-json\n');
+  const refused=spawnSync(process.execPath,[script],{cwd:root,env,encoding:'utf8',timeout:30000});assert.equal(refused.status,1,refused.stderr);const result=JSON.parse(refused.stdout);assert.equal(result.ok,false);assert.match(result.failed_because.join(','),/history/,JSON.stringify(result.failed_because));
+  assert.match(readFileSync('.github/workflows/ci.yml','utf8'),/run: npm run tracker:health/);
+});
 
 test('daily release remains main-only and approval-gated with exact archived provenance publishing',()=>{
   const workflow=readFileSync('.github/workflows/release.yml','utf8');assert.match(workflow,/schedule:/);assert.match(workflow,/workflow_dispatch:/);

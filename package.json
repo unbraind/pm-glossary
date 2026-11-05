@@ -38,14 +38,15 @@
     "changelog": "pm-changelog --pm-root .agents/pm --mode prepend --output CHANGELOG.md --release-version-from-package --date-from-version --since-previous-tag --until-release-tag --item-url-base https://github.com/unbraind/pm-glossary/blob/main/.agents/pm --respect-item-release --status closed,in_progress --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --pm-arg=--output-include --pm-arg=full",
     "changelog:full": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --release-version-from-package --date-from-version --item-url-base https://github.com/unbraind/pm-glossary/blob/main/.agents/pm --respect-item-release --status closed,in_progress --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --pm-arg=--output-include --pm-arg=full",
     "changelog:check": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --release-version-from-package --date-from-version --item-url-base https://github.com/unbraind/pm-glossary/blob/main/.agents/pm --respect-item-release --status closed,in_progress --check --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --pm-arg=--output-include --pm-arg=full",
-    "release:check": "npm run identity:check && npm run typecheck && npm run lint && npm run duplication && npm run build && npm run docstring && npm run coverage && npm run audit:prod && npm run pack:dry-run && npm run changelog:check && npm run verify:release-publish-attestation && npm run test:install && npm run test:revert",
+    "release:check": "npm run identity:check && npm run tracker:health && npm run typecheck && npm run lint && npm run duplication && npm run build && npm run docstring && npm run coverage && npm run audit:prod && npm run pack:dry-run && npm run changelog:check && npm run verify:release-publish-attestation && npm run test:install && npm run test:revert",
     "prepublishOnly": "npm run release:check",
     "release:notes": "pm-changelog --pm-root .agents/pm --stdout --since-previous-tag --until-release-tag --release-version-from-package --date-from-version --item-url-base https://github.com/unbraind/pm-glossary/blob/main/.agents/pm --respect-item-release --status closed,in_progress --pm-bin ./node_modules/.bin/pm --github-step-summary --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --pm-arg=--output-include --pm-arg=full",
     "coverage": "npm run build && npm run build:test && node scripts/coverage-gate.ts",
     "verify:release-publish-attestation": "node scripts/verify-release-publish-attestation.ts",
     "identity:check": "node scripts/identity-gate.ts",
     "test:real-data": "npm run build && node test/real-data.acceptance.ts",
-    "test:revert": "node test/revert.acceptance.ts"
+    "test:revert": "node test/revert.acceptance.ts",
+    "tracker:health": "node scripts/tracker-health.ts"
   },
   "peerDependencies": {
     "@unbrained/pm-cli": ">=2026.11.4"
