@@ -4,10 +4,20 @@ description: "Owner-approved public repository, privacy and reviewer evidence, t
 type: Feature
 status: open
 priority: 2
-tags: []
+tags[4]: sdk-gap,"upstream:pm-cli#1399","upstream:pm-cli#1587","upstream:pm-cli#1588"
 created_at: "2026-11-05T10:29:56.441Z"
-updated_at: "2026-11-05T10:29:56.441Z"
+updated_at: "2026-11-05T11:20:38.795Z"
 author: codex-agent
 acceptance_criteria: Public review and repository creation; OIDC configuration; PM_RELEASE_APPROVED explicitly enabled; each provider native CAS conformance receipt
 parent: pm-glossary-gjws
+comments[1]{created_at,author,text}:
+  "2026-11-05T10:52:24.246Z",codex-agent,"Verified upstream issues 1399, 1587 and 1588 remain open. Installed public SDK exposes PmClient.readItemRevision(id), withExpectedItemRevisions(expectations, operation) and a root-oriented directory client. The portable glossary kernel accepts an authorized injected port, but arbitrary-provider production certification requires separate host-owned capability and conformance evidence. Publication remains disabled until owner approval."
+files[4]{path,scope}:
+  .github/workflows/pm-github-sync.yml,project
+  .github/workflows/release.yml,project
+  test/release-verification.test.ts,project
+  test/workflow.test.ts,project
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
 body: ""

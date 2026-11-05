@@ -2,12 +2,32 @@ id: pm-glossary-tpwk
 title: Implement first-slice glossary kernel and native commands
 description: "Strict versioned state, exact scope tree, owner CAS and deterministic replay with bounded output."
 type: Feature
-status: open
+status: in_progress
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:52.407Z"
-updated_at: "2026-11-05T10:29:52.407Z"
+updated_at: "2026-11-05T11:13:51.587Z"
+assignee: codex-agent
+claim_principal: codex-agent
 author: codex-agent
 acceptance_criteria: Create define alias resolve check packet; full schemas and SDK; stale and concurrent requests preserve peer history
 parent: pm-glossary-gjws
+comments[2]{created_at,author,text}:
+  "2026-11-05T10:52:17.663Z",codex-agent,First-slice kernel and commands now round-trip through native directory SDK and the extension harness. Native project-schema fields require the declared option route rather than extension --field; the directory port adapts this without unconditional writes. Observability callbacks run outside the native revision scope because nested peer writes may advance that scope. Interleaving tests cover each public operation boundary and crashes before and after commit.
+  "2026-11-05T11:13:51.587Z",codex-agent,"Behavioral revert proof passed in disposable emitted-code copies: reducing the resolver to the first candidate failed ambiguity assertions; replacing native expected-revision dispatch with an unconditional update failed the before-update peer-write assertion; removing the SDK secret scanner admission failed the refusal corpus. The unchanged implementation passed after each disposable proof. Native ID normalization now makes canonical and unprefixed retries share request identity."
+files[9]{path,scope}:
+  index.ts,project
+  src/api.ts,project
+  src/commands.ts,project
+  src/errors.ts,project
+  src/host.ts,project
+  src/kernel.ts,project
+  src/output.ts,project
+  src/packet.ts,project
+  src/schema.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test --test-concurrency=2 test/core.test.ts test/commands.test.ts,project,codex-agent,"2026-11-05T10:56:14.981Z",local_mutation,feat/glossary
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
 body: ""

@@ -1,0 +1,50 @@
+{
+  "pm-vcs": {
+    "release": "An approved package publication from a verified main revision.",
+    "gate": "A fail-closed check before accepting a VCS operation.",
+    "lease": "A writer's fenced authority to publish shared repository state.",
+    "receipt": "A retained record of a verified VCS operation and its identity.",
+    "record": "A structured versioned unit with stable identity.",
+    "revision": "An immutable version of a structured record.",
+    "branch": "A named line of repository changes.",
+    "merge": "A three-way reconciliation of independent versions.",
+    "object": "A content-addressed immutable stored value.",
+    "index": "The staged view prepared for a repository change.",
+    "bundle": "A bounded transport of selected repository objects and permissions.",
+    "commit": "A recorded repository change with attributable content.",
+    "ref": "A name that points to a repository object.",
+    "history": "The attributable sequence of repository operations."
+  },
+  "pm-rl": {
+    "release": "An approved publication of the learning-management package.",
+    "gate": "A declared evidence condition before promoting a candidate.",
+    "receipt": "Retained evidence of a learning operation and outcome.",
+    "benchmark": "A content-addressed evaluation suite with fixed identity.",
+    "environment": "A content-addressed learning environment declaration.",
+    "run": "An attributable execution of a learning recipe.",
+    "evaluation": "A measured candidate outcome against a named suite.",
+    "generation": "A persisted candidate in a recursive improvement lineage.",
+    "checkpoint": "A pinned candidate or model state used for evaluation.",
+    "policy": "The candidate decision behavior being evaluated.",
+    "promotion": "A guarded adoption of a candidate after declared evidence.",
+    "lineage": "The recorded ancestry between learning generations.",
+    "confidence": "A declared statistical uncertainty requirement.",
+    "sample": "An observation contributing to a measured evaluation."
+  },
+  "pm-evidence": {
+    "receipt": "An explicit record of source verification or omission.",
+    "source": "An authorized external or native context input.",
+    "fragment": "An exactly selected region of source content.",
+    "citation": "A retained reference to an exact source fragment.",
+    "freshness": "Whether a selected fragment still matches its retained content.",
+    "replay": "Reading an explicitly retained historical source fragment.",
+    "binding": "A relationship between a criterion and its exact revision evidence.",
+    "scope": "The explicitly authorized boundary of a source selection.",
+    "contract": "The declared source-reader or selector behavior.",
+    "selector": "A bounded rule identifying an exact source fragment.",
+    "consent": "An explicit authorization for retention or transfer.",
+    "descriptor": "The structured declaration of a source and selection.",
+    "provenance": "The recorded origin and revision of selected evidence.",
+    "artifact": "An explicitly retained representation of authorized evidence."
+  }
+}

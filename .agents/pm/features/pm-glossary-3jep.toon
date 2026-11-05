@@ -6,8 +6,11 @@ status: open
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:55.150Z"
-updated_at: "2026-11-05T10:29:55.150Z"
+updated_at: "2026-11-05T11:20:39.970Z"
 author: codex-agent
 acceptance_criteria: Pinned source spans; explicit stale binding refusals; missing inaccessible changed historical source receipts; concurrent binding conformance
 parent: pm-glossary-gjws
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
 body: ""

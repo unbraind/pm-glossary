@@ -2,12 +2,35 @@ id: pm-glossary-c1dt
 title: Certify glossary runtime and packed consumers
 description: "Real temp SDK trackers, seeded model, interleavings, process writers, packed no-git journeys and full source gates."
 type: Feature
-status: open
+status: in_progress
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:53.810Z"
-updated_at: "2026-11-05T10:29:53.810Z"
+updated_at: "2026-11-05T11:13:50.350Z"
+assignee: codex-agent
+claim_principal: codex-agent
 author: codex-agent
 acceptance_criteria: 500 seeded sequences; process concurrency; 100 percent four dimensions; npm Bun npx bunx acceptance; real-data receipt
 parent: pm-glossary-gjws
+comments[1]{created_at,author,text}:
+  "2026-11-05T10:52:21.298Z",codex-agent,"Seeded model passed 500 random sequences against SDK read-back. Packed npm and Bun journeys passed with Git absent, including npx bunx native SDK TOON JSON and refused writes. Public scratch tracker-copy measurement read 173 items, defined 38 distinct terms and 44 senses, resolved 42 of 42 scoped probes and abstained on all 10 ambiguous or unknown probes. Three bounded packets retained witnesses: 35580 bytes and 8896 estimated tokens versus 130362 bytes and 32591 tokens of selected source passages, saving 72.71 percent; wall time 17104 ms. Bindings are explicitly deferred by the first-slice plan."
+files[13]{path,scope}:
+  scripts/coverage-gate.ts,project
+  test/boundaries.test.ts,project
+  test/commands.test.ts,project
+  test/concurrency.test.ts,project
+  test/contracts.test.ts,project
+  test/core.test.ts,project
+  test/install.acceptance.ts,project
+  test/model.test.ts,project
+  test/real-data.test.ts,project
+  test/release-verification.test.ts,project
+  test/revert.acceptance.ts,project
+  test/tooling.test.ts,project
+  test/workflow.test.ts,project
+tests[2]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  "npm run release:check",project,codex-agent,"2026-11-05T10:56:16.589Z",local_mutation,feat/glossary
+  "bun run release:check",project,codex-agent,"2026-11-05T10:56:16.589Z",local_mutation,feat/glossary
+docs[1]{path,scope}:
+  docs/real-data.md,project
 body: ""
