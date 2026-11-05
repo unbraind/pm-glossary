@@ -36,11 +36,11 @@ export function createDirectoryHost(pmRoot: string, author: string): Host {
     /** Register missing native schema only for explicit creation; never replace peer definitions. */
     prepareCreate: async () => {
       const fields = await client.schemaListFields(); const existing = fields.fields.find(field => field.key === 'glossary_state');
-      if (existing) insist(existing.type === 'object', 'invalid_record', 'glossary_state belongs to an incompatible schema');
-      else await client.schemaAddField('glossary_state', { type: 'object', description: 'Versioned pm-glossary owner state' });
       const registry = await client.schemaList(); const type = [...registry.builtin, ...registry.custom, ...registry.extension].find(entry => entry.name === 'Glossary');
+      if (existing) insist(existing.type === 'object', 'invalid_record', 'glossary_state belongs to an incompatible schema');
       if (type) insist(type.folder === 'glossary', 'invalid_record', 'Glossary belongs to an incompatible type registration');
-      else await client.schemaAddType('Glossary', { folder: 'glossary', description: 'Scoped domain meanings' });
+      if (!existing) await client.schemaAddField('glossary_state', { type: 'object', description: 'Versioned pm-glossary owner state' });
+      if (!type) await client.schemaAddType('Glossary', { folder: 'glossary', description: 'Scoped domain meanings' });
     },
   };
 }

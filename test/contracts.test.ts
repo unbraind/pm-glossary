@@ -1,18 +1,33 @@
-import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
 import { createExtensionTestHarness } from '@unbrained/pm-cli/sdk/testing';
 import { defineCommand } from '@unbrained/pm-cli/sdk/authoring';
-import { PmClient, fitOutputEnvelope, OutputEnvelopeFitError } from '@unbrained/pm-cli/sdk';
-import extension, { exitCode, createGlossary, defineSense, readGlossary, resolveTerm, resolveTermInState, envelope, fitEnvelope, glossaryOutputSchema } from '../dist/index.js';
+import { PmClient, fitOutputEnvelope, OutputEnvelopeFitError, readSettings } from '@unbrained/pm-cli/sdk';
+import extension, { exitCode, createDirectoryHost, createGlossary, defineSense, readGlossary, resolveTerm, resolveTermInState, envelope, fitEnvelope, glossaryOutputSchema } from '../dist/index.js';
 import { inputJson, runCommand } from '../dist/src/commands.js';
 import { wire } from '../dist/src/output.js';
 import { refusal } from '../dist/src/errors.js';
 import type { Host } from '../dist/index.js';
 import type { ExtensionApi, ExtensionCommandSdk, CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
 import { fixture, request, hasCode } from './helpers.ts';
+
+test('incompatible native schema refuses before registering either glossary contribution',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'glossary-schema-'));t.after(()=>rm(root,{recursive:true,force:true}));
+  for(const conflict of ['type','field','both']){
+    const pmRoot=join(root,conflict,'.agents/pm');const native=new PmClient({pmRoot,author:'fixture',noExtensions:true});
+    await native.init('schema',{defaults:true,agentGuidance:'skip',mergeFence:false});
+    if(conflict!=='field')await native.schemaAddType('Glossary',{folder:'foreign',description:'Peer-owned type'});
+    if(conflict!=='type')await native.schemaAddField('glossary_state',{type:'string',description:'Peer-owned field'});
+    const before=await readSettings(pmRoot);
+    await assert.rejects(createGlossary(createDirectoryHost(pmRoot,'fixture'),{id:'schema-lexicon',op:'birth',title:'Reviewed lexicon',domain_key:'context',scopes:[{scope_key:'root',parent:null}]}),hasCode('invalid_record'));
+    assert.deepEqual(await readSettings(pmRoot),before);
+    assert.equal((await native.listAllComplete({includeBody:true})).items.length,0);
+  }
+});
 
 test('bounded stdin accepts valid UTF-8 and refuses malformed oversized and empty streams',async()=>{
   assert.deepEqual(await inputJson('-',Readable.from([Buffer.from('{"term":'),Buffer.from('"é"}')])),{term:'é'});
