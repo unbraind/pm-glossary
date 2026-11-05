@@ -88,7 +88,10 @@ import {
   resolveTerm, checkGlossary, glossaryPacket, readGlossary,
   resolveTermInState, glossaryStateSchema, envelope, fitEnvelope,
 } from 'pm-glossary';
+import { resolve } from 'node:path';
 
+// The tracker's pm directory: the same path `pm --pm-path` takes (usually `.agents/pm`).
+const pmRoot = resolve('.agents/pm');
 const host = createDirectoryHost(pmRoot, 'my-agent');
 const current = await readGlossary(host, 'terminology-lexicon');
 const result = await resolveTerm(host, {
