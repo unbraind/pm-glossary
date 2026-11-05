@@ -6,16 +6,15 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:52.407Z"
-updated_at: "2026-11-05T12:52:47.043Z"
-assignee: codex-agent
-claim_principal: codex-agent
+updated_at: "2026-11-05T13:39:40.108Z"
 author: codex-agent
 acceptance_criteria: Create define alias resolve check packet; full schemas and SDK; stale and concurrent requests preserve peer history
 parent: pm-glossary-gjws
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-11-05T10:52:17.663Z",codex-agent,First-slice kernel and commands now round-trip through native directory SDK and the extension harness. Native project-schema fields require the declared option route rather than extension --field; the directory port adapts this without unconditional writes. Observability callbacks run outside the native revision scope because nested peer writes may advance that scope. Interleaving tests cover each public operation boundary and crashes before and after commit.
   "2026-11-05T11:13:51.587Z",codex-agent,"Behavioral revert proof passed in disposable emitted-code copies: reducing the resolver to the first candidate failed ambiguity assertions; replacing native expected-revision dispatch with an unconditional update failed the before-update peer-write assertion; removing the SDK secret scanner admission failed the refusal corpus. The unchanged implementation passed after each disposable proof. Native ID normalization now makes canonical and unprefixed retries share request identity."
   "2026-11-05T12:52:47.043Z",codex-agent,"Final inspection found create-time schema validation occurred in the wrong order: a missing glossary field could be registered before an incompatible peer-owned Glossary type was rejected. Both existing contributions are now read and validated before either registration. A real SDK regression covers conflicting type, field and both; the old host function failed with changed native settings, while the fixed implementation passes all three cases with no items or settings changed. The prior Bun gate was deliberately stopped; full npm and Bun gates will be rerun for this code change."
+  "2026-11-05T13:39:35.687Z",codex-agent,"Local first slice is implemented and verified: six commands and exported strict SDK schemas/API, exact scoped resolution with abstention, reviewed aliases and diagnostics, bounded complete-witness packets, native CAS/create-if-absent/replay handling, inert rendering and privacy admission. Final schema-order regression proves refusals do not register a partial schema. Exact bindings and freshness remain the later Feature 3jep. Native global output controls remain release-blocked by yrza; additional provider certification remains h5rj. No arbitrary-provider or independent-review approval is claimed."
 files[9]{path,scope}:
   index.ts,project
   src/api.ts,project
