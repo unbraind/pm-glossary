@@ -12,7 +12,7 @@
       "lease": "A writer's fenced authority to publish shared repository state.",
       "receipt": "A retained record of a verified VCS operation and its identity.",
       "record": "A structured versioned unit with stable identity.",
-      "revision": "An immutable version of a structured record.",
+      "revision": "A repository snapshot selected by a revision argument, including branch and merge snapshots.",
       "branch": "A named line of repository changes.",
       "merge": "A three-way reconciliation of independent versions.",
       "object": "A content-addressed immutable stored value.",

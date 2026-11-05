@@ -82,3 +82,37 @@ test('README glossary examples use the installed local CLI',()=>{
   for(const example of examples)assert.match(example,/^(?:npx --no-install|bunx --bun --no-install) pm glossary /);
   assert.match(readme,/`npx --no-install pm package install` is the explicit activation step/);
 });
+
+
+test('architecture describes email detection as a heuristic',()=>{
+  const architecture=readFileSync('ARCHITECTURE.md','utf8');
+  assert.match(architecture,/common email shapes \(email detection is a heuristic\)/);
+  assert.match(architecture,/Stored reads validate schema without retroactively imposing new submission policy/);
+  guardSubmitted('a@b');
+});
+
+test('real-data docs disclose the report outside the scratch copy',()=>{
+  const documentation=readFileSync('docs/real-data.md','utf8').split('Run this command')[0];
+  assert.match(documentation,/writes `real-data\.local\.json` in the current directory, outside the scratch copy, overwriting any existing report/);
+  assert.match(documentation,/glossary writes only to that scratch copy/);
+  assert.match(documentation,/original tracker is read-only/);
+});
+
+test('budget docs distinguish retryable size from the hard-ceiling refusal',()=>{
+  const documentation=readFileSync('README.md','utf8').split('The default budget is')[1].split('The optional extension-owned')[0];
+  assert.match(documentation,/refuses with `output_budget`/);
+  assert.match(documentation,/within the 32 KiB hard ceiling.*numeric `minimum_usable_budget`/);
+  assert.match(documentation,/exceed that ceiling, `minimum_usable_budget` is `null`/);
+  assert.match(documentation,/narrow the scope or partition the reviewed meanings/);
+});
+
+test('reviewed revision meaning describes repository snapshots',()=>{
+  const corpus=JSON.parse(readFileSync('test/fixtures/public-corpus.json','utf8')) as {repository:string;terms:Record<string,string>}[];
+  const gold=JSON.parse(readFileSync('test/fixtures/gold-meanings.json','utf8')) as Record<string,Record<string,string>>;
+  const meaning='A repository snapshot selected by a revision argument, including branch and merge snapshots.';
+  assert.equal(corpus.find(source=>source.repository==='unbraind/pm-vcs')!.terms.revision,meaning);
+  assert.equal(gold['pm-vcs'].revision,meaning);
+  const source=readFileSync('test/fixtures/pm-vcs.md','utf8');
+  assert.match(source,/diff \[from\] \[to\].*two revisions' trees/);
+  assert.match(source,/branch \[name\].*--at/);assert.match(source,/merge <rev>.*Three-way merge/);
+});

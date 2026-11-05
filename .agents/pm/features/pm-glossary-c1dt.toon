@@ -6,11 +6,11 @@ status: in_progress
 priority: 2
 tags[1]: "gh:unbraind/pm-glossary#1"
 created_at: "2026-11-05T10:29:53.810Z"
-updated_at: "2026-11-05T19:37:31.779Z"
+updated_at: "2026-11-05T20:52:48.157Z"
 author: codex-agent
 acceptance_criteria: 500 seeded sequences; process concurrency; 100 percent four dimensions; npm Bun npx bunx acceptance; real-data receipt
 parent: pm-glossary-gjws
-comments[29]{created_at,author,text}:
+comments[35]{created_at,author,text}:
   "2026-11-05T10:52:21.298Z",codex-agent,"Seeded model passed 500 random sequences against SDK read-back. Packed npm and Bun journeys passed with Git absent, including npx bunx native SDK TOON JSON and refused writes. Public scratch tracker-copy measurement read 173 items, defined 38 distinct terms and 44 senses, resolved 42 of 42 scoped probes and abstained on all 10 ambiguous or unknown probes. Three bounded packets retained witnesses: 35580 bytes and 8896 estimated tokens versus 130362 bytes and 32591 tokens of selected source passages, saving 72.71 percent; wall time 17104 ms. Bindings are explicitly deferred by the first-slice plan."
   "2026-11-05T11:26:54.364Z",codex-agent,"Final review tightened JSON submissions to reject inherited, accessor and hidden properties before reading them, and checked same-line independent statement counters with a positive tooling fixture. All 40 tests passed in the previous full run; one valid-contrast branch was missing and now has a regression assertion. The stricter gate correctly refused that 99.55 percent branch result rather than rounding it to approval. A redundant Windows privacy pattern triggered the identity scanner; the shared separator pattern covers that case and its refusal corpus now includes a Windows-shaped example."
   "2026-11-05T12:34:04.377Z",codex-agent,"Budget-hint boundary experiment found 10 of 20 SDK minimum estimates did not fit when retried exactly, because receipt digits changed. The package now verifies retry budgets in at most four fitter passes and reports no usable budget above the hard ceiling. Twenty exact-retry probes and failing-fitter cases pass. The real-data proof now directly pins four copied tracker descriptions as a fourth scope; reviewed meanings distinguish release verification from package publication. Current receipt: 38 terms, 48 senses, 46/46 scoped probes, 10/10 abstentions, 40217 packet bytes and 10056 estimated tokens versus 132732 source-passage bytes and 33183 tokens, saving 69.70 percent in 18880 ms. Every expected and actual probe and the refused budget are recorded in docs/real-data.md."
@@ -40,7 +40,13 @@ comments[29]{created_at,author,text}:
   "2026-11-05T19:35:17.634Z",codex-agent,"Round 4 final targeted tests: pinned pm test c1dt --run --only-last --progress passed the build plus build/errors/identity/review/tooling suite, 13/13 tests; pinned pm test tpwk --run --only-last --progress passed the build plus core/commands suite, 7/7. Zero failures, skipped, cancelled or todo tests in both restored runs. Node 22.23.4 under isolated HOME with disabled global/system Git config passed node --test --test-reporter=tap --test-concurrency=2 test/identity.test.ts, 2/2; Node 26 also passed 2/2. npm run typecheck and npm run lint passed. Full PR same-class inspection covered every event-reading gate, subprocess fixture, direct linked test, executable README example and runtime source: no remaining instances. Main and starting-head history records remain byte prefixes in all seven changed PR histories. Current dependency pin remains 2026.11.4 (public registry latest checked); coverage and other gate thresholds unchanged. Ignored dist output rebuilt; no committed dist files exist. Full npm/Bun release gates intentionally deferred to CI per round-specific targeted-only instruction. Existing development advisory and publication/native-output-control blockers remain tracked separately. Final tracker health, identity, changelog and pushed-head CI checks follow; remote CI remains required before orchestrator approval."
   "2026-11-05T19:35:51.217Z",codex-agent,"Final local gates passed after releasing both claims: npm run changelog:full regenerated the existing changelog without content drift; npm run changelog:check passed; npm run tracker:health returned ok true with zero failed checks (optional clone-local merge-driver configuration warning only); npm run identity:check reported 14 commits and 88 tracked files with zero violations. All seven PR history files retain main and starting-head byte prefixes. Both items remain in_progress and unclaimed for the orchestrator. Remote full CI is pending until push; inspect https://github.com/unbraind/pm-glossary/actions?query=branch%3Afeat%2Fglossary . No thread replies, resolutions, mentions, merge or release were performed."
   "2026-11-05T19:37:31.778Z",codex-agent,"Validation receipt correction: the default shell is Node 24.19.0, so the restored 13-test and 7-test pm-linked suites and the initial direct identity run used Node 24, not Node 26 as the earlier note stated. Explicit Node 22.23.4 and now explicit Node 26.13.0 each passed node --test --test-reporter=tap --test-concurrency=2 test/identity.test.ts, 2/2 with zero failures/skips, isolated HOME and global/system Git config disabled. Implementation commit 9414f9b1593abfe62e529215b0a02967f4fec574 is pushed and PR head verified. Its CI https://github.com/unbraind/pm-glossary/actions/runs/42095539907 passed tracker health, identity, typecheck, lint and docstrings on both 22 and 26; coverage/full gate remains in progress. CodeQL https://github.com/unbraind/pm-glossary/actions/runs/42095539607 also remains in progress. These URLs certify only that implementation head; this metadata receipt will cause a new exact-head run. Neutral/skipped external reviewer checks supply no approval. PR body was updated and read back exactly. Claims remain released; items remain in_progress. No code changed after the passing targeted tests."
-files[30]:
+  "2026-11-05T20:36:27.384Z",codex-agent,"Round 5: pulled 5170caa; branch contains main. Fetched all six unresolved threads and every comment (no pagination remaining), plus the latest review body; no Outside diff range findings. All six are valid: privacy wording, report side effect, hard-ceiling docs, TOON historical escaping, ambiguity witness identities, and revision semantics. Will fix with focused regressions and disposable behavioral reverts, review the full PR for these classes, run unchanged gates and push without thread replies or resolution."
+  "2026-11-05T20:39:43.300Z",codex-agent,"Round 5 implementation: TOON replacer quotes escaped historical values before encoding, JSON keeps post-encoding escaping; tests exercise real stored historical C0/C1/bidi, quotes, backslashes, literal escapes and host renderer round-trips without read writes. Corpus now asserts both ambiguity IDs plus exact candidate cardinalities for unique/narrowed/unknown results. A disposable duplicated-witness injection proves the corpus rejects false abstentions. Corrected revision gold/input definitions and all three documentation findings. Initial mixed-control renderer test already required quotes and therefore did not catch the old serializer; added otherwise-unquoted C1 and bidi definitions, and the behavioral revert now fails. Typecheck caught empty-array assertion narrowing to never; replaced it with an equivalent cardinality assertion. These were development feedback, not host timeouts. Full npm/Bun gates should fit within the allowed local budget."
+  "2026-11-05T20:40:54.184Z",codex-agent,"Thread mapping: PRRT_kwDOVkA9os60QgnK -> architecture email heuristic; PRRT_kwDOVkA9os60QgnS -> relative real-data.local.json report location and overwrite side effect; PRRT_kwDOVkA9os60QgnX -> output_budget hard-ceiling null minimum and narrowing remedy; PRRT_kwDOVkA9os60Qgnd -> TOON quoted historical escaping and host round-trip; PRRT_kwDOVkA9os60Qgnp -> exact gate-check/gate-door witness assertions; PRRT_kwDOVkA9os60Qgnw -> repository snapshot revision meaning in input and gold fixtures. Full-PR same-class review covered all runtime modules, both renderers and shared fitter, corpus/probe assertions, privacy/docs claims, fixture definitions, and review/development tooling. Strengthened additional unique/narrowed/unknown probe cardinality checks; no other runtime instances found. Pinned pm test --run --only-last --progress passed build plus commands/review/real-data tests: 16 passed, zero failed/skipped/cancelled/todo. Tracking is disabled by existing project policy, so this comment preserves the result explicitly."
+  "2026-11-05T20:42:13.658Z",codex-agent,"Revert proof (npm run test:revert): all 43 independent disposable mutations failed with assertions, including eight round-5 proofs: architecture heuristic removal; report side-effect omission; null-minimum docs removal; only wire restored to post-encoding TOON escaping; only the corpus witness-ID assertion removed; each revision fixture independently restored; and duplicated resolver witnesses. Restored fixed implementation passed 27/27 selected tests with zero failures/skips/cancelled/todo. No reviewed worktree mutation or history rewriting. Full gate initially caught two redundant quote escapes in the new fixture; removed them and reran. No host-load timeout occurred. Negative corpus mutation matching also accepts instrumented/minified emitted syntax so coverage exercises the same proof."
+  "2026-11-05T20:47:56.269Z",codex-agent,"npm run release:check passed in full under Node 24.19.0 with isolated HOME and global/system Git config disabled. Coverage: 62/62 tests, zero failures/skips/cancelled/todo; 9 production modules; statements 435/435, branches 277/277, functions 111/111, lines 369/369 (100% each). Packed acceptance: 1/1 test covering two npm/Bun consumer journeys, npm/npx/bun/bunx, Git absent, 43 allowlisted files. Revert stage: 43 expected assertion failures then 27/27 fixed tests. Typecheck, lint, duplication (0%), docstrings (63 declarations), production audit (zero vulnerabilities), pack, changelog, publish-attestation, identity and tracker-health all passed at unchanged thresholds. Existing optional clone-local merge-driver warning only. Bun release gate now running serially; no local timeout."
+  "2026-11-05T20:52:47.098Z",codex-agent,"Final round-5 local validation: bun run release:check also passed in full with Bun 1.3.5 and Node 24.19.0 under isolated HOME and disabled global/system Git config. Both npm and Bun gates passed 62/62 coverage tests (435 statements, 277 branches, 111 functions, 369 lines, all 100%), 1/1 packed test with two fresh consumer journeys, and 43 independent failing mutations followed by 27/27 fixed tests. Focused linked suite passed 16/16. Typecheck, lint, 0% duplication, 63 documented declarations, zero-vulnerability production audit, 43-file pack allowlist, changelog, publication attestation, identity and tracker-health all passed at unchanged thresholds. No local timeout. All six threads fixed; no evidence-backed refusals needed. No new pm CLI/SDK bug found. Existing development-only advisory item pm-glossary-7zl7 and publication/provider/native-output-control/bindings boundaries remain unchanged. Ignored dist rebuilt; no committed dist exists. Releasing only my claim; item stays in_progress for orchestrator verification. Final tracker/changelog/identity checks follow, then one code-plus-tracker commit and push. Fresh remote CI will be checked after that push: https://github.com/unbraind/pm-glossary/actions?query=branch%3Afeat%2Fglossary . No replies/resolutions, mentions, PR merge, package release or tags."
+files[33]:
   - path: .github/approved-git-identities.txt
     scope: project
   - path: .github/workflows/ci.yml
@@ -63,6 +69,9 @@ files[30]:
     scope: project
   - path: src/kernel.ts
     scope: project
+  - path: src/output.ts
+    scope: project
+    note: Historical TOON replacement and exact fitting
   - path: src/packet.ts
     scope: project
   - path: src/schema.ts
@@ -85,6 +94,12 @@ files[30]:
   - path: test/errors.test.ts
     scope: project
     note: Native and system error boundary
+  - path: test/fixtures/gold-meanings.json
+    scope: project
+    note: Independent expected revision meaning
+  - path: test/fixtures/public-corpus.json
+    scope: project
+    note: Reviewed repository revision semantics
   - path: test/identity.test.ts
     scope: project
   - path: test/install.acceptance.ts
@@ -103,7 +118,7 @@ files[30]:
     scope: project
   - path: test/workflow.test.ts
     scope: project
-tests[8]:
+tests[9]:
   - command: "npm run release:check"
     scope: project
     provenance:
@@ -164,8 +179,22 @@ tests[8]:
       created_at: "2026-11-05T19:32:04.330Z"
       source_kind: local_mutation
       source_ref: review/glossary-r4
-docs[3]{path,scope}:
-  docs/real-data.md,project
-  docs/verification.json,project
-  README.md,project
+  - command: npm run build && node --test --test-concurrency=2 test/commands.test.ts test/review.test.ts test/real-data.test.ts
+    scope: project
+    timeout_seconds: 300
+    provenance:
+      author: codex-agent
+      created_at: "2026-11-05T20:39:42.369Z"
+      source_kind: local_mutation
+      source_ref: feat/glossary
+docs[4]:
+  - path: ARCHITECTURE.md
+    scope: project
+    note: Heuristic email detection
+  - path: docs/real-data.md
+    scope: project
+  - path: docs/verification.json
+    scope: project
+  - path: README.md
+    scope: project
 body: ""

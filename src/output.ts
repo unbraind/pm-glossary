@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { encode } from '@toon-format/toon';
+import { encode, escapeString, rawString } from '@toon-format/toon';
 import { fitOutputEnvelope, OutputEnvelopeFitError } from '@unbrained/pm-cli/sdk';
 import { senseSchema, committedResultSchema, parse } from './schema.ts';
 import { GlossaryRefusal, insist } from './errors.ts';
@@ -23,10 +23,17 @@ export const glossaryOutputSchema = z.strictObject({ schema_version: z.literal(1
 export type GlossaryData = z.infer<typeof glossaryDataSchema>;
 /** Typed versioned native output envelope. */
 export type GlossaryOutput = z.infer<typeof glossaryOutputSchema>;
+/** Escape historical control and bidi characters without changing decoded text. */
+function escapeHistorical(text: string): string {
+  return text.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/gu, char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`);
+}
 /** Serialize submitted text as inert data using registered host-scoped renderers. */
 export function wire(value: unknown, format: 'json' | 'toon'): string {
-  const text = format === 'json' ? JSON.stringify(value, null, 2) : encode(value);
-  return text.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/gu, char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`) + '\n';
+  if (format === 'json') return escapeHistorical(JSON.stringify(value, null, 2)) + '\n';
+  return encode(value, { replacer: (_key, current) => {
+    if (typeof current !== 'string' || !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u.test(current)) return current;
+    return rawString(`"${escapeHistorical(escapeString(current))}"`);
+  } }) + '\n';
 }
 /** Assemble a bounded common envelope without omitting identities, warnings or witnesses. */
 export function envelope(data: GlossaryData, scope: string | null): GlossaryOutput {

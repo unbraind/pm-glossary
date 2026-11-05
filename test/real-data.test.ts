@@ -4,6 +4,9 @@ import { realData, trackerRepository } from './corpus.ts';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { mkdtempSync, cpSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { npmEnvironment, testEnvironment } from '../scripts/environment.ts';
 import { fixture, request } from './helpers.ts';
 import { defineSense, resolveTerm } from '../dist/index.js';
 
@@ -23,4 +26,21 @@ test('non-software research and physics terminology uses explicit scopes',async 
   const physical=await request(host,id,'physical-power','power');physical.sense.definition='Energy transferred per unit time.';await defineSense(host,physical);
   assert.equal((await resolveTerm(host,{id,term:'power',scope_key:'research'})).candidates[0].sense_id,'statistical-power');
   assert.equal((await resolveTerm(host,{id,term:'power',scope_key:'delivery'})).candidates[0].sense_id,'physical-power');
+});
+
+
+test('corpus rejects duplicated ambiguity witnesses before counting abstentions',()=>{
+  const root=mkdtempSync(join(tmpdir(),'glossary-witness-'));
+  try{
+    for(const directory of ['dist','test/fixtures'])cpSync(directory,join(root,directory),{recursive:true});
+    mkdirSync(join(root,'scripts'));cpSync('scripts/environment.ts',join(root,'scripts/environment.ts'));
+    cpSync('test/corpus.ts',join(root,'test/corpus.ts'));cpSync('package.json',join(root,'package.json'));
+    symlinkSync(join(process.cwd(),'node_modules'),join(root,'node_modules'),'dir');
+    const kernel=join(root,'dist/src/kernel.js');const source=readFileSync(kernel,'utf8');
+    const marker=/matched_scope:\s*scope,\s*candidates\s*\}/;assert.match(source,marker);
+    writeFileSync(kernel,source.replace(marker,"matched_scope: scope, candidates: query.term === 'gate' && scope === 'root' ? [candidates[0], candidates[0]] : candidates }"));
+    const result=spawnSync(process.execPath,['--input-type=module','-e',"import {realData} from './test/corpus.ts'; await realData();"],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:120000});
+    assert.notEqual(result.status,0,'The corpus accepted two copies of one witness');
+    assert.match(result.stderr,/AssertionError/);assert.match(result.stderr,/gate-door/);
+  }finally{rmSync(root,{recursive:true,force:true});}
 });

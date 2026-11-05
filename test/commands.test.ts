@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createExtensionTestHarness, decodeToon } from '@unbrained/pm-cli/sdk/testing';
-import extension, { readGlossary } from '../dist/index.js';
+import extension, { readGlossary, defineSense, resolveTerm, envelope, fitEnvelope } from '../dist/index.js';
 import { runCommand } from '../dist/src/commands.js';
 import type { GlossaryOutput } from '../dist/index.js';
 import type { CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
-import { fixture } from './helpers.ts';
+import { fixture, request } from './helpers.ts';
 
 test('native extension harness executes every command, contracts and scoped renderers',async t=>{
   const {pmRoot,id}=await fixture(t);const ext=await createExtensionTestHarness(extension,{capabilities:['commands','schema','renderers']});t.after(()=>ext.deactivate());
@@ -28,4 +28,34 @@ test('native extension harness executes every command, contracts and scoped rend
     ['resolve',[id],{term:'gate'},{},'invalid_input'],['packet',[id],{scope:'root',limit:'1.5'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'[]'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'"x"'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'x'.repeat(32769)},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{"id":"other"}'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{}'},{outputBudget:'1'},'output_budget'],['resolve',[id],{term:'gate',scope:'root'},{outputBudget:'broken'},'invalid_input'],['resolve',[id],{term:'gate',scope:'root'},{outputInclude:'data'},'invalid_input'],['resolve',[id],{term:'gate',scope:'root'},{outputCursor:'unusable'},'invalid_input'],['resolve',[id],{term:['gate'],scope:'root'},{},'invalid_input'],
   ] as const)await assert.rejects(run(command,[...args],options,global),{message:expected});
   assert.equal((await runCommand('resolve',{args:[],options:{},global:{},pm_root:pmRoot,command:'glossary resolve'} as CommandHandlerContext) as {ok:boolean}).ok,false);
+});
+
+
+test('host renderers round-trip inert historical controls with quotes and backslashes',async t=>{
+  const {host,id,native}=await fixture(t);
+  await defineSense(host,await request(host,id,'historical'));
+  const state=(await readGlossary(host,id)).state;
+  const controls=Array.from({length:160},(_,code)=>code).filter(code=>code<32||code>=127).map(code=>String.fromCharCode(code)).join('');
+  const bidi='\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069';
+  const definition='Historical "quoted" \\path literal \\u009f \\u202e '+controls+bidi+' é 日本 😃';
+  state.senses[0].definition=definition;
+  for(const [index,text] of ['Legacy\u009f','Legacy\u202e','Literal \\u009f then "quote" \\slash\u2066'].entries()){
+    state.senses.push({...state.senses[0],sense_id:`legacy-${index}`,definition:text});
+  }
+  await native.update(id,{message:'Synthetic historical text fixture',...{glossaryState:state}});
+  const before=await native.readItemRevision(id);
+  const result=await resolveTerm(host,{id,term:'historical',scope_key:'root'});
+  assert.equal(result.candidates[0].definition,definition);
+  const fitted=fitEnvelope(host,envelope(result,'root'),8192);
+  const ext=await createExtensionTestHarness(extension,{capabilities:['commands','schema','renderers']});t.after(()=>ext.deactivate());
+  const rendered:Record<string,string>={};
+  for(const format of ['json','toon'] as const){
+    const output=await ext.runRendererOverride({format,command:'glossary resolve',result:fitted});
+    const text=String(output.rendered);rendered[format]=text;
+    assert.doesNotMatch(text,/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u);
+    const decoded=(format==='json'?JSON.parse(text):decodeToon(text)) as typeof fitted;
+    assert.deepEqual(decoded,fitted);assert.ok(decoded.data&&'candidates' in decoded.data);assert.equal(decoded.data.candidates[0].definition,definition);
+  }
+  assert.ok(fitted.output_fit.output_bytes>=Math.max(...Object.values(rendered).map(text=>Buffer.byteLength(text+'\n'))));
+  assert.deepEqual(await native.readItemRevision(id),before);
 });
