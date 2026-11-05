@@ -1,0 +1,13 @@
+id: pm-glossary-h5rj
+title: "Owner: approve publication and certify additional providers"
+description: "Owner-approved public repository, privacy and reviewer evidence, trusted publishing and provider conformance remain external gates. Upstream pm-cli issues 1399 1587 1588 own backend ports."
+type: Feature
+status: open
+priority: 2
+tags: []
+created_at: "2026-11-05T10:29:56.441Z"
+updated_at: "2026-11-05T10:29:56.441Z"
+author: codex-agent
+acceptance_criteria: Public review and repository creation; OIDC configuration; PM_RELEASE_APPROVED explicitly enabled; each provider native CAS conformance receipt
+parent: pm-glossary-gjws
+body: ""

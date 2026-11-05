@@ -1,0 +1,16 @@
+id: pm-glossary-gjws
+title: Deliver scoped glossary first release
+description: "Implement the first glossary slice, measured corpus and release gates. Preserve scoped meanings in native records with revision-checked replay-safe writes."
+type: Epic
+status: in_progress
+priority: 2
+tags: []
+created_at: "2026-11-05T10:29:15.513Z"
+updated_at: "2026-11-05T10:29:30.623Z"
+assignee: codex-agent
+claim_principal: codex-agent
+author: codex-agent
+acceptance_criteria: Create define alias resolve check packet commands and documented SDK; no-git concurrency and replay proofs; full source coverage and packed npm Bun journeys
+comments[1]{created_at,author,text}:
+  "2026-11-05T10:29:30.622Z",codex-agent,"Companion pm-cli-website-qrxp is read-only. First slice uses one aggregate native Glossary item, strict schemas, exact scoped resolution and checked native CAS. Alias collision and measured corpus are included; bindings, freshness adapters and publication enabling remain later Features."
+body: ""

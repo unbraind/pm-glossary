@@ -1,0 +1,13 @@
+id: pm-glossary-tpwk
+title: Implement first-slice glossary kernel and native commands
+description: "Strict versioned state, exact scope tree, owner CAS and deterministic replay with bounded output."
+type: Feature
+status: open
+priority: 2
+tags: []
+created_at: "2026-11-05T10:29:52.407Z"
+updated_at: "2026-11-05T10:29:52.407Z"
+author: codex-agent
+acceptance_criteria: Create define alias resolve check packet; full schemas and SDK; stale and concurrent requests preserve peer history
+parent: pm-glossary-gjws
+body: ""

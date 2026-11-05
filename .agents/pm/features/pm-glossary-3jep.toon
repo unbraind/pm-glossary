@@ -1,0 +1,13 @@
+id: pm-glossary-3jep
+title: "Later: exact use-site bindings and freshness adapters"
+description: Deferred by companion first-slice plan. Add authorized byte spans at immutable source revisions and evidence freshness integration.
+type: Feature
+status: open
+priority: 2
+tags: []
+created_at: "2026-11-05T10:29:55.150Z"
+updated_at: "2026-11-05T10:29:55.150Z"
+author: codex-agent
+acceptance_criteria: Pinned source spans; explicit stale binding refusals; missing inaccessible changed historical source receipts; concurrent binding conformance
+parent: pm-glossary-gjws
+body: ""

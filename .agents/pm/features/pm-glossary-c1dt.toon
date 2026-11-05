@@ -1,0 +1,13 @@
+id: pm-glossary-c1dt
+title: Certify glossary runtime and packed consumers
+description: "Real temp SDK trackers, seeded model, interleavings, process writers, packed no-git journeys and full source gates."
+type: Feature
+status: open
+priority: 2
+tags: []
+created_at: "2026-11-05T10:29:53.810Z"
+updated_at: "2026-11-05T10:29:53.810Z"
+author: codex-agent
+acceptance_criteria: 500 seeded sequences; process concurrency; 100 percent four dimensions; npm Bun npx bunx acceptance; real-data receipt
+parent: pm-glossary-gjws
+body: ""
