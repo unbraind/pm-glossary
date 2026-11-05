@@ -29,7 +29,7 @@ import { fixture, request, hasCode } from './helpers.ts';
   assert.throws(()=>readState({...snapshot.state,senses:[sense,sense]}),hasCode('invalid_record'));
   const alias={alias_id:'a',term:'a',scope_key:'root',language:'en',sense_id:'s'};assert.throws(()=>readState({...snapshot.state,senses:[sense],aliases:[alias,alias]}),hasCode('invalid_record'));
   const big={...snapshot.state,senses:Array.from({length:64},(_,i)=>({...sense,sense_id:`s-${i}`,definition:'文'.repeat(1000)}))};assert.equal(glossaryStateSchema.safeParse(big).success,true);assert.throws(()=>readState(big),hasCode('invalid_record'));
-  for(const raw of [{...snapshot.state,version:2},{...snapshot.state,operations:[]},{...snapshot.state,senses:[{...sense,definition:22}]}]){const update={message:'Synthetic native fixture',glossaryState:raw};await native.update(id,update);const before=await native.readItemRevision(id);await assert.rejects(readGlossary(host,id));assert.deepEqual(await native.readItemRevision(id),before);}
+  for(const raw of [{...snapshot.state,version:2},{...snapshot.state,operations:[]},{...snapshot.state,senses:[{...sense,definition:22}]}]){const update={message:'Synthetic native fixture',glossaryState:raw};await native.update(id,update);const before=await native.readItemRevision(id);await assert.rejects(readGlossary(host,id),hasCode(raw.version===2?'unsupported_version':'invalid_record'));assert.deepEqual(await native.readItemRevision(id),before);}
  });
  test('independent capacity ceilings refuse before any native owner mutation',async t=>{
   const {host,id,native}=await fixture(t);const snapshot=await readGlossary(host,id);const before=await native.readItemRevision(id);const operation=snapshot.state.operations[0];
@@ -42,7 +42,7 @@ import { fixture, request, hasCode } from './helpers.ts';
  test('packet cursor validation and full-envelope ceilings retain required identities',async t=>{
   const {host,id}=await fixture(t);await defineSense(host,await request(host,id,'one'));const snapshot=await readGlossary(host,id);const query=digest({scope:'root',language:'en',limit:1,projection:'full-witness-v1'});
   const cursor=(offset:number)=>encodeReadOutputContinuationCursor({command:'extension:glossary packet',path:'data.rows',offset,total_rows:1,fingerprint:digest({revision:snapshot.revision,query})});await assert.rejects(glossaryPacket(host,{id,scope_key:'root',limit:1,cursor:cursor(5)}),hasCode('stale_cursor'));
-  await assert.rejects(glossaryPacket(host,{id,scope_key:'root',cursor:Buffer.from('{}').toString('base64url')}));
+  await assert.rejects(glossaryPacket(host,{id,scope_key:'root',cursor:Buffer.from('{}').toString('base64url')}),hasCode('stale_cursor'));
   const resolution=await resolveTerm(host,{id,term:'one',scope_key:'root'});
   assert.throws(()=>fitEnvelope(host,envelope(resolution,'root'),0),hasCode('invalid_input'));
   assert.equal(fitEnvelope({},envelope(resolution,'root'),1600).ok,true);

@@ -43,7 +43,11 @@ export function readState(raw: unknown): GlossaryState {
 }
 /** Resolve exactly at the requested level, then ancestors; aliases never outrank nearer terms. */
 export function resolveTermInState(state: GlossaryState, query: { term: string; scope_key: string; language?: string }): TermResolution {
-  const valid = readState(state); const scopes = new Map(valid.scopes.map(scope => [scope.scope_key, scope.parent]));
+  return resolveInValidState(readState(state), query);
+}
+/** Resolve a snapshot already validated by readState, without reparsing the aggregate. */
+export function resolveInValidState(valid: GlossaryState, query: { term: string; scope_key: string; language?: string }): TermResolution {
+  const scopes = new Map(valid.scopes.map(scope => [scope.scope_key, scope.parent]));
   insist(scopes.has(query.scope_key), 'invalid_scope', 'Requested scope is not declared', 'Choose a scope from the explicit glossary tree');
   const language = query.language ?? 'en'; let scope: string | null = query.scope_key;
   while (scope !== null) {

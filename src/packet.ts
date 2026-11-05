@@ -3,7 +3,7 @@ import { digest } from './schema.ts';
 import type { GlossaryPacketInput } from './schema.ts';
 import type { Snapshot } from './host.ts';
 import { insist, GlossaryRefusal } from './errors.ts';
-import { resolveTermInState } from './kernel.ts';
+import { resolveInValidState } from './kernel.ts';
 
 /** Derive a page with native opaque cursors bound to the owner, query and complete projection. */
 export function packetPage(owner: Snapshot, input: GlossaryPacketInput & { language: string; limit: number }) {
@@ -18,8 +18,8 @@ export function packetPage(owner: Snapshot, input: GlossaryPacketInput & { langu
   }
   const terms = [...new Set([...owner.state.senses, ...owner.state.aliases].filter(row => row.language === input.language).map(row => row.term))].sort();
   // Validate scope even for an empty glossary; no sentinel becomes a persisted term.
-  resolveTermInState(owner.state, { term: '', scope_key: input.scope_key, language: input.language });
-  const resolutions = terms.map(term => resolveTermInState(owner.state, { term, scope_key: input.scope_key, language: input.language })).filter(row => row.resolution !== 'unknown');
+  resolveInValidState(owner.state, { term: '', scope_key: input.scope_key, language: input.language });
+  const resolutions = terms.map(term => resolveInValidState(owner.state, { term, scope_key: input.scope_key, language: input.language })).filter(row => row.resolution !== 'unknown');
   insist(offset <= resolutions.length && (total === undefined || total === resolutions.length), 'stale_cursor', 'Cursor offset or denominator differs from this projection', 'Restart the scoped packet query');
   const rows = resolutions.slice(offset, offset + input.limit); const next = offset + rows.length;
   return { owner_id: owner.id, revision: owner.revision, rows, returned: rows.length, omitted: resolutions.length - rows.length, total: resolutions.length, continuation: next < resolutions.length ? encodeReadOutputContinuationCursor({ command: 'extension:glossary packet', path: 'data.rows', offset: next, total_rows: resolutions.length, fingerprint }) : null };

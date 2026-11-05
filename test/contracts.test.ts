@@ -57,7 +57,7 @@ test('real settings-section CAS feeds CLI policy without read-time migrations',a
   await ext.runCommand({command:'fixture policy',options:{value:undefined},pmRoot});
   assert.equal(((await run('resolve',{scope:'root',term:'absent'})).result as {ok:boolean}).ok,true);
   for(const value of ['0','999999999999999999999',false])assert.equal(((await run('packet',{scope:'root',limit:value})).result as {ok:boolean}).ok,false);
-  await assert.rejects(run('unknown',{scope:'root'}));
+  await assert.rejects(run('unknown',{scope:'root'}),{message:/^Expected a registered command handler for "glossary unknown" to invoke\./});
   const context={command:'glossary unknown',args:[id],options:{scope:'root'},global:{},pm_root:pmRoot,sdk};assert.equal((await runCommand('unknown',context as CommandHandlerContext) as {ok:boolean}).ok,false);
 });
 
@@ -71,7 +71,7 @@ test('fault-decorated native host receipts never certify incomplete reads or unc
   const broken={...host,client:{...host.client,withExpectedItemRevisions:badGuard}};const input=await request(host,id,'guarded');await assert.rejects(defineSense(broken,input),hasCode('backend_unsupported'));assert.equal((await defineSense(host,input)).replayed,true);
   host.boundary=async step=>{if(step==='before_create')return;if(step==='after_create')throw new Error('Synthetic crash after native create');};
   await assert.rejects(createGlossary(host,{...birth,id:'corpus-crash-create',op:'crash-birth'}),hasCode('outcome_unknown'));delete host.boundary;assert.equal((await createGlossary(host,{...birth,id:'corpus-crash-create',op:'crash-birth'})).replayed,true);
-  await assert.rejects(host.client.create());const before=await readGlossary(host,id);await host.client.update(id);assert.equal((await readGlossary(host,id)).revision,before.revision);
+  await assert.rejects(host.client.create(),{message:/title/i});const before=await readGlossary(host,id);await host.client.update(id);assert.equal((await readGlossary(host,id)).revision,before.revision);
   assert.equal(refusal({code:'permission_denied',context:{required:'Obtain authorization'}}).remedy,'Obtain authorization');
   assert.equal(refusal({code:'permission_denied',context:null}).code,'permission_denied');
   const nativeError=refusal({code:'ownership_conflict',exitCode:4,context:{required:'Reread the claim'}});assert.equal(exitCode(nativeError.code,nativeError.nativeExit),4);assert.equal(refusal({code:'bad_status',exitCode:0}).nativeExit,undefined);
@@ -81,13 +81,13 @@ test('native fitting failures and strict output unions cannot turn omitted witne
   const {host,id}=await fixture(t);await defineSense(host,await request(host,id,'one'));const data=await resolveTerm(host,{id,term:'one',scope_key:'root'});const value=envelope(data,'root');assert.equal(fitEnvelope(host,value).ok,true);
   assert.equal(resolveTermInState((await readGlossary(host,id)).state,{term:'one',scope_key:'root'}).resolution,'resolved');
   assert.match(wire({text:'\u009f\u202e'},'toon'),/\\u009f/);
-  assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{throw new Error('Host fitting unavailable');}},value));
+  assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{throw new Error('Host fitting unavailable');}},value),{message:'Host fitting unavailable'});
   const work={evaluated_candidates:0,render_calls:0,max_render_calls:1};assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{throw new OutputEnvelopeFitError('output_envelope_work_limit',work);}},value),hasCode('backend_unsupported'));
   const oversized={...data,candidates:Array.from({length:40},(_,i)=>({...data.candidates[0],sense_id:`many-${i}`,definition:'x'.repeat(2000)}))};
   const dishonest:typeof fitOutputEnvelope=(rows,options)=>fitOutputEnvelope(rows,{...options,tokenBudget:100000});assert.throws(()=>fitEnvelope({fitOutputEnvelope:dishonest},envelope(oversized,'root'),8192),hasCode('output_budget'));
   for(let n=0;n<20;n++){const varied={...value,owner_id:'x'.repeat(n+1)};let minimum=0;try{fitEnvelope(host,varied,1);}catch(error){assert.ok(error instanceof Error&&'details' in error);minimum=(error.details as {minimum_usable_budget:number}).minimum_usable_budget;}assert.equal(fitEnvelope(host,varied,minimum).ok,true);}
   let hint=200;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{throw new OutputEnvelopeFitError('output_envelope_infeasible',work,hint++);}},value,1),hasCode('backend_unsupported'));
-  let calls=0;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{calls++;if(calls===1)throw new OutputEnvelopeFitError('output_envelope_infeasible',work,200);throw new Error('Interrupted fitter');}},value,1));
+  let calls=0;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{calls++;if(calls===1)throw new OutputEnvelopeFitError('output_envelope_infeasible',work,200);throw new Error('Interrupted fitter');}},value,1),{message:'Interrupted fitter'});
   let staleCalls=0;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{staleCalls++;throw new OutputEnvelopeFitError('output_envelope_infeasible',work,200);}},value,1),hasCode('backend_unsupported'));
   assert.ok(staleCalls>1);
   assert.equal(glossaryOutputSchema.safeParse({...value,data:undefined}).success,false);assert.equal(glossaryOutputSchema.safeParse({...value,ok:false}).success,false);

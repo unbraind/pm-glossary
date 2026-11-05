@@ -23,7 +23,7 @@ for(const step of ['before_create','after_create']) test(`create collision at ${
 for(const step of ['before_guard','before_update','after_update','after_guard','before_receipt']) test(`crash at ${step} and rerun converge on original key`,async t=>{
   const {host,id,pmRoot}=await fixture(t);const input=await request(host,id,'recovery');let crashed=false;
   host.boundary=async boundary=>{if(boundary===step&&!crashed){crashed=true;throw new Error('Synthetic interrupted caller');}};
-  await assert.rejects(defineSense(host,input));delete host.boundary;
+  await assert.rejects(defineSense(host,input),hasCode('outcome_unknown'));delete host.boundary;
   const recovered=await defineSense(host,input);assert.equal(recovered.replayed,['after_update','after_guard','before_receipt'].includes(step));
   const state=(await readGlossary(host,id)).state;assert.equal(state.senses.length,1);assert.equal(state.operations.length,2);
   assert.equal((await readFile(join(pmRoot,'history',`${id}.jsonl`),'utf8')).trim().split('\n').length,2);

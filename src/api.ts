@@ -4,7 +4,7 @@ import type { Host, Snapshot } from './host.ts';
 import { insist, refusal } from './errors.ts';
 import { parse, digest, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema, resolveTermInputSchema, checkGlossaryInputSchema, glossaryPacketInputSchema } from './schema.ts';
 import type { CreateGlossaryInput, DefineSenseInput, AddAliasInput, ResolveTermInput, CheckGlossaryInput, GlossaryPacketInput, GlossaryState } from './schema.ts';
-import { readState, validateScopes, resolveTermInState } from './kernel.ts';
+import { readState, validateScopes, resolveInValidState } from './kernel.ts';
 import { packetPage } from './packet.ts';
 
 /** Versioned semantic write receipt; original result is distinct from the current revision. */
@@ -121,7 +121,7 @@ export async function addAlias(host: Host, input: AddAliasInput): Promise<Glossa
 /** Resolve one exact scoped term through the same pure kernel used by packets. */
 export async function resolveTerm(host: Host, raw: ResolveTermInput) {
   const input = parse(resolveTermInputSchema, raw); const owner = await readGlossary(host, input.id);
-  return { owner_id: owner.id, revision: owner.revision, ...resolveTermInState(owner.state, input) };
+  return { owner_id: owner.id, revision: owner.revision, ...resolveInValidState(owner.state, input) };
 }
 /** Diagnose duplicate alias tuples and broken contrast references without rewriting prose. */
 export async function checkGlossary(host: Host, raw: CheckGlossaryInput) {
