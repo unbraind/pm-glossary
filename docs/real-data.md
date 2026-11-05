@@ -32,8 +32,8 @@ Full-source and selected-passage SHA-256 digests:
     "repository": "unbraind/pm-evidence",
     "revision": "1435931270505fb81cbafa84141269a43285dfc6",
     "source_sha256": "79b1da8d10d9a8c1052da0b7125af55c2cc264752cc44b5b129e5497a1067401",
-    "selected_sha256": "605f4e1fa610756a17144a660dc0e3a5c0bab556f12a52ca8d327a83afb94cd0",
-    "selected_bytes": 22200
+    "selected_sha256": "7459f473e9aad7288264407ca5491e91e203397a9148ceab727251a1fac8ffd4",
+    "selected_bytes": 22199
   }
 ]
 ```
@@ -57,7 +57,7 @@ Measured result:
   "abstention_total": 10,
   "ambiguities_detected": 1,
   "ambiguities_resolved_by_narrower_scope": 1,
-  "raw_passage_bytes": 130362,
+  "raw_passage_bytes": 130361,
   "raw_passage_tokens": 32591,
   "packet_bytes": 35580,
   "packet_tokens": 8896,
@@ -85,7 +85,7 @@ Measured result:
       "tokens": 3170
     }
   ],
-  "wall_ms": 17104,
+  "wall_ms": 17435,
   "owner_operations": 45
 }
 ```

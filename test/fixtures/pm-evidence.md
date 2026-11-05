@@ -176,4 +176,3 @@ The approval variable controls GitHub releases; it does not impose a local npm
 publishing hold. Maintainers run the prepublish checks and authenticate with npm
 for local publication. The first local publish uses `--provenance=false`; daily
 GitHub OIDC releases keep provenance enabled.
-

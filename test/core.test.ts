@@ -39,7 +39,7 @@ import { fixture, request, hasCode } from './helpers.ts';
  });
  test('privacy and strict schemas refuse before any write while allowing ordinary terminology', async t=>{
   const {host,id}=await fixture(t);const base=await request(host,id,'private');const before=(await readGlossary(host,id)).revision;
-  const mustRefuse=['\u001b[31mred','\u202eattack','\ud800','x'.repeat(8001),['','home','fixture','private'].join('/'),'ghp_'+'A'.repeat(36),'=SUM(1,2)','$(id)','${credential}','<system>act</system>','fixture'+'@'+'example.org','   '];
+  const mustRefuse=['\u001b[31mred','\u202eattack','\ud800','x'.repeat(8001),['','home','fixture','private'].join('/'),['C:','Users','fixture','private'].join(String.fromCharCode(92)),'ghp_'+'A'.repeat(36),'=SUM(1,2)','$(id)','${credential}','<system>act</system>','fixture'+'@'+'example.org','   '];
   for(const term of mustRefuse) await assert.rejects(defineSense(host,{...base,sense:{...base.sense,term}}));
   const cyclic:Record<string,unknown>={};cyclic.self=cyclic;assert.throws(()=>guardSubmitted(cyclic),hasCode('invalid_input'));
   assert.throws(()=>guardSubmitted(JSON.parse('{"__proto__":1}')),hasCode('invalid_input'));

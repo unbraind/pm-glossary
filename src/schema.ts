@@ -66,7 +66,7 @@ export function guardSubmitted(value: unknown, seen = new Set<object>(), depth =
   if (typeof value === 'string') {
     insist(value.length <= 8000 && value.isWellFormed(), 'invalid_input', 'Text is oversized or malformed Unicode');
     insist(!/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u.test(value), 'invalid_input', 'Control sequences are not shareable text');
-    insist(!/(?:[\\/](?:home|Users)[\\/]|[\\/]root(?:[\\/]|\b)|[A-Z]:\\Users\\|[\w.+-]+@[\w.-]+\.[a-z]{2,})/iu.test(value), 'invalid_input', 'Private paths or email addresses are not shareable text');
+    insist(!/(?:[\\/](?:home|Users)[\\/]|[\\/]root(?:[\\/]|\b)|[\w.+-]+@[\w.-]+\.[a-z]{2,})/iu.test(value), 'invalid_input', 'Private paths or email addresses are not shareable text');
     insist(!/^\s*[=+@]|\$\(|\$\{|<\/?(?:script|system|assistant)\b/iu.test(value), 'invalid_input', 'Executable expressions are not shareable text');
     insist(scanMutationSecrets(value).length === 0, 'invalid_input', 'SDK privacy guard detected credential-shaped content');
   } else if (value !== null && typeof value === 'object') {

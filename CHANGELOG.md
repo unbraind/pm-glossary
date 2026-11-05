@@ -4,8 +4,8 @@
 
 ### Added
 
-- Implement first-slice glossary kernel and native commands ([pm-glossary-tpwk](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/features/pm-glossary-tpwk.toon))
 - Certify glossary runtime and packed consumers ([pm-glossary-c1dt](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/features/pm-glossary-c1dt.toon))
+- Implement first-slice glossary kernel and native commands ([pm-glossary-tpwk](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/features/pm-glossary-tpwk.toon))
 
 ### Other
 

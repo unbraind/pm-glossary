@@ -8,10 +8,12 @@ export class GlossaryRefusal extends Error {
   readonly retryable: boolean;
   /** Bounded machine-readable diagnostic metadata. */
   readonly details: Record<string, unknown>;
+  /** Original validated process status from a native host refusal. */
+  readonly nativeExit: number | undefined;
   /** Capture a refusal without copying submitted content into diagnostics. */
-  constructor(code: string, message: string, remedy = 'Inspect the named input and retry with reviewed shareable data', details: Record<string, unknown> = {}) {
+  constructor(code: string, message: string, remedy = 'Inspect the named input and retry with reviewed shareable data', details: Record<string, unknown> = {}, nativeExit?: number) {
     super(message); this.name = 'GlossaryRefusal'; this.code = code; this.remedy = remedy;
-    this.retryable = ['contention', 'revision_conflict', 'stale_cursor'].includes(code); this.details = details;
+    this.nativeExit = nativeExit; this.retryable = ['contention', 'revision_conflict', 'stale_cursor'].includes(code); this.details = details;
   }
 }
 /** Enforce an invariant before any durable mutation. */
@@ -25,12 +27,14 @@ export function refusal(error: unknown): GlossaryRefusal {
     const code = error.code === 'item_revision_conflict' ? 'revision_conflict' : error.code;
     const native = 'context' in error && typeof error.context === 'object' && error.context !== null ? error.context as Record<string, unknown> : {};
     const remedy = 'remedy' in error && typeof error.remedy === 'string' ? error.remedy : typeof native.required === 'string' ? native.required : 'Reread the authorized record and reconcile the original operation before retrying';
-    return new GlossaryRefusal(code, 'Native host refused the operation', remedy);
+    const nativeExit = 'exitCode' in error && typeof error.exitCode === 'number' && Number.isInteger(error.exitCode) && error.exitCode > 0 && error.exitCode <= 255 ? error.exitCode : undefined;
+    return new GlossaryRefusal(code, 'Native host refused the operation', remedy, {}, nativeExit);
   }
   return new GlossaryRefusal('outcome_unknown', 'Host operation outcome could not be verified', 'Read back the original operation key before retrying; never invent a fresh key');
 }
 /** Map domain categories onto the documented process exit contract. */
-export function exitCode(code: string): number {
+export function exitCode(code: string, nativeExit?: number): number {
+  if (nativeExit !== undefined) return nativeExit;
   if (code === 'not_found') return 3;
   if (['revision_conflict', 'operation_conflict', 'stale_cursor', 'contention', 'ambiguous_term', 'stale_binding'].includes(code)) return 4;
   if (['backend_unsupported', 'permission_denied', 'incomplete_read', 'outcome_unknown'].includes(code)) return 5;

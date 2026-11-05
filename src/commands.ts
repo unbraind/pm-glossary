@@ -58,7 +58,7 @@ export async function runCommand(command: string, ctx: CommandHandlerContext): P
     return fitEnvelope(host, envelope(data, scope ?? null), budget);
   } catch (error) {
     const failure = refusal(error);
-    return fitEnvelope({}, refusalEnvelope(failure, exitCode(failure.code)), 1600);
+    return fitEnvelope({}, refusalEnvelope(failure, exitCode(failure.code, failure.nativeExit)), 1600);
   }
 }
 /** Register contributions only; activation never writes schema, settings or records. */
