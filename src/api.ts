@@ -27,7 +27,9 @@ export interface GlossaryMutationReceipt {
   outcome: 'committed';
 }
 /** Yield an optional observation boundary without storing package journals. */
-async function boundary(host: Host, step: string): Promise<void> { await host.boundary?.(step); }
+async function boundary(host: Host, step: string): Promise<void> {
+  try { await host.boundary?.(step); } catch (error) { throw refusal(error); }
+}
 /** Read only the selected owner and certify a consistent native item/hash pair. */
 export async function readGlossary(host: Host, id: string): Promise<Snapshot> {
   capable(host);
@@ -43,9 +45,11 @@ export async function readGlossary(host: Host, id: string): Promise<Snapshot> {
 }
 /** Build or replay a receipt without reinterpreting historical success as current truth. */
 async function receipt(host: Host, snapshot: Snapshot, operation: GlossaryState['operations'][number], replayed: boolean, attempts: number): Promise<GlossaryMutationReceipt> {
-  await boundary(host, 'before_receipt');
-  const current = await host.client.readItemRevision(snapshot.id);
-  return { owner_id: snapshot.id, revision: current.item_hash, operation_id: operation.operation_id, replayed, attempts, result: operation.result, result_digest: operation.result_digest, outcome: 'committed' };
+  try {
+    await boundary(host, 'before_receipt');
+    const current = await host.client.readItemRevision(snapshot.id);
+    return { owner_id: snapshot.id, revision: current.item_hash, operation_id: operation.operation_id, replayed, attempts, result: operation.result, result_digest: operation.result_digest, outcome: 'committed' };
+  } catch (error) { throw refusal(error); }
 }
 /** Append one bounded replay record before admitting the owner update. */
 function record(state: GlossaryState, op: string, request: unknown, kind: 'create' | 'define' | 'alias', identity: string): GlossaryState['operations'][number] {
@@ -62,21 +66,23 @@ function replay(state: GlossaryState, op: string, request: unknown): GlossarySta
 }
 /** Create one caller-owned native item, recovering duplicate-ID retries without adopting peers. */
 export async function createGlossary(host: Host, raw: CreateGlossaryInput): Promise<GlossaryMutationReceipt> {
-  const submitted = parse(createGlossaryInputSchema, raw); capable(host);
-  const input = parse(createGlossaryInputSchema, { ...submitted, id: await host.normalizeId?.(submitted.id) ?? submitted.id }); validateScopes(input.scopes);
-  const state: GlossaryState = { version: 1, domain_key: input.domain_key, language_policy: 'exact', scopes: input.scopes, senses: [], aliases: [], bindings: [], operations: [] };
-  const operation = record(state, input.op, input, 'create', input.id);
-  await host.prepareCreate?.(); await boundary(host, 'before_create');
   try {
-    const created = await host.client.create({ id: input.id, title: input.title, type: 'Glossary', field: [`glossary_state=${JSON.stringify(state)}`], comment: ['glossary:create explicit reviewed terminology'], dep: input.related.map(id => `id=${id},kind=related`) });
-    await boundary(host, 'after_create');
-    return await receipt(host, { id: created.item.id, revision: '', state }, operation, false, 1);
-  } catch (error) {
-    if (!isItemAlreadyExistsError(error)) throw refusal(error);
-    const current = await readGlossary(host, input.id); const original = replay(current.state, input.op, input);
-    insist(original?.result.kind === 'create' && original.result.sequence === 1 && original.result.identity === input.id, 'operation_conflict', 'Existing item is not owned by this creation request', 'Choose another explicit owner ID; do not adopt an unrelated record');
-    return receipt(host, current, original, true, 1);
-  }
+    const submitted = parse(createGlossaryInputSchema, raw); capable(host);
+    const input = parse(createGlossaryInputSchema, { ...submitted, id: await host.normalizeId?.(submitted.id) ?? submitted.id }); validateScopes(input.scopes);
+    const state: GlossaryState = { version: 1, domain_key: input.domain_key, language_policy: 'exact', scopes: input.scopes, senses: [], aliases: [], bindings: [], operations: [] };
+    const operation = record(state, input.op, input, 'create', input.id);
+    await host.prepareCreate?.(); await boundary(host, 'before_create');
+    try {
+      const created = await host.client.create({ id: input.id, title: input.title, type: 'Glossary', field: [`glossary_state=${JSON.stringify(state)}`], comment: ['glossary:create explicit reviewed terminology'], dep: input.related.map(id => `id=${id},kind=related`) });
+      await boundary(host, 'after_create');
+      return await receipt(host, { id: created.item.id, revision: '', state }, operation, false, 1);
+    } catch (error) {
+      if (!isItemAlreadyExistsError(error)) throw refusal(error);
+      const current = await readGlossary(host, input.id); const original = replay(current.state, input.op, input);
+      insist(original?.result.kind === 'create' && original.result.sequence === 1 && original.result.identity === input.id, 'operation_conflict', 'Existing item is not owned by this creation request', 'Choose another explicit owner ID; do not adopt an unrelated record');
+      return receipt(host, current, original, true, 1);
+    }
+  } catch (error) { throw refusal(error); }
 }
 /** Apply a native revision-checked edit; only a still-absent commutative addition can retry. */
 async function mutate(host: Host, input: ReturnType<typeof defineSenseInputSchema.parse> | ReturnType<typeof addAliasInputSchema.parse>, kind: 'define' | 'alias'): Promise<GlossaryMutationReceipt> {

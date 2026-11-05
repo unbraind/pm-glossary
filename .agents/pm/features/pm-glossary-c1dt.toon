@@ -6,11 +6,11 @@ status: in_progress
 priority: 2
 tags[1]: "gh:unbraind/pm-glossary#1"
 created_at: "2026-11-05T10:29:53.810Z"
-updated_at: "2026-11-05T20:52:48.157Z"
+updated_at: "2026-11-05T22:54:39.123Z"
 author: codex-agent
 acceptance_criteria: 500 seeded sequences; process concurrency; 100 percent four dimensions; npm Bun npx bunx acceptance; real-data receipt
 parent: pm-glossary-gjws
-comments[35]{created_at,author,text}:
+comments[42]{created_at,author,text}:
   "2026-11-05T10:52:21.298Z",codex-agent,"Seeded model passed 500 random sequences against SDK read-back. Packed npm and Bun journeys passed with Git absent, including npx bunx native SDK TOON JSON and refused writes. Public scratch tracker-copy measurement read 173 items, defined 38 distinct terms and 44 senses, resolved 42 of 42 scoped probes and abstained on all 10 ambiguous or unknown probes. Three bounded packets retained witnesses: 35580 bytes and 8896 estimated tokens versus 130362 bytes and 32591 tokens of selected source passages, saving 72.71 percent; wall time 17104 ms. Bindings are explicitly deferred by the first-slice plan."
   "2026-11-05T11:26:54.364Z",codex-agent,"Final review tightened JSON submissions to reject inherited, accessor and hidden properties before reading them, and checked same-line independent statement counters with a positive tooling fixture. All 40 tests passed in the previous full run; one valid-contrast branch was missing and now has a regression assertion. The stricter gate correctly refused that 99.55 percent branch result rather than rounding it to approval. A redundant Windows privacy pattern triggered the identity scanner; the shared separator pattern covers that case and its refusal corpus now includes a Windows-shaped example."
   "2026-11-05T12:34:04.377Z",codex-agent,"Budget-hint boundary experiment found 10 of 20 SDK minimum estimates did not fit when retried exactly, because receipt digits changed. The package now verifies retry budgets in at most four fitter passes and reports no usable budget above the hard ceiling. Twenty exact-retry probes and failing-fitter cases pass. The real-data proof now directly pins four copied tracker descriptions as a fourth scope; reviewed meanings distinguish release verification from package publication. Current receipt: 38 terms, 48 senses, 46/46 scoped probes, 10/10 abstentions, 40217 packet bytes and 10056 estimated tokens versus 132732 source-passage bytes and 33183 tokens, saving 69.70 percent in 18880 ms. Every expected and actual probe and the refused budget are recorded in docs/real-data.md."
@@ -46,7 +46,14 @@ comments[35]{created_at,author,text}:
   "2026-11-05T20:42:13.658Z",codex-agent,"Revert proof (npm run test:revert): all 43 independent disposable mutations failed with assertions, including eight round-5 proofs: architecture heuristic removal; report side-effect omission; null-minimum docs removal; only wire restored to post-encoding TOON escaping; only the corpus witness-ID assertion removed; each revision fixture independently restored; and duplicated resolver witnesses. Restored fixed implementation passed 27/27 selected tests with zero failures/skips/cancelled/todo. No reviewed worktree mutation or history rewriting. Full gate initially caught two redundant quote escapes in the new fixture; removed them and reran. No host-load timeout occurred. Negative corpus mutation matching also accepts instrumented/minified emitted syntax so coverage exercises the same proof."
   "2026-11-05T20:47:56.269Z",codex-agent,"npm run release:check passed in full under Node 24.19.0 with isolated HOME and global/system Git config disabled. Coverage: 62/62 tests, zero failures/skips/cancelled/todo; 9 production modules; statements 435/435, branches 277/277, functions 111/111, lines 369/369 (100% each). Packed acceptance: 1/1 test covering two npm/Bun consumer journeys, npm/npx/bun/bunx, Git absent, 43 allowlisted files. Revert stage: 43 expected assertion failures then 27/27 fixed tests. Typecheck, lint, duplication (0%), docstrings (63 declarations), production audit (zero vulnerabilities), pack, changelog, publish-attestation, identity and tracker-health all passed at unchanged thresholds. Existing optional clone-local merge-driver warning only. Bun release gate now running serially; no local timeout."
   "2026-11-05T20:52:47.098Z",codex-agent,"Final round-5 local validation: bun run release:check also passed in full with Bun 1.3.5 and Node 24.19.0 under isolated HOME and disabled global/system Git config. Both npm and Bun gates passed 62/62 coverage tests (435 statements, 277 branches, 111 functions, 369 lines, all 100%), 1/1 packed test with two fresh consumer journeys, and 43 independent failing mutations followed by 27/27 fixed tests. Focused linked suite passed 16/16. Typecheck, lint, 0% duplication, 63 documented declarations, zero-vulnerability production audit, 43-file pack allowlist, changelog, publication attestation, identity and tracker-health all passed at unchanged thresholds. No local timeout. All six threads fixed; no evidence-backed refusals needed. No new pm CLI/SDK bug found. Existing development-only advisory item pm-glossary-7zl7 and publication/provider/native-output-control/bindings boundaries remain unchanged. Ignored dist rebuilt; no committed dist exists. Releasing only my claim; item stays in_progress for orchestrator verification. Final tracker/changelog/identity checks follow, then one code-plus-tracker commit and push. Fresh remote CI will be checked after that push: https://github.com/unbraind/pm-glossary/actions?query=branch%3Afeat%2Fglossary . No replies/resolutions, mentions, PR merge, package release or tags."
-files[33]:
+  "2026-11-05T22:35:44.700Z",codex-agent,"Round 7: pulled feat/glossary at 4df50fa; origin/main is already an ancestor. Fetched all review threads and all comments (pagination exhausted): two unresolved src/api.ts threads PRRT_kwDOVkA9os60TNA- and PRRT_kwDOVkA9os60TNBI. Latest CodeRabbit review has no Outside diff range findings. Verify typed refusal coverage for receipt, pre-create hooks, and every other SDK/host call; add real non-git tracker regressions and behavioral revert proofs before gates."
+  "2026-11-05T22:37:04.724Z",codex-agent,"Correction: the pre-create thread is PRRT_kwDOVkA9os60TNBS. Both findings are valid. Self-review of every SDK and host call in src/api.ts found two additional unguarded sites: normalizeId and after_read. Map these as well while preserving typed native errors, raw I/O codes only in details, existing retry behavior, and no new mutation on replay failures. npm ci completed; the existing development advisory remains tracked by pm-glossary-7zl7."
+  "2026-11-05T22:38:54.445Z",codex-agent,"Implementation: receipt converts boundary/revision failures; create wraps normalization and pre-create work without changing the inner duplicate-create recovery boundary; the shared observation boundary converts every hook, including after_read. Whole-PR error-path review: readGlossary already wraps get, locked mutation wraps guard/update and post-write hooks, CLI wraps schema/settings/fitter calls. No other unmapped SDK/host calls remain in src/api.ts. New real non-git tracker tests passed 71/71 both directly and via pm test --run --only-last --progress; no skips or failures. The 68 failure scenarios cover native SDK errors, typed refusals, generic failures, and I/O errors across create/define/alias fresh and replay paths; retries preserve revisions and original operation keys. dist is ignored rather than committed and has been rebuilt."
+  "2026-11-05T22:41:00.948Z",codex-agent,"Behavioral revert proof: test/revert.acceptance.ts independently removes only receipt error conversion, only create error conversion, and only shared observation-boundary error conversion in disposable emitted copies. Each fails the new direct-SDK regression with assertions; all 43 pre-existing mutation proofs also fail as expected (46 total). The reviewed implementation is unchanged throughout; fixed-state rerun is in progress. History audit confirms every changed history preserves origin/main as a byte prefix, and this round preserves starting head 4df50fa as a byte prefix."
+  "2026-11-05T22:44:30.594Z",codex-agent,"Standalone npm run test:revert passed: 46 independent assertion failures in disposable copies, then 98/98 fixed-state tests with no failures/skips/cancelled/todo. Isolated npm release gate coverage passed 133/133 tests across 9 production modules: 441/441 statements, 277/277 branches, 111/111 functions and 375/375 lines (100% each). Identity, tracker health, typecheck, lint, 0% duplication, all 63 documented declarations, zero-vulnerability production audit, 43-file pack allowlist, changelog and publication attestation have passed. Packed acceptance and repeated revert stage remain in progress; Bun gate will run serially afterward."
+  "2026-11-05T22:48:14.676Z",codex-agent,"npm run release:check passed in full in 375674 ms with isolated HOME and global/system Git config disabled (Node 24.19.0). Passed 133/133 coverage tests at 100/100/100/100 (441 statements, 277 branches, 111 functions, 375 lines), 1/1 packed test covering two npm/Bun consumer journeys without Git, and 46 expected revert failures followed by 98/98 fixed tests. Every gate passed at unchanged thresholds; no timeout. Starting bun run release:check serially."
+  "2026-11-05T22:54:38.222Z",codex-agent,"Final round-7 validation: bun run release:check passed in full in 363907 ms (Bun 1.3.5, Node 24.19.0), following the serial npm gate at 375674 ms. Both gates used isolated HOME and disabled global/system Git config. Each passed 133/133 coverage tests with zero failures/skips/cancelled/todo and all 9 production modules at 100 percent: 441 statements, 277 branches, 111 functions, 375 lines. Each passed 1/1 packed acceptance test covering two fresh npm/Bun consumer journeys (npm/npx/bun/bunx plus direct SDK, without Git), then 46 independent expected revert failures and 98/98 restored tests. Targeted API error tests passed 71/71 directly and through pinned pm test --run --only-last --progress. Typecheck, lint, duplication at zero percent, 63 documented declarations, zero-vulnerability production audit, 43-file pack allowlist, changelog, publication attestation, identity and native tracker health all passed at unchanged thresholds. No local timeout. Both unresolved threads fixed: PRRT_kwDOVkA9os60TNA- receipt mapping; PRRT_kwDOVkA9os60TNBS pre-create mapping. Self-review also fixed normalizeId and after_read. No evidence-backed refusals or new pm CLI/SDK bugs. Existing development-only advisory pm-glossary-7zl7 and publication/provider/native-output-control/bindings boundaries remain unchanged. Ignored dist rebuilt; no committed dist exists. Final tracker/changelog/identity checks follow; commit code with this tracker and push. Remote CI for the new head remains separate evidence: https://github.com/unbraind/pm-glossary/actions?query=branch%3Afeat%2Fglossary . No thread replies/resolutions, mentions, merge, release or tags. Releasing only my own claim; item stays in_progress for orchestrator verification."
+files[34]:
   - path: .github/approved-git-identities.txt
     scope: project
   - path: .github/workflows/ci.yml
@@ -75,6 +82,8 @@ files[33]:
   - path: src/packet.ts
     scope: project
   - path: src/schema.ts
+    scope: project
+  - path: test/api-errors.test.ts
     scope: project
   - path: test/boundaries.test.ts
     scope: project
@@ -118,7 +127,7 @@ files[33]:
     scope: project
   - path: test/workflow.test.ts
     scope: project
-tests[9]:
+tests[10]:
   - command: "npm run release:check"
     scope: project
     provenance:
@@ -185,6 +194,13 @@ tests[9]:
     provenance:
       author: codex-agent
       created_at: "2026-11-05T20:39:42.369Z"
+      source_kind: local_mutation
+      source_ref: feat/glossary
+  - command: npm run build && node --test --test-concurrency=2 test/api-errors.test.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-11-05T22:37:07.028Z"
       source_kind: local_mutation
       source_ref: feat/glossary
 docs[4]:
