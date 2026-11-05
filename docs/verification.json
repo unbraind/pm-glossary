@@ -1,5 +1,7 @@
 {
   "schema_version": 1,
+  "status": "historical",
+  "note": "Historical receipt for source_commit only (the first release-candidate build). It does not verify later revisions; current verification is the CI run on the PR head and the latest receipts recorded on pm item pm-glossary-c1dt.",
   "source_commit": "389a1f67f5d166fb4e52fc11715f52d2af4b667a",
   "scaffold_commit": "39bcfa966b06be4df967be91f17b6f7f3e255135",
   "branch": "feat/glossary",
