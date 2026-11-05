@@ -25,7 +25,7 @@ bunx --bun --no-install pm glossary --help
 
 Dependency installation alone does not activate the extension. `pm package install` is the explicit activation step. Both npm and Bun packed acceptance exercise installed SDK imports and native CLI dispatch with Git absent from PATH.
 
-Every command defaults to TOON, accepts native `--json`, and returns the same versioned envelope. Mutations require a stable operation key; edits also require the native owner hash shown in a previous result. Inline JSON or `--input -` are accepted; input files are intentionally unsupported. Identity, operation and revision flags cannot be overridden by JSON.
+Every command defaults to TOON, accepts native `--json`, and returns the same versioned envelope. Release blocker `pm-glossary-yrza` records a host limitation: pm-cli 2026.11.4 rejects native cost flags on mutation commands and applies native cursors outside producer handlers. Use the explicit `--budget` and `--cursor` fallbacks below. Native flags are never shadowed, and writes are never misdeclared as read-only. Mutations require a stable operation key; edits also require the native owner hash shown in a previous result. Inline JSON or `--input -` are accepted; input files are intentionally unsupported. Identity, operation and revision flags cannot be overridden by JSON.
 
 | Command | Purpose | Example |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ Every command defaults to TOON, accepts native `--json`, and returns the same ve
 | `glossary alias <id>` | Add a direct scoped alias | `pm glossary alias terminology-lexicon --revision <hash> --op alias-ship --input -` |
 | `glossary resolve <id>` | Resolve exactly, or abstain | `pm glossary resolve terminology-lexicon --term release --scope delivery --language en --json` |
 | `glossary check <id>` | Diagnose aliases and contrasts | `pm glossary check terminology-lexicon --scope delivery` |
-| `glossary packet <id>` | Read complete meanings and ambiguity witnesses in a bounded page | `pm glossary packet terminology-lexicon --scope delivery --limit 10 --output-budget 1600` |
+| `glossary packet <id>` | Read complete meanings and ambiguity witnesses in a bounded page | `pm glossary packet terminology-lexicon --scope delivery --limit 10 --budget 1600` |
 
 Create input:
 
@@ -58,9 +58,9 @@ Senses optionally accept `entity_ref` and immutable native provenance references
 
 Resolution preserves exact Unicode, case and whitespace. Language defaults to `en`, without fallback or case folding. The first scope level with any direct or alias match wins. All different matching sense IDs at that level are returned. Parent aliases do not outrank nearer explicit terms. `resolution=ambiguous` and `resolution=unknown` are successful diagnostics with `usable=false`; choose a narrower declared scope or submit a reviewed definition. Timestamps and popularity never break ties.
 
-The default budget is 1,600 estimated tokens, measured as `ceil(serialized UTF-8 bytes / 4)` including framing and the native fitting receipt. A hard 32 KiB ceiling applies to each envelope. Native `--output-budget` can raise the budget within that ceiling. The package refuses an unbounded or malformed numeric guard. Pages default to 20 rows and allow 1–100; resume with the returned native `--output-cursor`. Cursors bind revision, scope, language, page size and projection. Changed state refuses `stale_cursor`. A row's entire ambiguity witness is mandatory. Budget exhaustion returns the minimum usable estimate and retry shape instead of hiding a candidate.
+The default budget is 1,600 estimated tokens, measured as `ceil(serialized UTF-8 bytes / 4)` including framing and the native fitting receipt. A hard 32 KiB ceiling applies to each envelope. The package `--budget` override can raise the budget within that ceiling. `unbounded` selects the hard ceiling; malformed numeric guards refuse. Pages default to 20 rows and allow 1–100; resume with the returned package `--cursor`. Cursors bind revision, scope, language, page size and projection. Changed state refuses `stale_cursor`. A row's entire ambiguity witness is mandatory. Budget exhaustion returns the minimum usable estimate and retry shape instead of hiding a candidate.
 
-The optional extension-owned `glossary` settings section accepts `{ "output_budget": 1600 }`. Native flags take precedence. Reads never write settings or migrate records. Directory SDK consumers use public schema services on explicit create; existing incompatible fields or types refuse instead of being replaced.
+The optional extension-owned `glossary` settings section accepts `{ "output_budget": 1600 }`. Explicit budget flags take precedence. Reads never write settings or migrate records. Directory SDK consumers use public schema services on explicit create; existing incompatible fields or types refuse instead of being replaced.
 
 An AGENTS.md snippet:
 
@@ -110,7 +110,7 @@ All input, state, provenance, replay and output schemas are named exports ending
 
 Mutation receipts contain the original committed semantic result and digest, operation identity, replay status, attempts and the current observed owner revision. Replaying an old success never asserts its meaning is still current. Retry only commutative additions after a CAS race, at most three attempts. Explicit stale edits refuse. Creation uses native create-if-absent; an existing unrelated owner is never adopted. An interrupted caller must retry the original operation key and request to discover a committed outcome. `outcome_unknown` is never permission to invent a new key.
 
-Without git, every runtime glossary command and SDK kernel works in plain trackers. Package development, identity auditing and release automation use Git; those are tooling paths. There is no runtime subprocess, Git dependency, side database, file journal, model call, network request or private-source crawling in the domain implementation. Source data is never copied automatically. Host authorization, consent and retained history policy remain host-owned. Attribution is not authentication.
+Without git, every runtime glossary command and SDK kernel works in plain trackers. The exact native-control contract remains blocked on the host capability described in `pm-glossary-yrza`; the fallback flags are tested on the packed artifact. Package development, identity auditing and release automation use Git; those are tooling paths. There is no runtime subprocess, Git dependency, side database, file journal, model call, network request or private-source crawling in the domain implementation. Source data is never copied automatically. Host authorization, consent and retained history policy remain host-owned. Attribution is not authentication.
 
 Submit only reviewed shareable text. The SDK secret scanner rejects token-shaped values; additional checks reject absolute home paths, emails, malformed Unicode, control and bidi sequences, prototype keys, cyclic inputs and expression-shaped injection. Terms and definitions are rendered as inert data. Native immutable history retains earlier submissions; removing a current value cannot erase historical sensitive content. Use the host's history-redaction and retention policy when needed.
 

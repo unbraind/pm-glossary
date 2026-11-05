@@ -9,7 +9,7 @@ test('500 seeded random operation sequences agree with an independent exact scop
   const old: Awaited<ReturnType<typeof request>>[]=[];let writes=0,reads=0,replays=0,refused=0;
   for(let sequence=0;sequence<500;sequence++){
     if(sequence%50===0){id=`corpus-model-${sequence}`;await createGlossary(host,{...birth,id,op:`birth-${sequence}`});gold=new Map();aliases=[];related=false;}
-    const checkRelationship=random()<0.15;if(checkRelationship){related=random()<0.5;await native.update(id,{replaceDeps:true,dep:related?['id=corpus-lexicon,kind=related']:[]});}
+    const checkRelationship=random()<0.15;if(checkRelationship){related=random()<0.5;await native.update(id,related?{replaceDeps:true,dep:['id=corpus-lexicon,kind=related']}:{clearDeps:true});}
     const key=`s-${sequence}`;const terms=['gate','release',' lease ','é','e\u0301','Receipt','receipt'];const term=terms[Math.floor(random()*terms.length)];const scope=random()<0.5?'root':'delivery';const language=random()<0.2?'de':'en';
     const input=await request(host,id,key,term);input.sense.scope_key=scope;input.sense.language=language;input.sense.definition=`Meaning ${sequence}.`;await defineSense(host,input);old.push(input);writes++;gold.set(key,{term,scope,language,definition:input.sense.definition});
     if(random()<0.5){const alias={alias_id:`a-${sequence}`,term:terms[Math.floor(random()*terms.length)],scope_key:scope,language,sense_id:key};await addAlias(host,{id,op:`alias-${sequence}`,revision:(await readGlossary(host,id)).revision,alias});aliases.push({term:alias.term,scope,language,sense:key});writes++;}

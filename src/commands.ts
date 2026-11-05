@@ -40,7 +40,11 @@ export async function runCommand(command: string, ctx: CommandHandlerContext): P
     const flags = ctx.options; const settings = await host.settings!();
     insist(settings === undefined || (typeof settings === 'object' && settings !== null && !Array.isArray(settings) && Object.keys(settings).every(key => key === 'output_budget')), 'invalid_record', 'Package settings contain unsupported fields');
     const policy = settings as { output_budget?: unknown } | undefined;
-    const budget = integer(ctx.global.outputBudget, integer(policy?.output_budget, 1600));
+    const foreignProjection = ctx.global.outputInclude !== undefined || ctx.global.outputLimit !== undefined || ctx.global.outputSession !== undefined || ctx.global.outputRowContract !== undefined;
+    insist(!foreignProjection, 'invalid_input', 'Generic projections cannot omit glossary witnesses', 'Use --scope, --limit, --budget and the returned --cursor');
+    const requestedBudget = flags.budget === undefined ? ctx.global.outputBudget : flags.budget;
+    const budget = requestedBudget === 'unbounded' ? 8192 : integer(requestedBudget, integer(policy?.output_budget, 1600));
+    insist(command === 'packet' || (flags.cursor === undefined && ctx.global.outputCursor === undefined), 'invalid_input', 'Continuation cursors apply only to glossary packet');
     const scope = flags.scope === undefined ? undefined : scalar(flags.scope);
     const id = await host.normalizeId!(command === 'create' ? scalar(flags.id) : scalar(ctx.args[0])); let data: GlossaryData;
     if (['create', 'define', 'alias'].includes(command)) {
@@ -54,7 +58,7 @@ export async function runCommand(command: string, ctx: CommandHandlerContext): P
       else data = await addAlias(host, parse(addAliasInputSchema, { ...raw, id, op, revision }));
     } else if (command === 'resolve') data = await resolveTerm(host, { id, term: scalar(flags.term), scope_key: scalar(scope), language: flags.language === undefined ? undefined : scalar(flags.language) });
     else if (command === 'check') data = await checkGlossary(host, { id, scope_key: scope });
-    else { insist(command === 'packet', 'invalid_input', 'Unknown glossary command'); data = await glossaryPacket(host, { id, scope_key: scalar(scope), language: flags.language === undefined ? undefined : scalar(flags.language), limit: integer(flags.limit, 20), cursor: ctx.global.outputCursor }); }
+    else { insist(command === 'packet', 'invalid_input', 'Unknown glossary command'); data = await glossaryPacket(host, { id, scope_key: scalar(scope), language: flags.language === undefined ? undefined : scalar(flags.language), limit: integer(flags.limit, 20), cursor: flags.cursor === undefined ? ctx.global.outputCursor : scalar(flags.cursor) }); }
     return fitEnvelope(host, envelope(data, scope ?? null), budget);
   } catch (error) {
     const failure = refusal(error);
@@ -66,12 +70,12 @@ export function register(api: ExtensionApi): void {
   api.registerItemTypes([{ name: 'Glossary', folder: 'glossary', description: 'Explicit scoped domain meanings' }]);
   api.registerItemFields([{ name: 'glossary_state', type: 'object', optional: true }]);
   const definitions = [
-    ['create', [], ['id', 'input', 'op'], 'Create one explicitly named lexicon', 'pm glossary create --id lexicon --op create-1 --input -'],
-    ['define', ['id'], ['input', 'op', 'revision'], 'Define or revise a pinned sense', 'pm glossary define lexicon --revision <hash> --op sense-1 --input -'],
-    ['alias', ['id'], ['input', 'op', 'revision'], 'Add a direct scoped alias', 'pm glossary alias lexicon --revision <hash> --op alias-1 --input -'],
-    ['resolve', ['id'], ['term', 'scope', 'language'], 'Resolve exactly or explicitly abstain', 'pm glossary resolve lexicon --term gate --scope release'],
-    ['check', ['id'], ['scope'], 'Diagnose glossary consistency without edits', 'pm glossary check lexicon'],
-    ['packet', ['id'], ['scope', 'language', 'limit'], 'Read a revision-bound bounded glossary page', 'pm glossary packet lexicon --scope release --limit 10'],
+    ['create', [], ['id', 'input', 'op', 'budget'], 'Create one explicitly named lexicon', 'pm glossary create --id lexicon --op create-1 --input -'],
+    ['define', ['id'], ['input', 'op', 'revision', 'budget'], 'Define or revise a pinned sense', 'pm glossary define lexicon --revision <hash> --op sense-1 --input -'],
+    ['alias', ['id'], ['input', 'op', 'revision', 'budget'], 'Add a direct scoped alias', 'pm glossary alias lexicon --revision <hash> --op alias-1 --input -'],
+    ['resolve', ['id'], ['term', 'scope', 'language', 'budget'], 'Resolve exactly or explicitly abstain', 'pm glossary resolve lexicon --term gate --scope release'],
+    ['check', ['id'], ['scope', 'budget'], 'Diagnose glossary consistency without edits', 'pm glossary check lexicon'],
+    ['packet', ['id'], ['scope', 'language', 'limit', 'cursor', 'budget'], 'Read a revision-bound bounded glossary page', 'pm glossary packet lexicon --scope release --limit 10'],
   ] as const;
   for (const format of ['json', 'toon'] as const) api.registerRenderer(format, ctx => wire(ctx.result, format).trimEnd(), { commands: definitions.map(([name]) => `glossary ${name}`) });
   for (const [name, args, names, description, example] of definitions) {

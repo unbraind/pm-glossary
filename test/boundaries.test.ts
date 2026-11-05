@@ -1,3 +1,4 @@
+import { encodeReadOutputContinuationCursor } from '@unbrained/pm-cli/sdk/contracts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGlossary, defineSense, addAlias, readGlossary, resolveTerm, resolveTermInState, readState, checkGlossary, glossaryPacket, glossaryStateSchema, digest, fitEnvelope, envelope } from '../dist/index.js';
@@ -5,7 +6,7 @@ import { capacity } from '../dist/src/api.js';
 import { fixture, request, hasCode } from './helpers.ts';
 
  test('explicit revisions permit reviewed sense and alias replacements and preserve related tasks',async t=>{
-  const {host,id,native,birth}=await fixture(t);const task=await native.create({title:'Consuming task'});const related=await createGlossary(host,{...birth,id:'corpus-related',op:'related',related:[task.item.id]});const got=await native.get(related.owner_id,{outputInclude:'full',outputBudget:'unbounded'});assert.ok('item' in got);assert.equal(got.item.dependencies?.[0].id,task.item.id);assert.equal(got.item.dependencies?.[0].kind,'related');
+  const {host,id,native,birth}=await fixture(t);const task=await native.create({title:'Consuming task'});const related=await createGlossary(host,{...birth,id:'corpus-related',op:'related',related:[task.item.id]});const got=await native.get(related.owner_id,{outputInclude:'full',outputBudget:'unbounded'});assert.ok('item' in got);assert.equal(got.item.dependencies?.[0].id,task.item.id);assert.equal(got.item.dependencies?.[0].kind,'related');await native.update(related.owner_id,{clearDeps:true});const cleared=await native.get(related.owner_id,{outputInclude:'full',outputBudget:'unbounded'});assert.ok('item' in cleared);assert.equal(cleared.item.dependencies?.length??0,0);
   const first=await request(host,id,'first','gate');await defineSense(host,first);await defineSense(host,await request(host,id,'second','barrier'));
   const edit=await request(host,id,'first','gate');edit.op='edit';edit.sense.definition='Reviewed replacement.';edit.sense.contrast_sense_ids=['second'];await defineSense(host,edit);assert.deepEqual((await checkGlossary(host,{id})).findings,[]);
   const alias={alias_id:'door',term:'door',scope_key:'root',language:'en',sense_id:'first'};let result=await addAlias(host,{id,op:'alias-one',revision:(await readGlossary(host,id)).revision,alias});
@@ -40,7 +41,7 @@ import { fixture, request, hasCode } from './helpers.ts';
  });
  test('packet cursor validation and full-envelope ceilings retain required identities',async t=>{
   const {host,id}=await fixture(t);await defineSense(host,await request(host,id,'one'));const snapshot=await readGlossary(host,id);const query=digest({scope:'root',language:'en',limit:1,projection:'full-witness-v1'});
-  const cursor=(offset:number)=>Buffer.from(JSON.stringify({revision:snapshot.revision,query,offset})).toString('base64url');await assert.rejects(glossaryPacket(host,{id,scope_key:'root',limit:1,cursor:cursor(5)}),hasCode('stale_cursor'));
+  const cursor=(offset:number)=>encodeReadOutputContinuationCursor({command:'extension:glossary packet',path:'data.rows',offset,total_rows:1,fingerprint:digest({revision:snapshot.revision,query})});await assert.rejects(glossaryPacket(host,{id,scope_key:'root',limit:1,cursor:cursor(5)}),hasCode('stale_cursor'));
   await assert.rejects(glossaryPacket(host,{id,scope_key:'root',cursor:Buffer.from('{}').toString('base64url')}));
   const resolution=await resolveTerm(host,{id,term:'one',scope_key:'root'});
   assert.throws(()=>fitEnvelope(host,envelope(resolution,'root'),0),hasCode('invalid_input'));

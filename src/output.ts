@@ -45,7 +45,7 @@ export function fitEnvelope(host: Pick<Host, 'fitOutputEnvelope'>, value: Glossa
   } catch (error) {
     if (!(error instanceof OutputEnvelopeFitError)) throw error;
     insist(error.minimum_tokens !== undefined, 'backend_unsupported', 'Host fitter could not prove the minimum output envelope', 'Select a conforming serialized-output fitter or narrow the query');
-    throw new GlossaryRefusal('output_budget', 'Mandatory glossary witnesses do not fit', 'Raise --output-budget or narrow --scope and --limit; never drop ambiguity witnesses', { minimum_usable_budget: error.minimum_tokens, retry_shape: 'pm glossary <command> <id> --output-budget <minimum> [--scope <scope>] [--limit <1..100>]' });
+    throw new GlossaryRefusal('output_budget', 'Mandatory glossary witnesses do not fit', 'Raise --budget or narrow --scope and --limit; never drop ambiguity witnesses', { minimum_usable_budget: error.minimum_tokens, retry_shape: 'pm glossary <command> <id> --budget <minimum> [--scope <scope>] [--limit <1..100>]' });
   }
 }
 

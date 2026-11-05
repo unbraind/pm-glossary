@@ -6,13 +6,14 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:15.513Z"
-updated_at: "2026-11-05T11:13:48.348Z"
+updated_at: "2026-11-05T11:57:11.677Z"
 assignee: codex-agent
 claim_principal: codex-agent
 author: codex-agent
 acceptance_criteria: Create define alias resolve check packet commands and documented SDK; no-git concurrency and replay proofs; full source coverage and packed npm Bun journeys
-comments[1]{created_at,author,text}:
+comments[2]{created_at,author,text}:
   "2026-11-05T10:29:30.622Z",codex-agent,"Companion pm-cli-website-qrxp is read-only. First slice uses one aggregate native Glossary item, strict schemas, exact scoped resolution and checked native CAS. Alias collision and measured corpus are included; bindings, freshness adapters and publication enabling remain later Features."
+  "2026-11-05T11:57:11.677Z",codex-agent,"Native output-control compliance remains a release blocker in pm-glossary-yrza. The public host validates native controls before parser overrides, exposes only read-only generic shaping, and applies producer cursors outside handlers. We do not mark writes read-only or bypass that policy. Explicit budget and cursor fallbacks now pass the packed npm/Bun journeys for every command, with multi-page continuations and pre-write tiny-budget refusal. The exact native contract and arbitrary-provider certification remain unapproved."
 files[2]{path,scope}:
   index.ts,project
   package.json,project

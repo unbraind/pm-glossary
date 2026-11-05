@@ -1,0 +1,21 @@
+id: pm-glossary-yrza
+title: "SDK gap: protected extension envelopes need native cost and producer cursor controls"
+description: "Release blocker for the exact native output-control contract. Published SDK CommandDefinition.read_output only opts read-only handlers into host shaping; validateReadOutputOptions runs before parser overrides and refuses mutation cost flags. Native output cursors are decoded and applied outside the handler, so producer-owned pagination is applied twice. No public consume-cursor or mutation-envelope capability exists in ExtensionCommandSdk. Public declarations and open upstream searches were checked; no matching open issue was found. Upstream issue creation is outside this task. The package uses explicit budget and cursor fallback flags without shadowing native flags or misdeclaring writes as reads."
+type: Feature
+status: open
+priority: 2
+tags[3]: release-blocker,sdk-gap,"upstream:pm-cli"
+created_at: "2026-11-05T11:51:59.773Z"
+updated_at: "2026-11-05T11:55:22.486Z"
+author: codex-agent
+acceptance_criteria: Upstream provides truthful mutation cost controls and producer-owned native cursor consumption; native flags pass packed npm and Bun write and multi-page journeys without generic witness compaction; remove documented fallback limitation only after those exact host gates pass
+parent: pm-glossary-gjws
+files[4]{path,scope}:
+  src/commands.ts,project
+  src/output.ts,project
+  src/packet.ts,project
+  test/install.acceptance.ts,project
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
+body: ""
