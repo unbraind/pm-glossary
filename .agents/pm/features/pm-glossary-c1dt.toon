@@ -6,11 +6,11 @@ status: in_progress
 priority: 2
 tags[1]: "gh:unbraind/pm-glossary#1"
 created_at: "2026-11-05T10:29:53.810Z"
-updated_at: "2026-11-05T19:12:06.877Z"
+updated_at: "2026-11-05T19:35:51.218Z"
 author: codex-agent
 acceptance_criteria: 500 seeded sequences; process concurrency; 100 percent four dimensions; npm Bun npx bunx acceptance; real-data receipt
 parent: pm-glossary-gjws
-comments[24]{created_at,author,text}:
+comments[28]{created_at,author,text}:
   "2026-11-05T10:52:21.298Z",codex-agent,"Seeded model passed 500 random sequences against SDK read-back. Packed npm and Bun journeys passed with Git absent, including npx bunx native SDK TOON JSON and refused writes. Public scratch tracker-copy measurement read 173 items, defined 38 distinct terms and 44 senses, resolved 42 of 42 scoped probes and abstained on all 10 ambiguous or unknown probes. Three bounded packets retained witnesses: 35580 bytes and 8896 estimated tokens versus 130362 bytes and 32591 tokens of selected source passages, saving 72.71 percent; wall time 17104 ms. Bindings are explicitly deferred by the first-slice plan."
   "2026-11-05T11:26:54.364Z",codex-agent,"Final review tightened JSON submissions to reject inherited, accessor and hidden properties before reading them, and checked same-line independent statement counters with a positive tooling fixture. All 40 tests passed in the previous full run; one valid-contrast branch was missing and now has a regression assertion. The stricter gate correctly refused that 99.55 percent branch result rather than rounding it to approval. A redundant Windows privacy pattern triggered the identity scanner; the shared separator pattern covers that case and its refusal corpus now includes a Windows-shaped example."
   "2026-11-05T12:34:04.377Z",codex-agent,"Budget-hint boundary experiment found 10 of 20 SDK minimum estimates did not fit when retried exactly, because receipt digits changed. The package now verifies retry budgets in at most four fitter passes and reports no usable budget above the hard ceiling. Twenty exact-retry probes and failing-fitter cases pass. The real-data proof now directly pins four copied tracker descriptions as a fourth scope; reviewed meanings distinguish release verification from package publication. Current receipt: 38 terms, 48 senses, 46/46 scoped probes, 10/10 abstentions, 40217 packet bytes and 10056 estimated tokens versus 132732 source-passage bytes and 33183 tokens, saving 69.70 percent in 18880 ms. Every expected and actual probe and the refused budget are recorded in docs/real-data.md."
@@ -35,6 +35,10 @@ comments[24]{created_at,author,text}:
   "2026-11-05T19:03:05.708Z",codex-agent,"Clean Node 22 clone proof passed: npm ci; npm run build; git clean -fdX -- dist/ (removed dist); then tracker:health, identity:check, build, typecheck, lint and duplication in CI order. First npm full gate passed 53 tests at 100 percent, all remaining stages through packed acceptance, and 17 mutation cases, then stopped because a previous-round README mutation pattern still expected adjacent install/activation lines. Updated that pattern to include initialization and restarted the full gate; this was a test-harness fixture mismatch, not a runtime or host-load timeout."
   "2026-11-05T19:07:26.088Z",codex-agent,"Round 3 revert proofs: npm run release:check passed all 14 stages on Node 22.23.4 with isolated HOME/global/system Git config. All 35 disposable behavioral mutants failed as intended, then the unchanged implementation passed. PRRT_kwDOVkA9os60K1JU: 22199 to 22200 table drift fails measured receipt assertion. PRRT_kwDOVkA9os60K1Jh: removing test:revert build fails a clean consumer import. PRRT_kwDOVkA9os60K1Jv: removing Bun initialization fails the independent setup recipe assertion. PRRT_kwDOVkA9os60K1J4: removing heuristic disclosure fails docs plus a@b admission corpus. PRRT_kwDOVkA9os60K1KG: deleting shallow guard fails real depth-one clone refusal; full-history recovery passes. PRRT_kwDOVkA9os60K1Ka: restoring broad code acceptance fails system-error refusal category/redaction assertions. PRRT_kwDOVkA9os60K1Kp: removing typecheck build fails clean emitted imports; restoring CI order fails workflow prerequisite assertion. PRRT_kwDOVkA9os60K1K4: replacing inventory refusal with unrelated failure fails the specific stderr assertion. Four additional api/commands lookalike-error reverts fail exact not_found/contention/invalid_input tests. No original code or data was mutated for these proofs."
   "2026-11-05T19:12:06.157Z",codex-agent,"Final round 3 validation: npm run release:check (Node 22.23.4, passed on retry after README mutation-pattern correction) and bun run release:check (Node 26.13.0, passed first run) each passed all 14 stages with isolated HOME and disabled global/system Git configuration. Each: 53/53 full-suite tests, no failures/skips; independent nine-module coverage 430/430 statements, 273/273 branches, 109/109 functions, 364/364 lines; 1/1 packed test with two Git-free npm/Bun journeys; 35 expected behavioral revert failures and 21/21 restored regressions. Lint clean, 0 percent duplication, 63 documented declarations, zero production audit vulnerabilities, 43 allowlisted package files. npm/Bun packed receipts are identical (SHA-256 7736972547b888454d6a9a39573c1a74ffe27c51384b7c3a872ad9e00d87f2c7). Pinned pm focused run: 10/10 passed. No host-load timeout occurred. Existing development-only advisory follow-up pm-glossary-7zl7 and publication/native output-control blockers remain open. All eight findings fixed; no thread replies/resolutions, merge or release. Releasing own claim for orchestrator verification; item stays in_progress."
+  "2026-11-05T19:30:54.802Z",codex-agent,"Round 4: fetched remote eb2e216 in an isolated review worktree; main is already an ancestor. Retrieved every unresolved thread and every comment with pagination checked: PRRT_kwDOVkA9os60O4ZP, PRRT_kwDOVkA9os60O4Zj, PRRT_kwDOVkA9os60O4Zt. Latest CodeRabbit body has no outside-diff findings. All three findings are valid. CI checkout already uses fetch-depth 0 and fetch-tags true, identical to pm-http; missing real PR base occurs in the fixture after unshallow because its gate inherits the outer PR event. Plan: scrub every fixture gate environment, reproduce hostile CI event data, make linked tests build first through pinned pm, update all executable README examples to local runners, and prove individual reverts in disposable copies. Only targeted tests, typecheck, lint, identity, tracker health and changelog checks this round as requested."
+  "2026-11-05T19:34:23.240Z",codex-agent,"Round 4 behavioral proof: 15 independent mutations in disposable copies failed with AssertionError: restoring only original gate-fixture environment/calls reproduced Not a valid commit name under a real depth-one clone with pull_request event data; removing each of the five linked build prerequisites failed the new linked-command regression; removing each of eight local README runners failed the docs regression; changing CI fetch-depth from 0 to 1 failed the full-history contract assertion. The fixed worktree was never mutated. New identity test passes 2/2, including the contaminated CI scenario. Initial test-harness checks expected the default reporter to be TAP and counted nine rather than seven glossary examples; pinned TAP and measured seven fixed those assertions. No host timeout occurred. Pinned pm command identity edits are intentionally refused; supported remove-plus-add replacements preserve immutable history. No new pm defect or SDK gap was found."
+  "2026-11-05T19:35:17.634Z",codex-agent,"Round 4 final targeted tests: pinned pm test c1dt --run --only-last --progress passed the build plus build/errors/identity/review/tooling suite, 13/13 tests; pinned pm test tpwk --run --only-last --progress passed the build plus core/commands suite, 7/7. Zero failures, skipped, cancelled or todo tests in both restored runs. Node 22.23.4 under isolated HOME with disabled global/system Git config passed node --test --test-reporter=tap --test-concurrency=2 test/identity.test.ts, 2/2; Node 26 also passed 2/2. npm run typecheck and npm run lint passed. Full PR same-class inspection covered every event-reading gate, subprocess fixture, direct linked test, executable README example and runtime source: no remaining instances. Main and starting-head history records remain byte prefixes in all seven changed PR histories. Current dependency pin remains 2026.11.4 (public registry latest checked); coverage and other gate thresholds unchanged. Ignored dist output rebuilt; no committed dist files exist. Full npm/Bun release gates intentionally deferred to CI per round-specific targeted-only instruction. Existing development advisory and publication/native-output-control blockers remain tracked separately. Final tracker health, identity, changelog and pushed-head CI checks follow; remote CI remains required before orchestrator approval."
+  "2026-11-05T19:35:51.217Z",codex-agent,"Final local gates passed after releasing both claims: npm run changelog:full regenerated the existing changelog without content drift; npm run changelog:check passed; npm run tracker:health returned ok true with zero failed checks (optional clone-local merge-driver configuration warning only); npm run identity:check reported 14 commits and 88 tracked files with zero violations. All seven PR history files retain main and starting-head byte prefixes. Both items remain in_progress and unclaimed for the orchestrator. Remote full CI is pending until push; inspect https://github.com/unbraind/pm-glossary/actions?query=branch%3Afeat%2Fglossary . No thread replies, resolutions, mentions, merge or release were performed."
 files[30]:
   - path: .github/approved-git-identities.txt
     scope: project
@@ -113,20 +117,6 @@ tests[8]:
       created_at: "2026-11-05T10:56:16.589Z"
       source_kind: local_mutation
       source_ref: feat/glossary
-  - command: "node --test --test-concurrency=2 --test-name-pattern=\"incompatible native schema\" test/contracts.test.ts"
-    scope: project
-    provenance:
-      author: codex-agent
-      created_at: "2026-11-05T12:52:48.958Z"
-      source_kind: local_mutation
-      source_ref: feat/glossary
-  - command: "node --test --test-concurrency=2 --test-name-pattern=\"CI health\" test/workflow.test.ts"
-    scope: project
-    provenance:
-      author: codex-agent
-      created_at: "2026-11-05T13:05:16.479Z"
-      source_kind: local_mutation
-      source_ref: feat/glossary
   - command: "npm run test:revert"
     scope: project
     provenance:
@@ -141,21 +131,38 @@ tests[8]:
       created_at: "2026-11-05T14:07:53.658Z"
       source_kind: local_mutation
       source_ref: feat/glossary
-  - command: node --test --test-concurrency=2 test/identity.test.ts test/review.test.ts
+  - command: "npm run build && node --test --test-concurrency=2 --test-name-pattern=\"incompatible native schema\" test/contracts.test.ts"
     scope: project
+    timeout_seconds: 300
     provenance:
       author: codex-agent
-      created_at: "2026-11-05T15:45:54.018Z"
+      created_at: "2026-11-05T19:32:01.798Z"
       source_kind: local_mutation
-      source_ref: feat/glossary
-  - command: node --test --test-concurrency=2 test/build.test.ts test/errors.test.ts test/identity.test.ts test/review.test.ts test/tooling.test.ts
+      source_ref: review/glossary-r4
+  - command: "npm run build && node --test --test-concurrency=2 --test-name-pattern=\"CI health\" test/workflow.test.ts"
     scope: project
-    timeout_seconds: 180
+    timeout_seconds: 300
     provenance:
       author: codex-agent
-      created_at: "2026-11-05T18:56:16.136Z"
+      created_at: "2026-11-05T19:32:02.734Z"
       source_kind: local_mutation
-      source_ref: feat/glossary
+      source_ref: review/glossary-r4
+  - command: npm run build && node --test --test-concurrency=2 test/identity.test.ts test/review.test.ts
+    scope: project
+    timeout_seconds: 300
+    provenance:
+      author: codex-agent
+      created_at: "2026-11-05T19:32:03.520Z"
+      source_kind: local_mutation
+      source_ref: review/glossary-r4
+  - command: npm run build && node --test --test-concurrency=2 test/build.test.ts test/errors.test.ts test/identity.test.ts test/review.test.ts test/tooling.test.ts
+    scope: project
+    timeout_seconds: 300
+    provenance:
+      author: codex-agent
+      created_at: "2026-11-05T19:32:04.330Z"
+      source_kind: local_mutation
+      source_ref: review/glossary-r4
 docs[3]{path,scope}:
   docs/real-data.md,project
   docs/verification.json,project

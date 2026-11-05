@@ -73,3 +73,12 @@ test('npm and Bun setup each initialize before activating in fresh consumers',()
     assert.equal(readme.slice(0,offset).trimEnd().split('\n').at(-1),`${runner} pm init terminology --defaults --agent-guidance skip`);
   }
 });
+
+
+test('README glossary examples use the installed local CLI',()=>{
+  const readme=readFileSync('README.md','utf8');
+  const examples=[...readme.matchAll(/`([^`\n]*\bpm glossary [^`\n]+)`/g)].map(match=>match[1]);
+  assert.equal(examples.length,7);
+  for(const example of examples)assert.match(example,/^(?:npx --no-install|bunx --bun --no-install) pm glossary /);
+  assert.match(readme,/`npx --no-install pm package install` is the explicit activation step/);
+});

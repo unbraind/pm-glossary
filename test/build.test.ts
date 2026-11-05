@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { decode } from '@toon-format/toon';
 import assert from 'node:assert/strict';
 import { mkdtempSync, cpSync, symlinkSync, rmSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -24,4 +25,14 @@ test('clean-checkout CI and standalone typecheck build before checking emitted t
     writeFileSync(join(root,'test/revert.acceptance.ts'),"import assert from 'node:assert/strict';import {exitCode} from '../dist/index.js';assert.equal(exitCode('not_found'),3);\n");
     const reverts=run('test:revert');assert.equal(reverts.status,0,reverts.stdout+reverts.stderr);
   }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+
+test('linked focused test commands build emitted imports on a clean checkout',()=>{
+  for(const item of ['pm-glossary-c1dt','pm-glossary-tpwk']){
+    const tracker=decode(readFileSync(`.agents/pm/features/${item}.toon`,'utf8')) as {tests:{command:string}[]};
+    const focused=tracker.tests.filter(entry=>entry.command.includes('node --test'));
+    assert.ok(focused.length>0);
+    for(const entry of focused)assert.match(entry.command,/^npm run build && node --test /,`${item}: ${entry.command}`);
+  }
 });
