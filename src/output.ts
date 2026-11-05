@@ -38,18 +38,37 @@ export function envelope(data: GlossaryData, scope: string | null): GlossaryOutp
 export function fitEnvelope(host: Pick<Host, 'fitOutputEnvelope'>, value: GlossaryOutput, budget = 1600) {
   parse(glossaryOutputSchema, value, true);
   insist(Number.isSafeInteger(budget) && budget > 0, 'invalid_input', 'Output budget must be a positive integer');
-  try {
-    const result = (host.fitOutputEnvelope ?? fitOutputEnvelope)([], { tokenBudget: Math.min(budget, 8192), buildEnvelope: () => value, renderers: { json: output => wire(output, 'json'), toon: output => wire(output, 'toon') } });
+  /** Measure the exact same complete transport at each candidate retry budget. */
+  const measure = (candidate: number) => {
+    const result = (host.fitOutputEnvelope ?? fitOutputEnvelope)([], { tokenBudget: candidate, buildEnvelope: () => value, renderers: { json: output => wire(output, 'json'), toon: output => wire(output, 'toon') } });
     insist(result.renderings.every(rendering => rendering.bytes <= 32768), 'output_budget', 'Envelope exceeds the hard 32 KiB ceiling', 'Narrow the scope or reduce the packet page size');
-    return result.envelope;
-  } catch (error) {
+    return result;
+  };
+  try { return measure(Math.min(budget, 8192)).envelope; }
+  catch (error) {
     if (!(error instanceof OutputEnvelopeFitError)) throw error;
     insist(error.minimum_tokens !== undefined, 'backend_unsupported', 'Host fitter could not prove the minimum output envelope', 'Select a conforming serialized-output fitter or narrow the query');
-    throw new GlossaryRefusal('output_budget', 'Mandatory glossary witnesses do not fit', 'Raise --budget or narrow --scope and --limit; never drop ambiguity witnesses', { minimum_usable_budget: error.minimum_tokens, retry_shape: 'pm glossary <command> <id> --budget <minimum> [--scope <scope>] [--limit <1..100>]' });
+    const minimum = usableBudget(measure, error.minimum_tokens);
+    throw new GlossaryRefusal('output_budget', 'Mandatory glossary witnesses do not fit', minimum === null ? 'Required content exceeds the hard ceiling; narrow the scope or partition reviewed meanings' : 'Repeat the original request with the verified --budget; never drop ambiguity witnesses', { minimum_usable_budget: minimum, required_estimated_tokens: error.minimum_tokens, hard_ceiling_tokens: 8192, revision: value.revision, retry_shape: minimum === null ? 'Narrow --scope or partition the reviewed glossary; a larger budget cannot exceed 32 KiB' : `Repeat the original request with --budget ${minimum}` });
   }
 }
 
 /** Render the same typed envelope for refusals, with the host-native structured exit marker. */
 export function refusalEnvelope(error: GlossaryRefusal, exit: number): GlossaryOutput {
   return { schema_version: 1, ok: false, exit_code: exit, refusal: { code: error.code, message: error.message, remedy: error.remedy, retryable: error.retryable, details: error.details }, owner_id: null, revision: null, operation_id: null, replayed: false, scope: null, completeness: 'selected_owner', returned: 0, omitted: 0, source_revisions: [], warnings: [], continuation: null };
+}
+
+/** Verify the minimum hint after receipt digits change; four passes cover the bounded budget width. */
+function usableBudget(measure: (budget: number) => unknown, initial: number): number | null {
+  let candidate = initial;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (candidate > 8192) return null;
+    try { measure(candidate); return candidate; }
+    catch (error) {
+      if (!(error instanceof OutputEnvelopeFitError)) throw error;
+      insist(error.minimum_tokens !== undefined && error.minimum_tokens > candidate, 'backend_unsupported', 'Host fitter returned an unusable retry hint', 'Select a conforming serialized-output fitter or narrow the query');
+      candidate = error.minimum_tokens;
+    }
+  }
+  throw new GlossaryRefusal('backend_unsupported', 'Host fitter could not stabilize the retry budget', 'Select a conforming serialized-output fitter or narrow the query');
 }

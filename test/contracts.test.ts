@@ -70,5 +70,10 @@ test('native fitting failures and strict output unions cannot turn omitted witne
   const work={evaluated_candidates:0,render_calls:0,max_render_calls:1};assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{throw new OutputEnvelopeFitError('output_envelope_work_limit',work);}},value),hasCode('backend_unsupported'));
   const oversized={...data,candidates:Array.from({length:40},(_,i)=>({...data.candidates[0],sense_id:`many-${i}`,definition:'x'.repeat(2000)}))};
   const dishonest:typeof fitOutputEnvelope=(rows,options)=>fitOutputEnvelope(rows,{...options,tokenBudget:100000});assert.throws(()=>fitEnvelope({fitOutputEnvelope:dishonest},envelope(oversized,'root'),8192),hasCode('output_budget'));
+  for(let n=0;n<20;n++){const varied={...value,owner_id:'x'.repeat(n+1)};let minimum=0;try{fitEnvelope(host,varied,1);}catch(error){assert.ok(error instanceof Error&&'details' in error);minimum=(error.details as {minimum_usable_budget:number}).minimum_usable_budget;}assert.equal(fitEnvelope(host,varied,minimum).ok,true);}
+  let hint=200;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{throw new OutputEnvelopeFitError('output_envelope_infeasible',work,hint++);}},value,1),hasCode('backend_unsupported'));
+  let calls=0;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{calls++;if(calls===1)throw new OutputEnvelopeFitError('output_envelope_infeasible',work,200);throw new Error('Interrupted fitter');}},value,1));
+  let staleCalls=0;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{staleCalls++;throw new OutputEnvelopeFitError('output_envelope_infeasible',work,200);}},value,1),hasCode('backend_unsupported'));
+  assert.ok(staleCalls>1);
   assert.equal(glossaryOutputSchema.safeParse({...value,data:undefined}).success,false);assert.equal(glossaryOutputSchema.safeParse({...value,ok:false}).success,false);
 });
