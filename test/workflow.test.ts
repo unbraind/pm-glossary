@@ -22,7 +22,8 @@ test('daily release remains main-only and approval-gated with exact archived pro
   assert.equal((workflow.match(/if: github.ref == 'refs\/heads\/main' && vars.PM_RELEASE_APPROVED == 'true'/g)??[]).length,3);
   const publishes=[...workflow.matchAll(/^\s*npm publish\s+(\S+)([^\n]*)/gm)];assert.equal(publishes.length,1);assert.equal(publishes[0][1],'./release-artifact/package.tgz');assert.match(publishes[0][2],/--provenance --ignore-scripts/);
   assert.match(workflow,/sha256sum --check --strict/);assert.match(workflow,/npm run release:check/);assert.match(workflow,/npm run release:notes/);assert.match(workflow,/id-token: write/);
-  const sync=readFileSync('.github/workflows/pm-github-sync.yml','utf8');assert.match(sync,/pm-github-sync.yml@1191c65f88bb9129c33e74a650afc8d9c0eae219/);assert.match(sync,/pm-github-version: "2026.10.28"/);
+  // The caller stays SHA-pinned with a matching version comment and input; Dependabot owns the exact pin.
+  const sync=readFileSync('.github/workflows/pm-github-sync.yml','utf8');const pin=/pm-github-sync\.yml@([0-9a-f]{40}) # pm-github (\d{4}\.\d{2}\.\d{2})/.exec(sync);assert.ok(pin,'pm-github sync caller must be pinned to a full commit SHA with a version comment');assert.match(sync,new RegExp(`pm-github-version: "${pin[2].replaceAll('.','\\.')}"`));
   assert.deepEqual(verify(process.cwd()).failures,[]);
 });
 test('canonical pm-ops release planner covers no-change dependency-only collision and stale PR decisions',()=>{

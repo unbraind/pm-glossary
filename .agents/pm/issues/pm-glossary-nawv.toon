@@ -1,0 +1,21 @@
+id: pm-glossary-nawv
+title: "Main CI fails after the first squash merge: the identity gate lacks the maintainer merge author, and the workflow test pins one pm-github SHA"
+description: "CI on main (17f3f78, run 42156199177) fails identity:check: GitHub authors the maintainer's squash merges with the account address that pm-http's allowlist already approves. Dependabot PR #3 also fails test/workflow.test.ts, which hard-codes the pm-github sync SHA 1191c65 and version 2026.10.28, so every Dependabot pin bump is refused."
+type: Issue
+status: in_progress
+priority: 1
+tags[1]: ci;release;dependabot
+created_at: "2026-11-06T04:34:14.749Z"
+updated_at: "2026-11-06T04:34:19.106Z"
+assignee: claude-orchestrator
+claim_principal: claude-orchestrator
+author: claude-orchestrator
+acceptance_criteria: "identity:check passes on main's history; the workflow test accepts any full-SHA pin whose version comment matches pm-github-version and refuses a mismatch or a branch ref; Dependabot #3 goes green after rebase"
+comments[1]{created_at,author,text}:
+  "2026-11-06T04:34:19.106Z",claude-orchestrator,"Revert proofs: as-is 3/3 pass; pm-github-version 2026.10.27 against comment 2026.10.28 fails 1; a Dependabot-style bump (new SHA, comment and input 2026.11.01) passes 3/3; @main instead of a SHA fails 1. identity:check: 3 commits, zero violations."
+files[2]{path,scope}:
+  .github/approved-git-identities.txt,project
+  test/workflow.test.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  "npm run identity:check",project,claude-orchestrator,"2026-11-06T04:34:18.181Z",local_mutation,glossary-merge-identity-and-pin-agnostic-sync-test
+body: ""
