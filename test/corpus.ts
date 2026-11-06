@@ -26,6 +26,14 @@ interface Source {
   /** Reviewed exact surfaces and definitions. */
   terms:Record<string,string>;
 }
+/** Verify available full-source bytes before presenting a source digest as a receipt. */
+export function sourceReceipt(source: Source, text: string, fullSource?: Uint8Array) {
+  const hash = createHash('sha256').update(text).digest('hex');
+  assert.equal(hash, source.selected_sha256, 'Selected source digest mismatch');
+  const fullHash = fullSource === undefined ? undefined : createHash('sha256').update(fullSource).digest('hex');
+  if (fullHash !== undefined) assert.equal(fullHash, source.sha256, 'Full source digest mismatch');
+  return { repository: source.repository, revision: source.revision, ...(fullHash === undefined ? { unverified_source_sha256: source.sha256, source_sha256: undefined } : { source_sha256: fullHash, unverified_source_sha256: undefined }), selected_sha256: hash, selected_bytes: Buffer.byteLength(text) };
+}
 /** Locate the sibling source checkout from a module URL, decoding filesystem characters. */
 export function trackerRepository(moduleUrl = import.meta.url): string {
   return fileURLToPath(new URL('../../pm-vcs', moduleUrl));
@@ -50,8 +58,8 @@ export async function realData(copyTracker=false) {
     const born=await createGlossary(host,{id:'lexicon-public',op:'birth',title:'Public reviewed domain meanings',domain_key:'fleet',scopes:[{scope_key:'root',parent:null},...(copyTracker?[{scope_key:'pm-vcs-tracker',parent:'root'}]:[]),...sources.map(source=>({scope_key:source.repository.split('/')[1],parent:'root'}))]});
     const id=born.owner_id;let revision=born.revision;let rawBytes=0,senses=0,correct=0;const expected: {scope:string;term:string;sense_id:string;definition:string}[]=[];const sourceReceipts=[];const probeReceipts:{term:string;scope:string;expected:string[];actual:string[];resolution:string;usable:boolean}[]=[];
     for(const source of sources){
-      const domain=source.repository.split('/')[1];assert.deepEqual(source.terms,gold[domain]);const text=await readFile(new URL(`./fixtures/${domain}.md`,import.meta.url),'utf8');const hash=createHash('sha256').update(text).digest('hex');assert.equal(hash,source.selected_sha256);rawBytes+=Buffer.byteLength(text);
-      const doc=await native.create({id:`public-${domain}`,title:`Public ${domain} source passages`,body:text});const sourceRevision=await native.readItemRevision(doc.item.id);sourceReceipts.push({repository:source.repository,revision:source.revision,source_sha256:source.sha256,selected_sha256:hash,selected_bytes:Buffer.byteLength(text)});
+      const domain=source.repository.split('/')[1];assert.deepEqual(source.terms,gold[domain]);const text=await readFile(new URL(`./fixtures/${domain}.md`,import.meta.url),'utf8');const fullSource=copyTracker?execFileSync('git',['-C',fileURLToPath(new URL(`../../${domain}`,import.meta.url)),'show',`${source.revision}:${source.path}`],{env:gitEnvironment(process.env),maxBuffer:32*1024*1024}):undefined;const receipt=sourceReceipt(source,text,fullSource);rawBytes+=Buffer.byteLength(text);
+      const doc=await native.create({id:`public-${domain}`,title:`Public ${domain} source passages`,body:text});const sourceRevision=await native.readItemRevision(doc.item.id);sourceReceipts.push(receipt);
       for(const [term,definition] of Object.entries(source.terms)){
         const senseId=`${domain}-${term}`;assert.ok(text.includes(term));const result=await defineSense(host,{id,op:senseId,revision,sense:{sense_id:senseId,term,scope_key:domain,language:'en',definition,provenance:[{item_id:doc.item.id,item_hash:sourceRevision.item_hash,field_pointer:'/body'}]}});revision=result.revision;senses++;expected.push({scope:domain,term,sense_id:senseId,definition});
       }

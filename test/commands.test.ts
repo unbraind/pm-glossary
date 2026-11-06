@@ -5,7 +5,9 @@ import extension, { readGlossary, defineSense, resolveTerm, envelope, fitEnvelop
 import { runCommand } from '../dist/src/commands.js';
 import type { GlossaryOutput } from '../dist/index.js';
 import type { CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
-import { fitOutputEnvelope } from '@unbrained/pm-cli/sdk';
+import { GlossaryRefusal } from '../dist/src/errors.js';
+import { fitRefusal, glossaryOutputSchema } from '../dist/src/output.js';
+import { fitOutputEnvelope, createPmCliExpectedError } from '@unbrained/pm-cli/sdk';
 import { fixture, request } from './helpers.ts';
 
 test('native extension harness executes every command, contracts and scoped renderers',async t=>{
@@ -61,11 +63,49 @@ test('host renderers round-trip inert historical controls with quotes and backsl
   assert.deepEqual(await native.readItemRevision(id),before);
 });
 
-test('refusal envelopes use the host-pinned fitter like success envelopes',async()=>{
+test('refusal envelopes use the host-pinned fitter like success envelopes',async t=>{
+  const {native,pmRoot}=await fixture(t);
   let calls=0;
   const hostFitter=((...args:Parameters<typeof fitOutputEnvelope>)=>{calls+=1;return fitOutputEnvelope(...args);}) as typeof fitOutputEnvelope;
-  const sdk={fitOutputEnvelope:hostFitter,client:{schemaListFields:async()=>{throw Object.assign(new Error('host unavailable'),{code:'EIO'});}}};
-  const result=await runCommand('resolve',{args:[],options:{},global:{},pm_root:'unused',command:'glossary resolve',sdk} as unknown as CommandHandlerContext) as {ok:boolean};
+  native.schemaListFields=async()=>{throw Object.assign(new Error('host unavailable'),{code:'EIO'});};
+  const sdk={fitOutputEnvelope:hostFitter,client:native};
+  const result=await runCommand('resolve',{args:[],options:{},global:{},pm_root:pmRoot,command:'glossary resolve',sdk} as unknown as CommandHandlerContext) as {ok:boolean};
   assert.equal(result.ok,false);
   assert.ok(calls>0,'the refusal path must call the host-supplied fitter');
+});
+
+test('oversized native refusals stay typed and fit the 1600 budget with omission receipts',async t=>{
+  const {native,pmRoot}=await fixture(t);
+  for (const size of [8000,40000]) for (const [code, remedy] of [['permission_denied', 'R'.repeat(size)], ['C'.repeat(size), 'Review access'], ['C'.repeat(size), 'R'.repeat(size)]]) {
+    native.schemaListFields=async()=>{throw createPmCliExpectedError('Private host diagnostic',{exitCode:77,context:{code,required:remedy}});};
+    const sdk={fitOutputEnvelope,client:native};
+    const result = await runCommand('resolve',{args:[],options:{},global:{},pm_root:pmRoot,command:'glossary resolve',sdk} as unknown as CommandHandlerContext).catch(()=>assert.fail('Oversized native refusal escaped instead of returning typed output')) as ReturnType<typeof fitRefusal>;
+    assert.equal(result.exit_code,77);assert.equal(result.ok,false);assert.ok(result.output_fit.estimated_tokens<=1600);assert.ok(result.output_fit.output_bytes<=32768);
+    const {output_fit,...portable}=result;assert.ok(output_fit);glossaryOutputSchema.parse(portable);
+    assert.equal(result.refusal!.code,code.length<100?code:'outcome_unknown');
+    assert.equal(result.refusal!.remedy,remedy.length<100?remedy:'Read back the original operation and inspect host diagnostics before retrying');
+    assert.deepEqual(result.refusal!.details.omitted_fields,[...(code.length>100?['code']:[]),...(remedy.length>100?['remedy']:[])]);
+    assert.doesNotMatch(JSON.stringify(result),/Private host diagnostic/);
+  }
+});
+
+test('compact refusals preserve fitting native fields and report oversized details and messages',()=>{
+  for(const field of ['details','message'] as const){
+    const error = new GlossaryRefusal('revision_conflict',field==='message'?'M'.repeat(40000):'Native refusal','Reread the owner',field==='details'?{native:'D'.repeat(40000)}:{},44);
+    const result=fitRefusal({},error);
+    assert.equal(result.exit_code,44);assert.equal(result.refusal!.code,'revision_conflict');assert.equal(result.refusal!.retryable,true);assert.equal(result.refusal!.remedy,error.remedy);
+    assert.deepEqual(result.refusal!.details.omitted_fields,[field]);assert.ok(result.output_fit.estimated_tokens<=1600);
+  }
+  const error=new GlossaryRefusal('permission_denied','M'.repeat(40000));
+  assert.throws(()=>fitRefusal({},error,1),{code:'output_budget'});
+  assert.throws(()=>fitRefusal({},error,0),{code:'invalid_input'});
+  let calls=0;
+  const broken=((...args:Parameters<typeof fitOutputEnvelope>)=>{calls++;if(calls>1)throw new Error('fitter unavailable');return fitOutputEnvelope(...args);}) as typeof fitOutputEnvelope;
+  assert.throws(()=>fitRefusal({fitOutputEnvelope:broken},error),/fitter unavailable/);
+  const failsRetention=((...args:Parameters<typeof fitOutputEnvelope>)=>{
+    if(args[1].tokenBudget===1600){calls++;if(calls===3)throw new Error('retention fitter unavailable');}
+    return fitOutputEnvelope(...args);
+  }) as typeof fitOutputEnvelope;
+  calls=0;
+  assert.throws(()=>fitRefusal({fitOutputEnvelope:failsRetention},error),/retention fitter unavailable/);
 });

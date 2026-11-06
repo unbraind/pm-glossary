@@ -2,9 +2,9 @@
 
 The corpus and definitions are reviewable in `test/fixtures/`. The measurement author wrote the gold definitions independently of the resolver implementation; an independent external reviewer has not approved this release. MIT-licensed source passages are retained for reproducible offline tests. No private source was used.
 
-`npm run test:real-data` copies only committed native tracker text from the public pm-vcs checkout into a newly created plain directory, certifies its complete SDK read, and applies glossary writes only to that scratch copy. It also writes `real-data.local.json` in the current directory, outside the scratch copy, overwriting any existing report. The original tracker is read-only. Functional CI uses the pinned public source-passage snapshots instead of requiring sibling checkouts.
+`npm run test:real-data` copies only committed native tracker text from the public pm-vcs checkout into a newly created plain directory, certifies its complete SDK read, and applies glossary writes only to that scratch copy. It also writes `real-data.local.json` in the current directory, outside the scratch copy, overwriting any existing report. The original tracker is read-only. Functional CI uses the pinned public source-passage snapshots instead of requiring sibling checkouts; it labels full-source hashes as `unverified_source_sha256` metadata. The copied-tracker run hashes each full document read with `git show <revision>:<path>` and compares it with the pinned digest before emitting `source_sha256`.
 
-Run this command from a source checkout of `unbraind/pm-glossary`, with the public `pm-vcs` repository at `../pm-vcs` and the revision pinned in `test/fixtures/public-corpus.json`. The npm package does not include the test fixtures, `test/corpus.ts`, or the `test:real-data` runner.
+Run this command from a source checkout of `unbraind/pm-glossary`, with the public repositories at `../pm-vcs`, `../pm-rl` and `../pm-evidence` and each source revision pinned in `test/fixtures/public-corpus.json`. The npm package does not include the test fixtures, `test/corpus.ts`, or the `test:real-data` runner.
 
 | Public input | Git revision | Selected UTF-8 bytes |
 | --- | --- | --- |

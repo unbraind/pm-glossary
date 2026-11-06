@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { encode, escapeString, rawString } from '@toon-format/toon';
 import { fitOutputEnvelope, OutputEnvelopeFitError } from '@unbrained/pm-cli/sdk';
 import { senseSchema, committedResultSchema, parse } from './schema.ts';
-import { GlossaryRefusal, insist } from './errors.ts';
+import { GlossaryRefusal, insist, exitCode } from './errors.ts';
 import type { Host } from './host.ts';
 
 /** Exact resolution output, including all ambiguity witnesses. */
@@ -78,4 +78,27 @@ function usableBudget(measure: (budget: number) => unknown, initial: number): nu
     }
   }
   throw new GlossaryRefusal('backend_unsupported', 'Host fitter could not stabilize the retry budget', 'Select a conforming serialized-output fitter or narrow the query');
+}
+
+/** Fit refusals with explicit omission receipts when native diagnostics exceed the transport budget. */
+export function fitRefusal(host: Pick<Host, 'fitOutputEnvelope'>, error: GlossaryRefusal, budget = 1600) {
+  const original = refusalEnvelope(error, exitCode(error.code, error.nativeExit));
+  try { return fitEnvelope(host, original, budget); }
+  catch (failure) {
+    if (!(failure instanceof GlossaryRefusal) || failure.code !== 'output_budget') throw failure;
+  }
+  const fields = ['code', 'remedy', 'message', 'details'] as const;
+  let omittedFields: string[] = [...fields];
+  const compact = { code: 'outcome_unknown', message: 'Host refused the operation; oversized diagnostics omitted', remedy: 'Read back the original operation and inspect host diagnostics before retrying', retryable: error.retryable, details: { omitted_fields: omittedFields } };
+  let value: GlossaryOutput = { ...original, refusal: compact };
+  let fitted = fitEnvelope(host, value, budget);
+  for (const field of fields) {
+    const omitted = omittedFields.filter(name => name !== field);
+    const candidate = { ...value, refusal: { ...value.refusal!, [field]: error[field], details: field === 'details' ? { ...error.details, omitted_fields: omitted } : { ...value.refusal!.details, omitted_fields: omitted } } };
+    try { const next = fitEnvelope(host, candidate, budget); value = candidate; fitted = next; omittedFields = omitted; }
+    catch (failure) {
+      if (!(failure instanceof GlossaryRefusal) || failure.code !== 'output_budget') throw failure;
+    }
+  }
+  return fitted;
 }

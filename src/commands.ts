@@ -2,8 +2,8 @@ import { normalizeItemId, readSettings } from '@unbrained/pm-cli/sdk';
 import { defineCommand } from '@unbrained/pm-cli/sdk/authoring';
 import type { CommandHandlerContext, ExtensionApi, FlagDefinition } from '@unbrained/pm-cli/sdk/authoring';
 import { createGlossary, defineSense, addAlias, resolveTerm, checkGlossary, glossaryPacket } from './api.ts';
-import { GlossaryRefusal, refusal, exitCode, insist } from './errors.ts';
-import { envelope, fitEnvelope, refusalEnvelope, wire } from './output.ts';
+import { GlossaryRefusal, refusal, insist } from './errors.ts';
+import { envelope, fitEnvelope, fitRefusal, wire } from './output.ts';
 import type { GlossaryData } from './output.ts';
 import { persistedSchemaPort } from './host.ts';
 import type { Host } from './host.ts';
@@ -63,7 +63,7 @@ export async function runCommand(command: string, ctx: CommandHandlerContext): P
   } catch (error) {
     const failure = refusal(error);
     // Refusals use the same host-pinned fitter as success envelopes, so both carry identical fit metadata.
-    return fitEnvelope({ fitOutputEnvelope: ctx.sdk?.fitOutputEnvelope }, refusalEnvelope(failure, exitCode(failure.code, failure.nativeExit)), 1600);
+    return fitRefusal({ fitOutputEnvelope: ctx.sdk?.fitOutputEnvelope }, failure, 1600);
   }
 }
 /** Register contributions only; activation never writes schema, settings or records. */
