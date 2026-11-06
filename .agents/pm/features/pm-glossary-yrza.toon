@@ -2,19 +2,39 @@ id: pm-glossary-yrza
 title: "SDK gap: protected extension envelopes need native cost and producer cursor controls"
 description: "Release blocker for the exact native output-control contract. Published SDK CommandDefinition.read_output only opts read-only handlers into host shaping; validateReadOutputOptions runs before parser overrides and refuses mutation cost flags. Native output cursors are decoded and applied outside the handler, so producer-owned pagination is applied twice. No public consume-cursor or mutation-envelope capability exists in ExtensionCommandSdk. Public declarations and open upstream searches were checked; no matching open issue was found. Upstream issue creation is outside this task. The package uses explicit budget and cursor fallback flags without shadowing native flags or misdeclaring writes as reads."
 type: Feature
-status: open
+status: blocked
 priority: 2
 tags[3]: release-blocker,sdk-gap,"upstream:pm-cli"
 created_at: "2026-11-05T11:51:59.773Z"
-updated_at: "2026-11-05T11:55:22.486Z"
+updated_at: "2026-11-06T16:31:27.011Z"
 author: codex-agent
 acceptance_criteria: Upstream provides truthful mutation cost controls and producer-owned native cursor consumption; native flags pass packed npm and Bun write and multi-page journeys without generic witness compaction; remove documented fallback limitation only after those exact host gates pass
 parent: pm-glossary-gjws
+blocked_reason: Public SDK lacks a truthful mutation cost contract and producer cursor-consumption port; confirmed through published 2026.11.6. Packed tests preserve the host refusals and fallback journeys.
+comments[2]{created_at,author,text}:
+  "2026-11-06T15:46:41.098Z",codex-sol,"Inspected pinned 2026.11.4 public declarations plus published 2026.11.5 and 2026.11.6 declarations: CommandDefinition.read_output is still only ExtensionCommandReadOutput { row_keys: readonly string[] }. ExtensionCommandSdk has no producer cursor-consumption or mutation-envelope cost port. Open upstream searches for extension native output cursor and producer cursor found no matching extension capability issue (history paging issue #1679 is unrelated). Exact native write budget and producer cursor acceptance cannot be implemented honestly within this package. Preserve truthful mutation classification and mandatory witnesses; add real-host refusal regressions and retain the release blocker. No upstream source changes or issue filing."
+  "2026-11-06T16:31:22.905Z",codex-sol,"Packed npm and Bun acceptance now exercises native output-budget, output-limit and output-cursor refusal on create and packet, then successful fallback writes and multi-page cursor journeys. Both full release gates pass; the linked bun run release:check passes through pm test. This is blocker evidence, not native-control compliance: SDK mutation cost and producer cursor-consumption contracts remain absent through published 2026.11.6. Acceptance remains unmet and this release-blocking item stays blocked. Companion pm-cli-website-m8dy (G4) is referenced by the related package-owned settings adoption item pm-glossary-sdk-settings; the companion tracker was never written."
 files[4]{path,scope}:
   src/commands.ts,project
   src/output.ts,project
   src/packet.ts,project
   test/install.acceptance.ts,project
+tests[2]:
+  - command: "npm run test:install"
+    scope: project
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-06T15:50:40.409Z"
+      source_kind: local_mutation
+      source_ref: glossary-sdk-settings-and-native-output-controls
+  - command: "bun run release:check"
+    scope: project
+    timeout_seconds: 2400
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-06T16:05:23.600Z"
+      source_kind: local_mutation
+      source_ref: glossary-sdk-settings-and-native-output-controls
 docs[2]{path,scope}:
   ARCHITECTURE.md,project
   README.md,project

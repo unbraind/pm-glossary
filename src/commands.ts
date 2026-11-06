@@ -8,6 +8,7 @@ import type { GlossaryData } from './output.ts';
 import { persistedSchemaPort } from './host.ts';
 import type { Host } from './host.ts';
 import { parse, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema } from './schema.ts';
+import { validateSettings } from './settings.ts';
 
 /** Read one scalar option without accepting empty or repeated guard values. */
 function scalar(value: unknown): string { insist(typeof value === 'string' && value.trim().length > 0, 'invalid_input', 'A required scalar option is missing'); return value; }
@@ -36,10 +37,9 @@ export async function runCommand(command: string, ctx: CommandHandlerContext): P
     insist(ctx.sdk !== undefined, 'backend_unsupported', 'The host did not supply its native SDK client', 'Use pm-cli 2026.11.4 or a conforming authorized embedding host');
     const persisted = (await ctx.sdk.client.schemaListFields()).fields.find(field => field.key === 'glossary_state');
     insist(persisted === undefined || persisted.type === 'object', 'invalid_record', 'glossary_state schema is incompatible');
-    const host: Host = { client: persisted ? persistedSchemaPort(ctx.sdk.client) : ctx.sdk.client, fitOutputEnvelope: ctx.sdk.fitOutputEnvelope, capabilities: { native_item_cas: true, create_if_absent: true, provider: 'directory-host' }, normalizeId: async id => normalizeItemId(id, (await readSettings(ctx.pm_root)).id_prefix), settings: async () => (await ctx.sdk!.readSettingsSection('glossary')).value };
-    const flags = ctx.options; const settings = await host.settings!();
-    insist(settings === undefined || (typeof settings === 'object' && settings !== null && !Array.isArray(settings) && Object.keys(settings).every(key => key === 'output_budget')), 'invalid_record', 'Package settings contain unsupported fields');
-    const policy = settings as { output_budget?: unknown } | undefined;
+    const policy = (await ctx.sdk.readSettingsSection('glossary', { validate: validateSettings })).value;
+    const host: Host = { client: persisted ? persistedSchemaPort(ctx.sdk.client) : ctx.sdk.client, fitOutputEnvelope: ctx.sdk.fitOutputEnvelope, capabilities: { native_item_cas: true, create_if_absent: true, provider: 'directory-host' }, normalizeId: async id => normalizeItemId(id, (await readSettings(ctx.pm_root)).id_prefix) };
+    const flags = ctx.options;
     const foreignProjection = ctx.global.outputInclude !== undefined || ctx.global.outputLimit !== undefined || ctx.global.outputSession !== undefined || ctx.global.outputRowContract !== undefined;
     insist(!foreignProjection, 'invalid_input', 'Generic projections cannot omit glossary witnesses', 'Use --scope, --limit, --budget and the returned --cursor');
     const requestedBudget = flags.budget === undefined ? ctx.global.outputBudget : flags.budget;

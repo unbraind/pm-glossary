@@ -13,4 +13,5 @@
 
 ### Other
 
+- Adopt SDK settings-section reads consistently in glossary adapters ([pm-glossary-sdk-settings](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/tasks/pm-glossary-sdk-settings.toon))
 - Deliver scoped glossary first release ([pm-glossary-gjws](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/epics/pm-glossary-gjws.toon))
