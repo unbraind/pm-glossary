@@ -5,6 +5,7 @@ import extension, { readGlossary, defineSense, resolveTerm, envelope, fitEnvelop
 import { runCommand } from '../dist/src/commands.js';
 import type { GlossaryOutput } from '../dist/index.js';
 import type { CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
+import { fitOutputEnvelope } from '@unbrained/pm-cli/sdk';
 import { fixture, request } from './helpers.ts';
 
 test('native extension harness executes every command, contracts and scoped renderers',async t=>{
@@ -58,4 +59,13 @@ test('host renderers round-trip inert historical controls with quotes and backsl
   }
   assert.ok(fitted.output_fit.output_bytes>=Math.max(...Object.values(rendered).map(text=>Buffer.byteLength(text+'\n'))));
   assert.deepEqual(await native.readItemRevision(id),before);
+});
+
+test('refusal envelopes use the host-pinned fitter like success envelopes',async()=>{
+  let calls=0;
+  const hostFitter=((...args:Parameters<typeof fitOutputEnvelope>)=>{calls+=1;return fitOutputEnvelope(...args);}) as typeof fitOutputEnvelope;
+  const sdk={fitOutputEnvelope:hostFitter,client:{schemaListFields:async()=>{throw Object.assign(new Error('host unavailable'),{code:'EIO'});}}};
+  const result=await runCommand('resolve',{args:[],options:{},global:{},pm_root:'unused',command:'glossary resolve',sdk} as unknown as CommandHandlerContext) as {ok:boolean};
+  assert.equal(result.ok,false);
+  assert.ok(calls>0,'the refusal path must call the host-supplied fitter');
 });
