@@ -1,5 +1,6 @@
 import { PmClient, normalizeItemId } from '@unbrained/pm-cli/sdk/core';
-import { readSettings, fitOutputEnvelope } from '@unbrained/pm-cli/sdk';
+import { readSettings, readSettingsSection, fitOutputEnvelope } from '@unbrained/pm-cli/sdk';
+import { validateSettings } from './settings.ts';
 import type { GlossaryState } from './schema.ts';
 import { insist } from './errors.ts';
 
@@ -32,7 +33,7 @@ export function createDirectoryHost(pmRoot: string, author: string): Host {
     /** Normalize owner identities using the backend SDK prefix policy. */
     normalizeId: async id => normalizeItemId(id, (await readSettings(pmRoot)).id_prefix),
     /** Read package-owned policy without changing native tracker settings. */
-    settings: async () => (await readSettings(pmRoot) as unknown as Record<string, unknown>).glossary,
+    settings: async () => (await readSettingsSection(pmRoot, 'glossary', { validate: validateSettings })).value,
     /** Register missing native schema only for explicit creation; never replace peer definitions. */
     prepareCreate: async () => {
       const fields = await client.schemaListFields(); const existing = fields.fields.find(field => field.key === 'glossary_state');

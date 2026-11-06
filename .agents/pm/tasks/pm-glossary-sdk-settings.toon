@@ -1,0 +1,28 @@
+id: pm-glossary-sdk-settings
+title: Adopt SDK settings-section reads consistently in glossary adapters
+description: Implement pm-glossary scope of companion pm-cli-website-m8dy (G4); use public readSettingsSection and preserve package policy validation. Coordinate with pm-glossary-yrza in one PR.
+type: Task
+status: in_progress
+priority: 2
+tags: []
+created_at: "2026-11-06T15:45:45.620Z"
+updated_at: "2026-11-06T16:31:24.778Z"
+author: codex-sol
+acceptance_criteria: Directory and command adapters agree on custom and absent policy; typed malformed settings refusals; customized native schema and sibling settings survive; real non-git tracker tests with revert proof
+parent: pm-glossary-gjws
+comments[3]{created_at,author,text}:
+  "2026-11-06T15:46:07.662Z",codex-sol,"Companion pm-cli-website-m8dy (G4), read only: replace the directory adapter normalized-core section lookup with readSettingsSection. Share strict glossary policy validation across directory and command adapters; retain package output budget and witness rules. Real scratch non-git trackers will cover absent/custom/invalid policy, malformed documents, custom native schema and sibling sections. Coordinate native controls with pm-glossary-yrza in the same PR."
+  "2026-11-06T15:56:38.056Z",codex-sol,"Implemented shared section validation through readSettingsSection in both adapters. The 12 focused tests pass on real non-git SDK trackers, including absent/default/custom policy, historical numeric strings, invalid policy, malformed documents, custom native schema, sibling policy and unchanged settings/workspace history. Lint/typecheck/docstrings and zero-duplication gates pass. Full npm/Bun gates and disposable behavioral revert proofs are in progress."
+  "2026-11-06T16:31:21.206Z",codex-sol,"Validation complete: focused build plus settings/contracts/commands tests pass 12/12. npm run release:check and bun run release:check pass with isolated HOME and Git config: 139/139 coverage tests, all 10 runtime files at 100 percent statements (461/461), branches (283/283), functions (112/112), lines (396/396); zero duplication and production vulnerabilities; packed npm/Bun journeys pass. Disposable revert proofs: restoring the original directory core-settings lookup fails BOTH new tests; removing either directory or command SDK section validation fails the refusal test. All 51 mutants fail as expected and the restored implementation passes 103/103 tests. The Bun gate ran through the linked pm test on pm-glossary-yrza. Identity/privacy passes for all staged files; existing native history remains a byte-prefix extension of main. Ready for one PR and the required bot-review/CI loop; leave this item open for orchestrator verification."
+files[5]{path,scope}:
+  src/commands.ts,project
+  src/host.ts,project
+  src/settings.ts,project
+  test/revert.acceptance.ts,project
+  test/settings.test.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  npm run build && node --test --test-concurrency=2 test/settings.test.ts test/contracts.test.ts test/commands.test.ts,project,codex-sol,"2026-11-06T15:50:04.030Z",local_mutation,glossary-sdk-settings-and-native-output-controls
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
+body: ""
