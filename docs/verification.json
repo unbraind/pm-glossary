@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "status": "historical",
+  "note": "Historical receipt for source_commit only (the first release-candidate build). It does not verify later revisions; current verification is the CI run on the PR head and the latest receipts recorded on pm item pm-glossary-c1dt.",
+  "source_commit": "389a1f67f5d166fb4e52fc11715f52d2af4b667a",
+  "scaffold_commit": "39bcfa966b06be4df967be91f17b6f7f3e255135",
+  "branch": "feat/glossary",
+  "sdk": "2026.11.4",
+  "pm_ops": "2026.11.4",
+  "pm_changelog": "2026.10.31",
+  "gate_node": "24.19.0",
+  "native_bun": "1.3.5",
+  "stages": [
+    "identity:check",
+    "tracker:health",
+    "typecheck",
+    "lint",
+    "duplication",
+    "build",
+    "docstring",
+    "coverage",
+    "audit:prod",
+    "pack:dry-run",
+    "changelog:check",
+    "verify:release-publish-attestation",
+    "test:install",
+    "test:revert"
+  ],
+  "gates": [
+    {
+      "command": "npm run release:check",
+      "status": "passed",
+      "stage_count": 14,
+      "suite_tests": 42,
+      "packed_acceptance_tests": 1,
+      "packed_journeys": 2,
+      "restored_regression_tests": 4,
+      "expected_revert_failures": 5,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": {
+        "lines": {
+          "total": 362,
+          "covered": 362,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 428,
+          "covered": 428,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 108,
+          "covered": 108,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 275,
+          "covered": 275,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "random_model": {
+        "seed": "0x51a5",
+        "sequences": 500,
+        "writes": 742,
+        "reads": 500,
+        "replays": 273,
+        "refused": 227
+      },
+      "concurrent_writers": {
+        "requests": 20,
+        "acknowledged": 17,
+        "explicit_conflicts": 3,
+        "preserved": 17
+      }
+    },
+    {
+      "command": "bun run release:check",
+      "status": "passed",
+      "stage_count": 14,
+      "suite_tests": 42,
+      "packed_acceptance_tests": 1,
+      "packed_journeys": 2,
+      "restored_regression_tests": 4,
+      "expected_revert_failures": 5,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": {
+        "lines": {
+          "total": 362,
+          "covered": 362,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 428,
+          "covered": 428,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 108,
+          "covered": 108,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 275,
+          "covered": 275,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "random_model": {
+        "seed": "0x51a5",
+        "sequences": 500,
+        "writes": 742,
+        "reads": 500,
+        "replays": 273,
+        "refused": 227
+      },
+      "concurrent_writers": {
+        "requests": 20,
+        "acknowledged": 17,
+        "explicit_conflicts": 3,
+        "preserved": 17
+      }
+    }
+  ],
+  "node_matrix": [
+    {
+      "node": "22.19.0",
+      "status": "passed",
+      "tests": 1,
+      "journeys": 2,
+      "files": 43,
+      "sha256": "913de4e8371789b67eb0dbaaa0531bea8891e9927d404cbb496900220d1a032f"
+    },
+    {
+      "node": "26.13.0",
+      "status": "passed",
+      "tests": 1,
+      "journeys": 2,
+      "files": 43,
+      "sha256": "913de4e8371789b67eb0dbaaa0531bea8891e9927d404cbb496900220d1a032f"
+    }
+  ],
+  "artifact": {
+    "sha256": "913de4e8371789b67eb0dbaaa0531bea8891e9927d404cbb496900220d1a032f",
+    "file_count": 43,
+    "files": [
+      "ARCHITECTURE.md",
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "dist/index.d.ts",
+      "dist/index.d.ts.map",
+      "dist/index.js",
+      "dist/index.js.map",
+      "dist/src/api.d.ts",
+      "dist/src/api.d.ts.map",
+      "dist/src/api.js",
+      "dist/src/api.js.map",
+      "dist/src/commands.d.ts",
+      "dist/src/commands.d.ts.map",
+      "dist/src/commands.js",
+      "dist/src/commands.js.map",
+      "dist/src/errors.d.ts",
+      "dist/src/errors.d.ts.map",
+      "dist/src/errors.js",
+      "dist/src/errors.js.map",
+      "dist/src/host.d.ts",
+      "dist/src/host.d.ts.map",
+      "dist/src/host.js",
+      "dist/src/host.js.map",
+      "dist/src/kernel.d.ts",
+      "dist/src/kernel.d.ts.map",
+      "dist/src/kernel.js",
+      "dist/src/kernel.js.map",
+      "dist/src/output.d.ts",
+      "dist/src/output.d.ts.map",
+      "dist/src/output.js",
+      "dist/src/output.js.map",
+      "dist/src/packet.d.ts",
+      "dist/src/packet.d.ts.map",
+      "dist/src/packet.js",
+      "dist/src/packet.js.map",
+      "dist/src/schema.d.ts",
+      "dist/src/schema.d.ts.map",
+      "dist/src/schema.js",
+      "dist/src/schema.js.map",
+      "docs/real-data.md",
+      "manifest.json",
+      "package.json"
+    ],
+    "commands": [
+      "npm",
+      "bun",
+      "npx",
+      "bunx"
+    ],
+    "git_in_consumer_path": false,
+    "all_four_captures_identical": true
+  },
+  "quality": {
+    "documented_declarations": 63,
+    "documented_files": 21,
+    "duplicate_lines": 0,
+    "measured_lines": 1517,
+    "duplication_sources": 36,
+    "clone_pairs": 0,
+    "production_audit_vulnerabilities": 0
+  },
+  "runtime_sources": {
+    "index.ts": "3765dd52808449ae685845247b53b63203d85b2fdb0b8668ec4c52728035c17a",
+    "src/api.ts": "f69f528f152e288c5b177ac3fd643343dd8bbc8da45291d9210237892b0628a4",
+    "src/commands.ts": "d4f49d57840847034d3be9d6cb0ee894a0e1f3bf8d071513261eb464bb6869c1",
+    "src/errors.ts": "8ae0bf15042bbefba43d74fa566fca8dfca1968b45f237c5324d5a28ef3ba070",
+    "src/host.ts": "6797672cd5120f7bf9fef404715c8979ba26cb37b1c199e7a5131b97fd015b56",
+    "src/kernel.ts": "53264a7f24e799f5cf10a721d7d912ce77ad68169c9c391381a9e74cb671eeb0",
+    "src/output.ts": "713b25cb199929aee81978844a41f9eb142fbaee0e744b071dd0b171adfab4f8",
+    "src/packet.ts": "e7393fd6b9b34430e17d9ea7f010ce71bee4f7d11e82bd1a1c7e037d356295ef",
+    "src/schema.ts": "095d028da13ec2741940a0a6220c4a033aa6a6a6cc6bc1247ca434987c1275dd"
+  },
+  "baseline_history_prefixes_preserved": 6,
+  "real_data_receipt": "docs/real-data.md",
+  "deferred": {
+    "bindings_and_freshness": "pm-glossary-3jep"
+  },
+  "sdk_findings": [
+    {
+      "status": "release_blocker",
+      "item": "pm-glossary-yrza",
+      "contract": "Native mutation cost controls and producer cursor consumption are unavailable; explicit budget/cursor fallbacks are tested without shadowing native flags."
+    },
+    {
+      "status": "uncertified_providers",
+      "item": "pm-glossary-h5rj",
+      "upstream_issues": [
+        1399,
+        1587,
+        1588
+      ],
+      "contract": "Directory provider and injected directory-backed contracts are tested; no authoritative in-memory or database provider is certified."
+    },
+    {
+      "status": "handled",
+      "contract": "SDK fitter minimum hints can grow after receipt digit changes; retry hints are remeasured and verified."
+    },
+    {
+      "status": "handled",
+      "contract": "Persisted native custom fields use glossaryState options; active extension fields use the registered field route."
+    },
+    {
+      "status": "handled",
+      "contract": "Observability callbacks stay outside native revision scopes, which advance expectations after their own writes."
+    },
+    {
+      "status": "handled",
+      "contract": "Native strictExit also requires optional Git integration; CI checks the authoritative SDK ok verdict with full read-only diagnostics instead."
+    }
+  ],
+  "publication": {
+    "repository_created": false,
+    "pushed": false,
+    "published": false,
+    "approval_variable_enabled": false,
+    "independent_external_review": "pending"
+  }
+}

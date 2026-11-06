@@ -1,0 +1,12 @@
+id: pm-glossary-7zl7
+title: Review development-only glob advisory in coverage dependencies
+description: Credential-free npm ci and npm audit report three moderate development-only advisory entries through c8 to test-exclude to glob (GHSA-3g3m-2fjr-6pw4). This predates the review fixes; no dependency or lockfile was changed. Assess a compatible transitive update or removal of unused c8 separately; do not apply npm audit fix --force or bump the pinned pm SDK as part of PR 1. Production audit remains a required release gate.
+type: Task
+status: open
+priority: 2
+tags[2]: dependencies,security
+created_at: "2026-11-05T14:05:58.995Z"
+updated_at: "2026-11-05T14:05:58.995Z"
+author: codex-agent
+parent: pm-glossary-gjws
+body: ""

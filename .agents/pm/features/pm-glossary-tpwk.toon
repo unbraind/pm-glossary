@@ -2,12 +2,34 @@ id: pm-glossary-tpwk
 title: Implement first-slice glossary kernel and native commands
 description: "Strict versioned state, exact scope tree, owner CAS and deterministic replay with bounded output."
 type: Feature
-status: open
+status: in_progress
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:52.407Z"
-updated_at: "2026-11-05T10:29:52.407Z"
+updated_at: "2026-11-05T19:35:19.162Z"
 author: codex-agent
 acceptance_criteria: Create define alias resolve check packet; full schemas and SDK; stale and concurrent requests preserve peer history
 parent: pm-glossary-gjws
+comments[6]{created_at,author,text}:
+  "2026-11-05T10:52:17.663Z",codex-agent,First-slice kernel and commands now round-trip through native directory SDK and the extension harness. Native project-schema fields require the declared option route rather than extension --field; the directory port adapts this without unconditional writes. Observability callbacks run outside the native revision scope because nested peer writes may advance that scope. Interleaving tests cover each public operation boundary and crashes before and after commit.
+  "2026-11-05T11:13:51.587Z",codex-agent,"Behavioral revert proof passed in disposable emitted-code copies: reducing the resolver to the first candidate failed ambiguity assertions; replacing native expected-revision dispatch with an unconditional update failed the before-update peer-write assertion; removing the SDK secret scanner admission failed the refusal corpus. The unchanged implementation passed after each disposable proof. Native ID normalization now makes canonical and unprefixed retries share request identity."
+  "2026-11-05T12:52:47.043Z",codex-agent,"Final inspection found create-time schema validation occurred in the wrong order: a missing glossary field could be registered before an incompatible peer-owned Glossary type was rejected. Both existing contributions are now read and validated before either registration. A real SDK regression covers conflicting type, field and both; the old host function failed with changed native settings, while the fixed implementation passes all three cases with no items or settings changed. The prior Bun gate was deliberately stopped; full npm and Bun gates will be rerun for this code change."
+  "2026-11-05T13:39:35.687Z",codex-agent,"Local first slice is implemented and verified: six commands and exported strict SDK schemas/API, exact scoped resolution with abstention, reviewed aliases and diagnostics, bounded complete-witness packets, native CAS/create-if-absent/replay handling, inert rendering and privacy admission. Final schema-order regression proves refusals do not register a partial schema. Exact bindings and freshness remain the later Feature 3jep. Native global output controls remain release-blocked by yrza; additional provider certification remains h5rj. No arbitrary-provider or independent-review approval is claimed."
+  "2026-11-05T19:32:19.975Z",codex-agent,"PRRT_kwDOVkA9os60O4ZP: replaced the direct linked core/commands command using pinned pm remove-plus-add with npm run build before node --test; kept all prior immutable history. The linked-test command identity is immutable, so --set-json correctly refused a command edit and documented the supported replacement operation. Regression in test/build.test.ts checks every direct linked command in both affected items."
+  "2026-11-05T19:35:18.380Z",codex-agent,"Verified updated linked test via pinned pm test --run --only-last --progress: build then test/core.test.ts and test/commands.test.ts, 7/7 passed with zero failures/skips. Every direct linked command in c1dt and tpwk now builds its emitted prerequisites. Behavioral removal of each of all five build prefixes fails the new focused regression; histories remain append-only. Releasing own claim; item remains in_progress for orchestrator verification."
+files[9]{path,scope}:
+  index.ts,project
+  src/api.ts,project
+  src/commands.ts,project
+  src/errors.ts,project
+  src/host.ts,project
+  src/kernel.ts,project
+  src/output.ts,project
+  src/packet.ts,project
+  src/schema.ts,project
+tests[1]{command,scope,timeout_seconds,provenance{author,created_at,source_kind,source_ref}}:
+  npm run build && node --test --test-concurrency=2 test/core.test.ts test/commands.test.ts,project,300,codex-agent,"2026-11-05T19:32:05.161Z",local_mutation,review/glossary-r4
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
 body: ""

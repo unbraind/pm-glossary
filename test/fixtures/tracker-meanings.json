@@ -1,0 +1,6 @@
+{
+  "release": {"item_id":"pm-vcs-simi","item_hash":"ebd94d1e9bb3883ec0c2b1a6fc8878f7e508e56134db836d02b0c5ca0f1c3a66","definition":"The package verification workflow run through npm or Bun."},
+  "gate": {"item_id":"pm-vcs-disposable-cleanup-contracts","item_hash":"a15defe78607963793698e032e65ec9a2530e2940d0e1ea4e2fd6abeb09bdc13","definition":"A CI validation run that owns a disposable scratch lifetime."},
+  "lease": {"item_id":"pm-vcs-j7mz","item_hash":"79f7594aa8efdc295b909416350156e2e9a52afb8cf2d9e5f97ae1842189cd34","definition":"Temporary authority protecting proposal or upload lifecycle work."},
+  "receipt": {"item_id":"pm-vcs-uploadretention","item_hash":"4d725e720dc5b5fca953e400e655828037dc1c1b95bf9233cf2f301718f5be08","definition":"A receiver-owned record protecting an upload session and its resumption."}
+}
