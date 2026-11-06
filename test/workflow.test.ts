@@ -28,7 +28,8 @@ test('daily release remains main-only and approval-gated with exact archived pro
   const syncCallers=syncLines.filter(line=>/^\s*uses:\s*unbraind\/pm-github\/\.github\/workflows\/pm-github-sync\.yml@/.test(line));
   assert.equal(syncCallers.length,1,'exactly one active pm-github sync caller');
   assert.match(syncCallers[0],/^\s*uses:\s*unbraind\/pm-github\/\.github\/workflows\/pm-github-sync\.yml@[0-9a-f]{40} # pm-github \d{4}\.\d{2}\.\d{2}\s*$/);
-  assert.equal(syncLines.some(line=>/^\s*pm-github-version:/.test(line)),false,'the deprecated pm-github-version input must not be set');
+  // Any active mention counts (block, flow, quoted or spaced keys); trailing comments are stripped first.
+  assert.equal(syncLines.some(line=>line.replace(/\s#.*$/,'').includes('pm-github-version')),false,'the deprecated pm-github-version input must not be set');
   assert.deepEqual(verify(process.cwd()).failures,[]);
 });
 test('canonical pm-ops release planner covers no-change dependency-only collision and stale PR decisions',()=>{
