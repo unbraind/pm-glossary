@@ -31,7 +31,9 @@ test('one packed artifact works with npm, bun, npx, bunx and native SDK without 
       run(['init','packed','--defaults','--agent-guidance','skip','--no-merge-fence']);
       run(['package','install','./node_modules/pm-glossary']);
       run(['glossary','--help']);const contracts=JSON.parse(run(['contracts','--json','--output-budget','unbounded']));assert.ok(contracts);
-      const budgetRefusal=JSON.parse(run(['glossary','create','--id','packed-lexicon','--op','birth','--input','-','--json','--output-budget','1600'],JSON.stringify({title:'Public terminology',domain_key:'release',scopes:[{scope_key:'root',parent:null}]}),2));assert.match(budgetRefusal.detail,/not a read surface/);
+      for(const [flag,value] of [['--output-budget','1600'],['--output-limit','1'],['--output-cursor','unusable']]){
+        const refused=JSON.parse(run(['glossary','create','--id','packed-lexicon','--op','birth','--input','-','--json',flag,value],JSON.stringify({title:'Public terminology',domain_key:'release',scopes:[{scope_key:'root',parent:null}]}),2));assert.match(refused.detail,/not a read surface/);
+      }
       const small=JSON.parse(run(['glossary','create','--id','packed-lexicon','--op','birth','--input','-','--json','--budget','1'],JSON.stringify({title:'Public terminology',domain_key:'release',scopes:[{scope_key:'root',parent:null}]}),2));assert.equal(small.refusal.code,'output_budget');
       const birth=JSON.parse(run(['glossary','create','--id','packed-lexicon','--op','birth','--input','-','--json','--budget','1600'],JSON.stringify({title:'Public terminology',domain_key:'release',scopes:[{scope_key:'root',parent:null}]})));
       assert.equal(birth.replayed,false);
@@ -41,6 +43,9 @@ test('one packed artifact works with npm, bun, npx, bunx and native SDK without 
       const checked=JSON.parse(run(['glossary','check','packed-lexicon','--json']));assert.equal(checked.ok,true,JSON.stringify(checked));assert.equal(checked.data.findings.length,0);
       const projection=JSON.parse(run(['glossary','resolve','packed-lexicon','--term','gate','--scope','root','--output-include','data','--json'],undefined,2));assert.match(projection.detail,/not a read surface/);
       const page=JSON.parse(run(['glossary','packet','packed-lexicon','--scope','root','--limit','1','--budget','1600','--json']));assert.ok(page.continuation);
+      for(const [flag,value] of [['--output-budget','1600'],['--output-limit','1'],['--output-cursor',page.continuation]]){
+        const refused=JSON.parse(run(['glossary','packet','packed-lexicon','--scope','root','--json',flag,value],undefined,2));assert.match(refused.detail,/not a read surface/);
+      }
       const next=JSON.parse(run(['glossary','packet','packed-lexicon','--scope','root','--limit','1','--cursor',page.continuation,'--json']));assert.equal(next.data.rows.length,1);
       assert.equal(JSON.parse(run(['glossary','resolve','packed-lexicon','--term','gate','--scope','root','--budget','1','--json'],undefined,2)).refusal.code,'output_budget');const serialized=run(['glossary','resolve','packed-lexicon','--term','gate','--scope','root','--json']);const resolution=JSON.parse(serialized);assert.ok(Buffer.byteLength(serialized)<=resolution.output_fit.output_bytes);assert.ok(Math.ceil(Buffer.byteLength(serialized)/4)<=resolution.output_fit.token_budget);assert.equal(resolution.data.candidates[0].sense_id,'gate');assert.equal(resolution.data.candidates[0].definition,'Reviewed condition.');assert.equal(resolution.data.usable,true);
       assert.match(run(['glossary','resolve','packed-lexicon','--term','gate','--scope','root']),/resolved/);

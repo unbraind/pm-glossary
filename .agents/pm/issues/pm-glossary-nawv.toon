@@ -1,0 +1,48 @@
+id: pm-glossary-nawv
+title: "Main CI fails after the first squash merge: the identity gate lacks the maintainer merge author, and the workflow test pins one pm-github SHA"
+description: "CI on main (17f3f78, run 42156199177) fails identity:check: GitHub authors the maintainer's squash merges with the account address that pm-http's allowlist already approves. Dependabot PR #3 also fails test/workflow.test.ts, which hard-codes the pm-github sync SHA 1191c65 and version 2026.10.28, so every Dependabot pin bump is refused."
+type: Issue
+status: closed
+priority: 1
+tags[3]: ci,dependabot,release
+created_at: "2026-11-06T04:34:14.749Z"
+updated_at: "2026-11-06T21:24:06.000Z"
+closed_at: "2026-11-06T21:17:09.695Z"
+completed_at: "2026-11-06T21:17:09.695Z"
+author: claude-orchestrator
+acceptance_criteria: "identity:check passes on main history; the reviewed sync contract accepts exactly one active full-SHA caller with a pm-github release-version comment, tolerates Dependabot SHA/comment updates, and refuses branch refs or any active deprecated pm-github-version input; Dependabot #3 passes after rebase."
+resolution: Delivered by merged PR #5 (9432b69937fb6adbfa9eacc9b5456f6425479c5b); verified against main source and tests.
+expected_result: "Main history passes identity policy; sync caller tolerates Dependabot full-SHA/comment updates, rejects branch references and deprecated version inputs; Dependabot #3 passes after rebase."
+actual_result: "identity:check passes across 6 commits and 95 tracked files; workflow.test.ts passes 3/3 on main. Dependabot #3 head 00f63aa844bffb5af78395a60fa0f04256dd7ad1 passed Node 22/26 CI run 42176620885 and merged as 3273c6cdcffc66b9c89e298363126234213ee1bb. Input/comment equality was superseded by the documented reviewed removal of pm-github-version. Tags are three separate values."
+comments[9]{created_at,author,text}:
+  "2026-11-06T04:34:19.106Z",claude-orchestrator,"Revert proofs: as-is 3/3 pass; pm-github-version 2026.10.27 against comment 2026.10.28 fails 1; a Dependabot-style bump (new SHA, comment and input 2026.11.01) passes 3/3; @main instead of a SHA fails 1. identity:check: 3 commits, zero violations."
+  "2026-11-06T05:03:41.127Z",claude-orchestrator,"Review round 1 (CodeRabbit + Sourcery): the test now reads only active (non-comment) lines, requires exactly one sync caller pinned by full SHA with a '# pm-github YYYY.MM.DD' comment, and builds no regex from file content. Dependabot updates the SHA and comment but not the pm-github-version input, which pm-github marks deprecated (fallback only for non-release commits), so the caller drops it and the test refuses its return. Proofs: as-is 3/3; commented pin + active @main fails 1; Dependabot bump (SHA + comment only) 3/3; deprecated input re-added fails 1; commented input only 3/3."
+  "2026-11-06T05:48:13.847Z",claude-orchestrator,"Review round 2 (CodeRabbit): the deprecated-input check now refuses any active mention of pm-github-version after stripping trailing comments, so block, spaced-key, quoted-key and flow-mapping forms all fail. A trailing-comment mention and a Dependabot bump pass."
+  "2026-11-06T21:15:28.561Z",codex-sol,"Merged PR #5 (9432b69937fb6adbfa9eacc9b5456f6425479c5b) implements the revised contract approved in the existing orchestrator review comments: full-SHA plus release comment, with deprecated pm-github-version entirely absent. Original input/comment equality is superseded by refusing that input. Dependabot #3 merged as 3273c6cdcffc66b9c89e298363126234213ee1bb; its head 00f63aa844bffb5af78395a60fa0f04256dd7ad1 has successful Node 22/26 CI (run 42176620885). Verify current identity and workflow tests before closure. Split the malformed combined tag into ci, release and dependabot."
+  "2026-11-06T21:17:06.007Z",codex-sol,"Closure evidence verified directly on main: identity:check passes across 6 commits and 95 tracked files; workflow.test.ts passes 3/3 on main. Dependabot #3 head 00f63aa844bffb5af78395a60fa0f04256dd7ad1 passed Node 22/26 CI run 42176620885 and merged as 3273c6cdcffc66b9c89e298363126234213ee1bb. Input/comment equality was superseded by the documented reviewed removal of pm-github-version. Tags are three separate values. Final closure branch runs both npm and Bun release gates after changelog regeneration; native-control item pm-glossary-yrza remains blocked."
+  "2026-11-06T21:21:25.034Z",codex-sol,"Clarification to the previous harness note: the default schema-context run executed 3 tests and failed only the no-git health fixture (2 passed). The attempted pm-context none retry was refused before execution because none requires an isolated or snapshot workspace. It did not reproduce an assertion failure. Direct workflow execution passed 3/3; no refusal or audit event was removed."
+  "2026-11-06T21:21:28.267Z",codex-sol,"Direct main verification passed all 3 workflow tests and identity checks. Running the entire workflow file inside pm test instead fails its separate no-git health fixture assertion under the inherited linked-test context, even with pm-context none; this is a harness-context limitation, not a workflow pin regression. Retain the refusal history; link the relevant workflow pin/release-contract test without that unrelated fixture. Full release suites run in a disposable clone with isolated HOME/Git configuration. No source or dependency change is included."
+  "2026-11-06T21:22:55.128Z",codex-sol,"Final relevant linked workflow run passed through pinned pm test: npm run identity:check && npm run build && node --test --test-concurrency=2 --test-name-pattern=\"daily release remains\" test/workflow.test.ts. The full workflow file separately passed directly (3/3). Closure fields, three independent tags and released claims were read back; histories remain byte-prefix extensions of main. Full npm/Bun release gates and final-head CI/review evidence will be reported in the PR handoff without moving the reviewed head for bookkeeping."
+  "2026-11-06T21:24:06.000Z",codex-sol,"Align the stale acceptance text with the orchestrator-approved PR #5 review contract documented in the original 05:03 and 05:48 comments: remove version-input equality and require complete absence of that deprecated input. Original criteria and all refusal events remain in append-only history. Definitive harness result: schema-context execution failed only the unrelated health fixture; pm-context none was refused by preflight and executed no tests. The relevant linked test passed 1/1, and direct full workflow execution passed 3/3."
+files[3]{path,scope}:
+  .github/approved-git-identities.txt,project
+  .github/workflows/pm-github-sync.yml,project
+  test/workflow.test.ts,project
+tests[2]:
+  - command: "npm run identity:check"
+    scope: project
+    provenance:
+      author: claude-orchestrator
+      created_at: "2026-11-06T04:34:18.181Z"
+      source_kind: local_mutation
+      source_ref: glossary-merge-identity-and-pin-agnostic-sync-test
+  - command: "npm run identity:check && npm run build && node --test --test-concurrency=2 --test-name-pattern=\"daily release remains\" test/workflow.test.ts"
+    scope: project
+    timeout_seconds: 300
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-06T21:21:16.376Z"
+      source_kind: local_mutation
+      source_ref: chore/close-delivered-items-1106
+close_reason: "PR #5; commit 9432b69937fb6adbfa9eacc9b5456f6425479c5b; test evidence: identity:check passes across 6 commits and 95 tracked files; workflow.test.ts passes 3/3 on main. Dependabot #3 head 00f63aa844bffb5af78395a60fa0f04256dd7ad1 passed Node 22/26 CI run 42176620885 and merged as 3273c6cdcffc66b9c89e298363126234213ee1bb. Input/comment equality was superseded by the documented reviewed removal of pm-github-version. Tags are three separate values."
+body: ""

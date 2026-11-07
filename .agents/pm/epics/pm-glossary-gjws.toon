@@ -2,17 +2,18 @@ id: pm-glossary-gjws
 title: Deliver scoped glossary first release
 description: "Implement the first glossary slice, measured corpus and release gates. Preserve scoped meanings in native records with revision-checked replay-safe writes."
 type: Epic
-status: in_progress
+status: open
 priority: 2
 tags: []
 created_at: "2026-11-05T10:29:15.513Z"
-updated_at: "2026-11-05T13:39:45.108Z"
+updated_at: "2026-11-06T21:16:37.224Z"
 author: codex-agent
 acceptance_criteria: Create define alias resolve check packet commands and documented SDK; no-git concurrency and replay proofs; full source coverage and packed npm Bun journeys
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-11-05T10:29:30.622Z",codex-agent,"Companion pm-cli-website-qrxp is read-only. First slice uses one aggregate native Glossary item, strict schemas, exact scoped resolution and checked native CAS. Alias collision and measured corpus are included; bindings, freshness adapters and publication enabling remain later Features."
   "2026-11-05T11:57:11.677Z",codex-agent,"Native output-control compliance remains a release blocker in pm-glossary-yrza. The public host validates native controls before parser overrides, exposes only read-only generic shaping, and applies producer cursors outside handlers. We do not mark writes read-only or bypass that policy. Explicit budget and cursor fallbacks now pass the packed npm/Bun journeys for every command, with multi-page continuations and pre-write tiny-budget refusal. The exact native contract and arbitrary-provider certification remain unapproved."
   "2026-11-05T13:39:37.861Z",codex-agent,"Final local handoff for companion pm-cli-website-qrxp: implementation and evidence remain on feat/glossary; main contains only the initial scaffold. Both 14-stage gates and minimum/current Node packed journeys passed; docs/verification.json pins the tested source and artifact digest. Public-data receipt: 173 copied items; 38 terms and 48 senses; 46/46 scoped probes and 10/10 abstentions; one ambiguity resolved by narrower scope; zero bindings deferred. Packets 40217 bytes / 10056 estimated tokens versus selected source passages 132732 bytes / 33183 tokens, a 69.70 percent byte reduction; raw SDK item text 1530456 bytes / 382614 tokens; recorded wall time 18880 ms. yrza remains the exact native-control release blocker; h5rj tracks publication and uncertified providers; 3jep owns bindings/freshness. No remote, repository creation, push, publication or companion tracker write occurred. Claims are being released for orchestrator verification; items remain open or in progress."
+  "2026-11-06T21:16:33.442Z",codex-sol,"Outside this closure scope: the original first-release epic was delivered by earlier PR #1. No new full acceptance audit or publication approval is claimed here; native output controls (pm-glossary-yrza) and provider/publication gates remain unresolved. Pause the stale in_progress state to open."
 files[2]{path,scope}:
   index.ts,project
   package.json,project
