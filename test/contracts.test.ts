@@ -6,12 +6,12 @@ import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
 import { createExtensionTestHarness } from '@unbrained/pm-cli/sdk/testing';
 import { defineCommand } from '@unbrained/pm-cli/sdk/authoring';
-import { createPmCliExpectedError, PmClient, fitOutputEnvelope, OutputEnvelopeFitError, readSettings } from '@unbrained/pm-cli/sdk';
+import { createPmCliExpectedError, PmClient, fitOutputEnvelope, writeSettingsSection, OutputEnvelopeFitError, readSettings } from '@unbrained/pm-cli/sdk';
 import extension, { exitCode, createDirectoryHost, createGlossary, defineSense, readGlossary, resolveTerm, resolveTermInState, envelope, fitEnvelope, glossaryOutputSchema } from '../dist/index.js';
 import { inputJson, runCommand } from '../dist/src/commands.js';
 import { wire } from '../dist/src/output.js';
 import { refusal } from '../dist/src/errors.js';
-import type { Host } from '../dist/index.js';
+import type { Host, GlossaryOutput } from '../dist/index.js';
 import type { ExtensionApi, ExtensionCommandSdk, CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
 import { fixture, request, hasCode } from './helpers.ts';
 
@@ -91,4 +91,26 @@ test('native fitting failures and strict output unions cannot turn omitted witne
   let staleCalls=0;assert.throws(()=>fitEnvelope({fitOutputEnvelope:()=>{staleCalls++;throw new OutputEnvelopeFitError('output_envelope_infeasible',work,200);}},value,1),hasCode('backend_unsupported'));
   assert.ok(staleCalls>1);
   assert.equal(glossaryOutputSchema.safeParse({...value,data:undefined}).success,false);assert.equal(glossaryOutputSchema.safeParse({...value,ok:false}).success,false);
+});
+
+test('an explicit budget is not refused by an invalid stored budget setting', async t => {
+  const { pmRoot, id } = await fixture(t); const ext = await createExtensionTestHarness(extension, { capabilities: ['commands', 'schema', 'renderers'] }); t.after(() => ext.deactivate());
+  for (const stored of [0, -1, 1.5, 8193]) {
+    await writeSettingsSection(pmRoot, 'glossary', { output_budget: stored }, { author: 'fixture' });
+    for (const transport of [{ options: { budget: '1600' }, global: {} }, { options: {}, global: { outputBudget: '1600' } }, { options: {}, global: { outputBudget: 'unbounded' } }]) {
+      const ran = await ext.runCommand({ command: 'glossary packet', args: [id], options: { scope: 'root', limit: '1', ...transport.options }, global: transport.global, pmRoot }); if (ran.cause) throw ran.cause;
+      assert.equal((ran.result as GlossaryOutput).ok, true, `Explicit budget must override stored ${stored}`);
+    }
+    const fallback = await ext.runCommand({ command: 'glossary packet', args: [id], options: { scope: 'root', limit: '1' }, pmRoot }); if (fallback.cause) throw fallback.cause;
+    assert.equal((fallback.result as GlossaryOutput).ok, false, `Invalid stored ${stored} must still refuse without an explicit budget`);
+  }
+  for (const explicit of ['0', '-1', '1.5', []]) {
+    const ran = await ext.runCommand({ command: 'glossary packet', args: [id], options: { scope: 'root', limit: '1', budget: explicit }, pmRoot }); if (ran.cause) throw ran.cause;
+    assert.equal((ran.result as GlossaryOutput).ok, false, 'Invalid explicit budgets still refuse');
+  }
+  for (const malformed of [null, [], 'invalid', { unknown: 1 }]) {
+    await writeSettingsSection(pmRoot, 'glossary', malformed, { author: 'fixture' });
+    const ran = await ext.runCommand({ command: 'glossary packet', args: [id], options: { scope: 'root', budget: '1600' }, pmRoot }); if (ran.cause) throw ran.cause;
+    assert.equal((ran.result as GlossaryOutput).refusal?.code, 'settings_section_invalid', 'Explicit budgets do not bypass section-shape validation');
+  }
 });

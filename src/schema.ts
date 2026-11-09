@@ -60,9 +60,12 @@ export function canonical(value: unknown): string {
 }
 /** Content fingerprint used for operation identity and immutable result verification. */
 export function digest(value: unknown): string { return createHash('sha256').update(canonical(value)).digest('hex'); }
+/** Aggregate traversal ceiling exceeds schema-bounded requests and bounds work before key allocation. */
+const submittedNodeBudget = 200000;
 /** Reject private and active content before it can enter immutable native history. */
-export function guardSubmitted(value: unknown, seen = new Set<object>(), depth = 0): void {
+export function guardSubmitted(value: unknown, seen = new Set<object>(), depth = 0, visits = { count: 0 }): void {
   insist(depth <= 16, 'invalid_input', 'Input nesting exceeds sixteen levels');
+  insist(++visits.count <= submittedNodeBudget, 'invalid_input', 'Submitted input exceeds the traversal budget');
   if (typeof value === 'string') {
     insist(value.length <= 8000 && value.isWellFormed(), 'invalid_input', 'Text is oversized or malformed Unicode');
     insist(!/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u.test(value), 'invalid_input', 'Control sequences are not shareable text');
@@ -72,6 +75,11 @@ export function guardSubmitted(value: unknown, seen = new Set<object>(), depth =
   } else if (value !== null && typeof value === 'object') {
     const prototype = Object.getPrototypeOf(value);
     insist(Array.isArray(value) || prototype === Object.prototype || prototype === null, 'invalid_input', 'Only plain JSON objects are supported');
+    if (Array.isArray(value)) {
+      insist(visits.count + value.length <= submittedNodeBudget, 'invalid_input', 'Submitted arrays exceed the traversal budget');
+      const keys = Object.keys(value);
+      insist(keys.length === value.length && keys.every((key, index) => key === String(index)), 'invalid_input', 'Sparse arrays are not plain JSON data');
+    }
     for (const name of Reflect.ownKeys(value)) {
       const descriptor = Object.getOwnPropertyDescriptor(value, name)!;
       insist(typeof name === 'string' && 'value' in descriptor && (descriptor.enumerable || (Array.isArray(value) && name === 'length')), 'invalid_input', 'Only enumerable JSON data properties are supported');
@@ -79,7 +87,7 @@ export function guardSubmitted(value: unknown, seen = new Set<object>(), depth =
     insist(!seen.has(value), 'invalid_input', 'Cyclic input is unsupported'); seen.add(value);
     for (const [name, child] of Object.entries(value)) {
       insist(!['__proto__', 'prototype', 'constructor'].includes(name), 'invalid_input', 'Prototype keys are forbidden');
-      guardSubmitted(child, seen, depth + 1);
+      guardSubmitted(child, seen, depth + 1, visits);
     }
     seen.delete(value);
   }

@@ -98,3 +98,21 @@ test('packet and single-term reads validate stored state once per request',async
   assert.equal(exitCode('not_found'),3);assert.equal(exitCode('revision_conflict'),4);assert.equal(exitCode('backend_unsupported'),5);assert.equal(exitCode('invalid_input'),2);
   const e=new GlossaryRefusal('contention','Retry');assert.equal(e.retryable,true);assert.equal(refusal(e),e);assert.equal(refusal(createPmCliExpectedError('Fixture',{context:{code:'item_revision_conflict'}})).code,'revision_conflict');assert.equal(refusal(Object.assign(createPmCliExpectedError('Fixture',{context:{code:'permission_denied'}}),{remedy:'Ask host'})).remedy,'Ask host');assert.equal(refusal(new Error()).code,'outcome_unknown');assert.throws(()=>insist(false,'invalid_input','Missing'),hasCode('invalid_input'));insist(true,'invalid_input','Present');
  });
+
+test('sparse arrays refuse before schema parsing and only dense arrays are admitted', async t => {
+  for (const value of [new Array(2 ** 31), new Array(2), Object.assign(new Array(2), { x: 'public', y: 'public' })]) {
+    assert.throws(() => guardSubmitted(value), error => hasCode('invalid_input')(error) && error instanceof Error && /Submitted arrays exceed the traversal budget|Sparse arrays are not plain JSON data/u.test(error.message));
+  }
+  assert.doesNotThrow(() => guardSubmitted(['public', 'reviewed']));
+  assert.doesNotThrow(() => guardSubmitted(new Array(199999).fill(null)));
+  assert.throws(() => guardSubmitted([new Array(100000).fill(null), new Array(100000).fill(null)]), hasCode('invalid_input'));
+  let shared: unknown = null;
+  for (let level = 0; level < 6; level++) shared = { a: shared, b: shared, c: shared, d: shared, e: shared, f: shared, g: shared, h: shared, i: shared, j: shared };
+  assert.throws(() => guardSubmitted(shared), error => hasCode('invalid_input')(error) && error instanceof Error && error.message === 'Submitted input exceeds the traversal budget');
+  Object.defineProperty(Array.prototype, 0, { value: 'ghp_' + 'x'.repeat(36), configurable: true, writable: true });
+  try { assert.throws(() => guardSubmitted(Object.assign(new Array(2), { 1: 'public' })), error => hasCode('invalid_input')(error) && error instanceof Error && error.message === 'Sparse arrays are not plain JSON data'); }
+  finally { delete (Array.prototype as unknown as Record<number, unknown>)[0]; }
+  const { host, id } = await fixture(t); const input = await request(host, id, 'sparse'); const before = (await readGlossary(host, id)).revision;
+  await assert.rejects(defineSense(host, { ...input, sense: { ...input.sense, contrast_sense_ids: new Array(2) } }), hasCode('invalid_input'));
+  assert.equal((await readGlossary(host, id)).revision, before);
+});
