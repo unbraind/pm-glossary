@@ -3,7 +3,7 @@ import { z } from 'zod';
 /** Retain historical positive integer strings while normalizing the package budget policy. */
 const settingsSchema = z.strictObject({ output_budget: z.union([z.number(), z.string().regex(/^\d+$/).transform(Number)]).pipe(z.number().int().positive().safe()).optional() });
 
-/** Validate only glossary-owned policy; the SDK owns document reading and typed refusals. */
-export function validateSettings(value: unknown): { output_budget?: number } {
-  return settingsSchema.parse(value);
+/** Validate the policy shape, deferring an overridden budget value to the explicit command control. */
+export function validateSettings(value: unknown, ignoreBudget = false): { output_budget?: number } {
+  return settingsSchema.parse(ignoreBudget && value !== null && typeof value === 'object' && !Array.isArray(value) ? { ...value, output_budget: undefined } : value);
 }

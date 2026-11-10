@@ -37,13 +37,14 @@ export async function runCommand(command: string, ctx: CommandHandlerContext): P
     insist(ctx.sdk !== undefined, 'backend_unsupported', 'The host did not supply its native SDK client', 'Use pm-cli 2026.11.4 or a conforming authorized embedding host');
     const persisted = (await ctx.sdk.client.schemaListFields()).fields.find(field => field.key === 'glossary_state');
     insist(persisted === undefined || persisted.type === 'object', 'invalid_record', 'glossary_state schema is incompatible');
-    const policy = (await ctx.sdk.readSettingsSection('glossary', { validate: validateSettings })).value;
+    const requestedBudget = ctx.options.budget === undefined ? ctx.global.outputBudget : ctx.options.budget;
+    const policy = (await ctx.sdk.readSettingsSection('glossary', { validate: value => validateSettings(value, requestedBudget !== undefined) })).value;
     const host: Host = { client: persisted ? persistedSchemaPort(ctx.sdk.client) : ctx.sdk.client, fitOutputEnvelope: ctx.sdk.fitOutputEnvelope, capabilities: { native_item_cas: true, create_if_absent: true, provider: 'directory-host' }, normalizeId: async id => normalizeItemId(id, (await readSettings(ctx.pm_root)).id_prefix) };
     const flags = ctx.options;
     const foreignProjection = ctx.global.outputInclude !== undefined || ctx.global.outputLimit !== undefined || ctx.global.outputSession !== undefined || ctx.global.outputRowContract !== undefined;
     insist(!foreignProjection, 'invalid_input', 'Generic projections cannot omit glossary witnesses', 'Use --scope, --limit, --budget and the returned --cursor');
-    const requestedBudget = flags.budget === undefined ? ctx.global.outputBudget : flags.budget;
-    const budget = requestedBudget === 'unbounded' ? 8192 : integer(requestedBudget, integer(policy?.output_budget, 1600));
+    const budget = requestedBudget === 'unbounded' ? 8192 : requestedBudget !== undefined ? integer(requestedBudget, 1600) : integer(policy?.output_budget, 1600);
+    insist(requestedBudget !== undefined || budget <= 8192, 'invalid_input', 'Stored output budget exceeds the 8192 token ceiling');
     insist(command === 'packet' || (flags.cursor === undefined && ctx.global.outputCursor === undefined), 'invalid_input', 'Continuation cursors apply only to glossary packet');
     const scope = flags.scope === undefined ? undefined : scalar(flags.scope);
     const id = await host.normalizeId!(command === 'create' ? scalar(flags.id) : scalar(ctx.args[0])); let data: GlossaryData;
