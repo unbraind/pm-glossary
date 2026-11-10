@@ -13,7 +13,7 @@ import { wire } from '../dist/src/output.js';
 import { refusal } from '../dist/src/errors.js';
 import type { Host, GlossaryOutput } from '../dist/index.js';
 import type { ExtensionApi, ExtensionCommandSdk, CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
-import { fixture, request, hasCode } from './helpers.ts';
+import { fixture, harnessFixture, request, hasCode } from './helpers.ts';
 
 test('incompatible native schema refuses before registering either glossary contribution',async t=>{
   const root=await mkdtemp(join(tmpdir(),'glossary-schema-'));t.after(()=>rm(root,{recursive:true,force:true}));
@@ -94,7 +94,7 @@ test('native fitting failures and strict output unions cannot turn omitted witne
 });
 
 test('an explicit budget is not refused by an invalid stored budget setting', async t => {
-  const { pmRoot, id } = await fixture(t); const ext = await createExtensionTestHarness(extension, { capabilities: ['commands', 'schema', 'renderers'] }); t.after(() => ext.deactivate());
+  const { pmRoot, id, ext } = await harnessFixture(t);
   for (const stored of [0, -1, 1.5, 8193]) {
     await writeSettingsSection(pmRoot, 'glossary', { output_budget: stored }, { author: 'fixture' });
     for (const transport of [{ options: { budget: '1600' }, global: {} }, { options: {}, global: { outputBudget: '1600' } }, { options: {}, global: { outputBudget: 'unbounded' } }]) {

@@ -8,10 +8,10 @@ import type { CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
 import { GlossaryRefusal } from '../dist/src/errors.js';
 import { fitRefusal, glossaryOutputSchema } from '../dist/src/output.js';
 import { fitOutputEnvelope, createPmCliExpectedError } from '@unbrained/pm-cli/sdk';
-import { fixture, request } from './helpers.ts';
+import { fixture, harnessFixture, request } from './helpers.ts';
 
 test('native extension harness executes every command, contracts and scoped renderers',async t=>{
-  const {pmRoot,id}=await fixture(t);const ext=await createExtensionTestHarness(extension,{capabilities:['commands','schema','renderers']});t.after(()=>ext.deactivate());
+  const {pmRoot,id,ext}=await harnessFixture(t);
   for(const name of ['create','define','alias','resolve','check','packet'])ext.assertCommandContract({command:`glossary ${name}`});
   ext.assertItemField({name:'glossary_state',type:'object'});ext.assertItemType({name:'Glossary',folder:'glossary'});
   const run=(command:string,args:string[]=[],options:Record<string,unknown>={},global:Record<string,unknown>={})=>ext.runCommand({command:`glossary ${command}`,args,options,global,pmRoot}).then(value=>{if(value.cause)throw value.cause;if(value.exitCode){const result=value.result as GlossaryOutput;assert.ok(result.refusal);throw new Error(result.refusal.code);}assert.equal(value.handled,true);return value.result;});
