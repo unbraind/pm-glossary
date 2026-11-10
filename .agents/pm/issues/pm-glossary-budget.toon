@@ -6,13 +6,14 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-11-09T20:06:12.351Z"
-updated_at: "2026-11-10T12:38:05.480Z"
+updated_at: "2026-11-10T14:43:07.158Z"
 author: codex-agent
-comments[4]{created_at,author,text}:
+comments[5]{created_at,author,text}:
   "2026-11-09T20:06:15.173Z",codex-agent,"Continuation inspection found no existing fix item, remote fix branch or PR. Plan: add lazy budget selection and real SDK-settings regressions for both explicit transports; verify behavioral reverts and targeted gates. Also enforce dense array indices before traversal and run the complete test suite."
   "2026-11-09T20:14:46.016Z",codex-agent,"Implemented lazy budget selection for package --budget and host --output-budget, including unbounded. The settings validator ignores only the overridden budget value while still refusing malformed sections; a selected stored fallback above 8192 refuses. No other eager stored-setting fallback remains. guardSubmitted now checks remaining aggregate node capacity before listing array keys and requires exactly dense indices. Regression corpus includes huge sparse arrays, ordinary holes, named properties hiding holes, inherited credential-shaped values with finally cleanup, and admitted dense arrays. Isolated source reverts with rebuild: base src/commands.ts fails the budget regression (exit 1), restoring the fix passes; base src/schema.ts fails the sparse regression (exit 1), restoring passes. Removing only the dense-key check while retaining the length bound also fails, and restoring passes. Complete npm test: 141/141 passed, zero skipped; focused contracts/core/settings and pinned pm test --run --progress: 15/15 passed. npm run typecheck and npm run lint pass."
   "2026-11-09T20:17:58.212Z",codex-agent,"Handoff: PR https://github.com/unbraind/pm-glossary/pull/9; source fix 227e9dd0bc7e92b8aba80364ff498d9b2358eb5d. Exact source-head checks observed queued: CI test (22), test (26), https://github.com/unbraind/pm-glossary/actions/runs/42691169376; CodeQL https://github.com/unbraind/pm-glossary/actions/runs/42691168997. Automated reviews are skipped or neutral and are not approval. Full CI certification remains pending; the orchestrator owns verification and closure."
   "2026-11-10T12:38:04.548Z",claude-orchestrator,"Orchestrator fix: the duplication gate failed on one 3-line clone pair (test/commands.test.ts:13-15 <-> test/contracts.test.ts:96-98, the repeated fixture + extension-harness setup the new regression added). Extracted harnessFixture(t) into test/helpers.ts and used it in both. duplication 0 clone pairs (0/2312), typecheck and lint clean, full npm test 141 pass / 0 fail."
+  "2026-11-10T14:43:07.157Z",claude-orchestrator,"Orchestrator fix (CodeRabbit PRRT_kwDOVkA9os61s3V6): the explicit-budget change replaced the settings validator with a callback, so the revert gate's 'command section validator removed' pattern no longer matched dist/src/commands.js. The gate asserts the pattern before mutating, so test:revert, release:check and prepublishOnly would have failed. The pattern now targets the new callback (validate: value => validateSettings(value, requestedBudget !== undefined)). npm run test:revert: 51 behavioral failures detected; unchanged implementation passes."
 files[6]{path,scope}:
   src/commands.ts,project
   src/schema.ts,project
