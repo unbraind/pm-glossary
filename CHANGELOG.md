@@ -4,8 +4,8 @@
 
 ### Fixed
 
-- Read the stored budget setting only when no explicit budget is given ([pm-glossary-budget](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/issues/pm-glossary-budget.toon))
 - Main CI fails after the first squash merge: the identity gate lacks the maintainer merge author, and the workflow test pins one pm-github SHA ([pm-glossary-nawv](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/issues/pm-glossary-nawv.toon))
+- Read the stored budget setting only when no explicit budget is given ([pm-glossary-budget](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/issues/pm-glossary-budget.toon))
 
 ### Other
 
