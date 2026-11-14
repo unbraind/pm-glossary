@@ -9,5 +9,5 @@
 
 ### Other
 
-- Adopt SDK settings-section reads consistently in glossary adapters ([pm-glossary-sdk-settings](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/tasks/pm-glossary-sdk-settings.toon))
 - Close delivered items and return idle in-progress items to open (2026-11-14 sweep) ([pm-glossary-sweep-1114](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/chores/pm-glossary-sweep-1114.toon))
+- Adopt SDK settings-section reads consistently in glossary adapters ([pm-glossary-sdk-settings](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/tasks/pm-glossary-sdk-settings.toon))
