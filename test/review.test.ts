@@ -8,12 +8,16 @@ import { spawnSync } from 'node:child_process';
 import { guardSubmitted } from '../dist/src/schema.js';
 import { npmEnvironment, testEnvironment } from '../scripts/environment.ts';
 
-test('privacy email matching handles twelve adversarial maximal strings',{timeout:testTime(30000)},()=>{
+test('privacy email matching stays prompt on adversarial maximal strings',{timeout:testTime(30000)},()=>{
+  const budget=testTime(500);
+  const start=process.cpuUsage();
   for(let i=0;i<12;i++){
     assert.throws(()=>guardSubmitted('+'.repeat(7999)+'@'),{code:'invalid_input'});
     guardSubmitted('a'.repeat(8000));
     guardSubmitted('a@'+'.'.repeat(7998));
   }
+  const elapsed=process.cpuUsage(start);const milliseconds=(elapsed.user+elapsed.system)/1000;
+  assert.ok(milliseconds<budget,`Adversarial privacy checks used ${milliseconds} ms CPU (harness budget ${budget})`);
   for(const email of ['person@example.invalid','Text (a.b+c-d@example.invalid).','a@b.co','a@'+'.'.repeat(7988)+'aa.invalid'])assert.throws(()=>guardSubmitted(email),{code:'invalid_input'});
   for(const text of ['ordinary prose','mention a@b without a public suffix','a'.repeat(7999)+'@'])assert.doesNotThrow(()=>guardSubmitted(text));
 });

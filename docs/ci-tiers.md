@@ -26,8 +26,8 @@ Quick uses the first 50 of the original 500 operation sequences with identical
 random generation, alphabet and per-case assertions. Counters begin at zero and
 replay/refusal minimums derive from generated sequences. Unset depth remains full.
 Coverage thresholds and source inventories are unchanged. The finite privacy
-adversarial corpus keeps twelve iterations rather than a hardware-dependent
-500ms CPU assertion. Scaled child watchdogs validate positive finite factors
+adversarial corpus keeps twelve iterations and scales its 500ms CPU harness
+budget, retaining the start-anchor mutation proof on slow hardware. Scaled child watchdogs validate positive finite factors
 before spawning and round to integer milliseconds; product budgets stay literal.
 
 The cheap path includes `review.test.ts`, which reads README, ARCHITECTURE and
