@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, cpSync, symlinkSync, rmSync, readFileSync } from 'node:fs';
@@ -14,7 +15,7 @@ test('coverage gate rejects missing source, weakened policy, ignored code and em
     const manifest={type:'module',coverageGate:{thresholds:{statements:100,branches:100,functions:100,lines:100},ignore:[] as string[]}};
     const save=()=>writeFileSync(join(root,'package.json'),JSON.stringify(manifest));save();
     const code='export function answer(flag){let result=1;if(flag){result=2;}return result;}';writeFileSync(join(root,'index.ts'),code);writeFileSync(join(root,'dist/index.js'),code);
-    const run=()=>spawnSync(process.execPath,['scripts/coverage-gate.ts'],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:30000});
+    const run=()=>spawnSync(process.execPath,['scripts/coverage-gate.ts'],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:testTime(30000)});
     writeFileSync(join(root,'src/nested/missing.ts'),'export const missing=1;');const unemitted=run();assert.notEqual(unemitted.status,0);assert.match(unemitted.stderr,/Emitted source inventory differs/);
     writeFileSync(join(root,'dist/src/nested/missing.js'),'export const missing=1;');const notLoaded=run();assert.notEqual(notLoaded.status,0);assert.match(notLoaded.stdout+notLoaded.stderr,/nonzero|unskipped|absent/);
     writeFileSync(join(root,'test/positive.test.ts'),"import test from 'node:test';import assert from 'node:assert/strict';import {answer} from '../dist/index.js';test('both paths',()=>{assert.equal(answer(true),2);assert.equal(answer(false),1);});");

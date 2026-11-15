@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync, readFileSync } from 'node:fs';
@@ -9,7 +10,7 @@ import { npmEnvironment } from '../scripts/environment.ts';
 
 /** Execute a captured command with bounded output and credential-free npm settings. */
 function execute(executable:string,args:string[],cwd:string,env:NodeJS.ProcessEnv,input?:string,expected=0):string {
-  const result=spawnSync(executable,args,{cwd,env,input,encoding:'utf8',timeout:300000,maxBuffer:4*1024*1024});
+  const result=spawnSync(executable,args,{cwd,env,input,encoding:'utf8',timeout:testTime(300000),maxBuffer:4*1024*1024});
   assert.equal(result.status,expected,`${executable} ${args.slice(0,4).join(' ')}: ${result.stderr.slice(-2000)} ${result.stdout.slice(-2000)}`);return result.stdout || (expected === 0 ? result.stdout : result.stderr);
 }
 
