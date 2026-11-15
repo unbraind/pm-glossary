@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 import test from 'node:test';
 import { decode } from '@toon-format/toon';
 import assert from 'node:assert/strict';
@@ -13,10 +14,13 @@ test('clean-checkout CI and standalone typecheck build before checking emitted t
     for(const file of ['src','scripts','test','index.ts','tsconfig.json','tsconfig.test.json','package.json'])cpSync(file,join(root,file),{recursive:true});
     symlinkSync(join(process.cwd(),'node_modules'),join(root,'node_modules'),'dir');
     const env=testEnvironment(npmEnvironment(process.env));
-    const run=(command:string)=>spawnSync('npm',['run',command],{cwd:root,env,encoding:'utf8',timeout:120000});
+    const run=(command:string)=>spawnSync('npm',['run',command],{cwd:root,env,encoding:'utf8',timeout:testTime(120000)});
     const workflow=readFileSync('.github/workflows/ci.yml','utf8');
-    const steps=[...workflow.matchAll(/^        run: npm run (build|typecheck)$/gm)].map(match=>match[1]);
-    assert.deepEqual(steps,['build','typecheck']);assert.equal(existsSync(join(root,'dist')),false);
+    assert.match(workflow,/run: npm test/);assert.match(workflow,/run: npm run release:check/);
+    const manifest=JSON.parse(readFileSync('package.json','utf8'));
+    assert.match(manifest.scripts.test,/^npm run build && npm run build:test &&/);
+    assert.match(manifest.scripts['release:check'],/npm run typecheck/);
+    const steps=['build','typecheck'];assert.equal(existsSync(join(root,'dist')),false);
     for(const step of steps){const result=run(step);assert.equal(result.status,0,result.stdout+result.stderr);}
     rmSync(join(root,'dist'),{recursive:true});
     const standalone=run('typecheck');assert.equal(standalone.status,0,standalone.stdout+standalone.stderr);

@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { realData, trackerRepository, sourceReceipt } from './corpus.ts';
@@ -40,7 +41,7 @@ test('corpus rejects duplicated ambiguity witnesses before counting abstentions'
     const kernel=join(root,'dist/src/kernel.js');const source=readFileSync(kernel,'utf8');
     const marker=/matched_scope:\s*scope,\s*candidates\s*\}/;assert.match(source,marker);
     writeFileSync(kernel,source.replace(marker,"matched_scope: scope, candidates: query.term === 'gate' && scope === 'root' ? [candidates[0], candidates[0]] : candidates }"));
-    const result=spawnSync(process.execPath,['--input-type=module','-e',"import {realData} from './test/corpus.ts'; await realData();"],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:120000});
+    const result=spawnSync(process.execPath,['--input-type=module','-e',"import {realData} from './test/corpus.ts'; await realData();"],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:testTime(120000)});
     assert.notEqual(result.status,0,'The corpus accepted two copies of one witness');
     assert.match(result.stderr,/AssertionError/);assert.match(result.stderr,/gate-door/);
   }finally{rmSync(root,{recursive:true,force:true});}

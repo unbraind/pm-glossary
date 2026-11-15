@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 /** Behavioral mutation proofs run only in disposable copies of runtime and tooling code. */
 import { mkdtempSync, cpSync, symlinkSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -63,7 +64,7 @@ for(const change of changes){
   try{
     for(const file of ['src','index.ts','tsconfig.json','tsconfig.test.json'])cpSync(file,join(root,file),{recursive:true});cpSync('dist',join(root,'dist'),{recursive:true});cpSync('test',join(root,'test'),{recursive:true});cpSync('scripts',join(root,'scripts'),{recursive:true});cpSync('.github',join(root,'.github'),{recursive:true});cpSync('package.json',join(root,'package.json'));cpSync('manifest.json',join(root,'manifest.json'));cpSync('README.md',join(root,'README.md'));cpSync('ARCHITECTURE.md',join(root,'ARCHITECTURE.md'));cpSync('docs',join(root,'docs'),{recursive:true});symlinkSync(join(process.cwd(),'node_modules'),join(root,'node_modules'),'dir');
     const file=join(root,change.file);const before=readFileSync(file,'utf8');assert.match(before,change.pattern);writeFileSync(file,before.replace(change.pattern,change.replacement));
-    const result=spawnSync(process.execPath,['--test','--test-concurrency=2',`--test-name-pattern=${change.filter}`,change.test],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:120000});
+    const result=spawnSync(process.execPath,['--test','--test-concurrency=2',`--test-name-pattern=${change.filter}`,change.test],{cwd:root,env:testEnvironment(npmEnvironment(process.env)),encoding:'utf8',timeout:testTime(120000)});
     assert.notEqual(result.status,0,`Behavioral revert unexpectedly passed: ${change.name}`);assert.match(result.stdout+result.stderr,/AssertionError|Missing expected rejection/);
     if(change.name==='directory policy reverted to stripped core settings')assert.match(result.stdout,/(?:ℹ |# )fail 2\b/);
     console.log(`EXPECTED FAIL: ${change.name}`);

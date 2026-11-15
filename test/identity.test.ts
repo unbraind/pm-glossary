@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, cpSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
@@ -21,7 +22,7 @@ test('identity policy admits GitHub merge committers while preserving strict aut
     commit(maintainer,maintainer,'SteveBot');const base=git(['rev-parse','HEAD']);
     const run=(eventName='',event:unknown={},cwd=root)=>{
       const eventPath=join(root,'event.json');writeFileSync(eventPath,JSON.stringify(event));
-      return spawnSync(process.execPath,['scripts/identity-gate.ts'],{cwd,env:{...env,GITHUB_EVENT_NAME:eventName,GITHUB_EVENT_PATH:eventPath},encoding:'utf8',timeout:30000});
+      return spawnSync(process.execPath,['scripts/identity-gate.ts'],{cwd,env:{...env,GITHUB_EVENT_NAME:eventName,GITHUB_EVENT_PATH:eventPath},encoding:'utf8',timeout:testTime(30000)});
     };
     assert.equal(run().status,0);
     const shallow=join(root,'shallow');
@@ -86,7 +87,7 @@ test('identity fixtures ignore inherited CI events whose PR base is absent from 
     // Match the production checkout contract: full history is needed by the real audit.
     const checkout=readFileSync('.github/workflows/ci.yml','utf8').split('      - name: Checkout')[1].split('      - name: Setup Node.js')[0];
     assert.match(checkout,/fetch-depth: 0/);assert.match(checkout,/fetch-tags: true/);
-    for(const file of ['test/identity.test.ts','scripts/identity-gate.ts','scripts/environment.ts','.github/approved-git-identities.txt']){
+    for(const file of ['test/identity.test.ts','test/support/time.ts','scripts/identity-gate.ts','scripts/environment.ts','.github/approved-git-identities.txt']){
       mkdirSync(join(root,file,'..'),{recursive:true});cpSync(file,join(root,file));
     }
     git(['init','-b','main']);git(['add','.']);git(['-c','commit.gpgsign=false','commit','-m','Synthetic CI base']);
@@ -97,7 +98,7 @@ test('identity fixtures ignore inherited CI events whose PR base is absent from 
     assert.notEqual(spawnSync('git',['cat-file','-e',base],{cwd:shallow,env,stdio:'pipe'}).status,0);
     const eventPath=join(root,'ci-event.json');writeFileSync(eventPath,JSON.stringify({pull_request:{base:{sha:base},head:{sha:head}}}));
     const result=spawnSync(process.execPath,['--test','--test-reporter=tap','--test-concurrency=2','--test-name-pattern=^identity policy admits GitHub merge committers while preserving strict authors$','test/identity.test.ts'],{
-      cwd:shallow,env:{...env,GITHUB_EVENT_NAME:'pull_request',GITHUB_EVENT_PATH:eventPath,GITHUB_BASE_REF:'main',GITHUB_HEAD_REF:'feat/glossary',GITHUB_SHA:head,GITHUB_REF:'refs/pull/1/merge'},encoding:'utf8',timeout:120000,
+      cwd:shallow,env:{...env,GITHUB_EVENT_NAME:'pull_request',GITHUB_EVENT_PATH:eventPath,GITHUB_BASE_REF:'main',GITHUB_HEAD_REF:'feat/glossary',GITHUB_SHA:head,GITHUB_REF:'refs/pull/1/merge'},encoding:'utf8',timeout:testTime(120000),
     });
     assert.equal(result.status,0,result.stdout+result.stderr);assert.match(result.stdout,/# pass 1/);assert.match(result.stdout,/# fail 0/);
   }finally{rmSync(root,{recursive:true,force:true});}
