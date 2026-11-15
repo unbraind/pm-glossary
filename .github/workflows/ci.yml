@@ -69,7 +69,7 @@ jobs:
           ./node_modules/.bin/pm health --strict-exit
           npm run changelog:check
           npm run pack:dry-run
-          node --test test/review.test.ts test/identity.test.ts
+          node --test test/review.test.ts test/identity.test.ts test/build.test.ts test/real-data.test.ts
       - name: Node 22 build and quick tests
         if: steps.changes.outputs.code == 'true' && matrix.node-version == 22
         run: npm test

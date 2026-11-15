@@ -12,7 +12,7 @@ PR #17 remains open for the owner. No repository variable is changed here.
 | Strict CLI pm health | — | — | yes | covered by authoritative SDK health |
 | Changelog consistency | — | gate | yes | npm + Bun |
 | Public package file inventory | — | gate | yes | npm + Bun |
-| Documentation/privacy and identity regression suites | suite | suite | yes | npm + Bun |
+| Documentation/privacy, identity, tracker-linked build and Markdown corpus suites | suite | suite | yes | npm + Bun |
 | Build, typechecked tests and unit/model suites | quick | quick coverage | build for inventory | full npm + Bun |
 | Typecheck, lint, zero duplication, full docstrings | — | gate | — | npm + Bun |
 | Coverage: 100% statements/branches/functions/lines | — | quick | — | full npm + Bun |
@@ -31,7 +31,9 @@ budget, retaining the start-anchor mutation proof on slow hardware. Scaled child
 before spawning and round to integer milliseconds; product budgets stay literal.
 
 The cheap path includes `review.test.ts`, which reads README, ARCHITECTURE and
-docs/real-data.md, the identity tests/gate and actual package file inventory.
+docs/real-data.md, the identity tests/gate and actual package file inventory. It also runs
+`build.test.ts` for linked commands stored in tracked PM entries and
+`real-data.test.ts` for the Markdown corpus fixtures.
 Executable tracker files always select the code path. Packed acceptance already
 proves Bun package installation and bunx local CLI/extension activation, alongside
 npm/npx and native SDK reads, so only a Bun graph install is added after the gate.
