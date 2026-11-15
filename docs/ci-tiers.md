@@ -50,3 +50,11 @@ Node 26 54m52s (4m10s execution). The owner fleet measurement was 39,929 runner
 minutes/day and median PR wall time 45–90m with about 28m queueing. Full depth is
 not run locally; deep CI certifies it after merge. Local and hosted timings use
 different hardware and cannot establish a controlled speedup ratio.
+
+Local final proof: 142 quick coverage tests passed in 99.33s test phase, with
+100% of all four dimensions across ten emitted production files. Corrected
+touched suites passed in 146.76s and the complete behavioral revert corpus in
+428.16s. Hosted baseline full coverage phases were 54.47s/54.07s; hardware and
+contention differ. The first local coverage attempt loaded an obsolete workflow
+assertion before correction; the final run has zero failures. No late-seed
+coverage additions were necessary.
