@@ -1,7 +1,7 @@
 import { defineExtension } from '@unbrained/pm-cli/sdk/authoring';
 import { register } from './src/commands.ts';
 /** Native versioned glossary extension; activation contributes no durable mutations. */
-const extension = defineExtension({ name: 'pm-glossary', version: '2026.11.5', description: 'Scoped explicit domain meanings', activate: register });
+const extension = defineExtension({ name: 'pm-glossary', version: "2026.11.5", description: 'Scoped explicit domain meanings', activate: register });
 /** Activate this package through the native pm extension host. */
 export default extension;
 /** Storage-independent native lifecycle API; the host supplies authorization and capability evidence. */
