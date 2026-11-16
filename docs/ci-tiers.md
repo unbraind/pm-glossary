@@ -5,7 +5,7 @@ This supersedes the routing approach in PR #17: quick PR validation stays hosted
 while exhaustive main/nightly validation uses `pm-local-arm64` (Pi) runners.
 PR #17 remains open for the owner. No repository variable is changed here.
 
-| Check | Code PR 22 | Code PR 26 | Docs/tracker PR, both | Deep 22 + 26 |
+| Check | Code PR 22 | Code PR 26 | Docs/tracker PR, both | Deep 22/26 × npm/Bun |
 | --- | --- | --- | --- | --- |
 | npm ci | yes | yes | yes | yes |
 | Authoritative tracker health, identity/private-path policy | yes | yes | yes | npm + Bun |
@@ -41,9 +41,9 @@ npm/npx and native SDK reads, so only a Bun graph install is added after the gat
 PR CI runs on pull requests and dispatch, cancels superseded PR runs and caps
 jobs at 25 minutes. Deep runs on main pushes, dispatch and daily at 02:19 UTC,
 separate from the 05:37 release, hourly :41 reconciliation and Monday 01:47
-CodeQL schedule. Distinct `deep (22)`/`deep (26)` jobs each retain full npm and Bun
-release gates with `PM_TEST_DEPTH=full`, `PM_TEST_TIME_SCALE=3` and a 120-minute
-limit. Per-ref cancellation bounds obsolete work. Persistent local npm caches
+CodeQL schedule. Distinct `deep (22, npm)`/`deep (22, bun)`/`deep (26, npm)`/`deep (26, bun)`
+jobs each run one full release gate with `PM_TEST_DEPTH=full`, `PM_TEST_TIME_SCALE=3` and a 120-minute
+limit. Per-ref concurrency keeps active runs and one pending run. Persistent local npm caches
 and preinstalled Bun avoid remote cache/setup downloads; `PM_LOCAL_DEEP=off`
 selects hosted Ubuntu. CodeQL keeps its weekly scan and has a 30-minute timeout.
 
@@ -60,3 +60,14 @@ touched suites passed in 146.76s and the complete behavioral revert corpus in
 contention differ. The first local coverage attempt loaded an obsolete workflow
 assertion before correction; the final run has zero failures. No late-seed
 coverage additions were necessary.
+
+Template follow-up: executable tracker files (`mjs`, `cjs`, `js`, `jsx`, `ts`,
+`tsx`, `mts`, `cts`, `sh`), tracker extensions and executable files under `docs/`
+select the code tier, including nested paths. CodeQL is a required check
+(`codeql`), so its paths remain unfiltered. Existing hosted-only npm cache restoration and Bun setup, with
+`bun --version` on local runners, are retained. No quick-depth reduction or
+sharding was needed from the latest successful PR execution measurements.
+
+Follow-up baseline: [successful PR run 43813709734](https://github.com/unbraind/pm-glossary/actions/runs/43813709734).
+Node 22/26 execution: 1m03s / 3m32s; created-to-completed including queue:
+6m43s / 9m32s. Both executions fit the approximately 15-minute target.
