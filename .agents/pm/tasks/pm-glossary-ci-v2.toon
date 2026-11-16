@@ -4,11 +4,11 @@ description: Companion pm-cli-website-dyhg. Supersede local-routing PR #17 with 
 type: Task
 status: in_progress
 priority: 2
-tags[3]: ci,"gh:unbraind/pm-glossary#20",performance
+tags[4]: ci,"gh:unbraind/pm-glossary#20","gh:unbraind/pm-glossary#23",performance
 created_at: "2026-11-15T14:53:44.868Z"
-updated_at: "2026-11-15T15:42:47.600Z"
+updated_at: "2026-11-16T08:36:30.086Z"
 author: codex-sol
-comments[13]{created_at,author,text}:
+comments[17]{created_at,author,text}:
   "2026-11-15T14:53:49.119Z",codex-sol,"Required checks verified: test (22), test (26), codeql. Required CodeQL remains unfiltered. PR #17 is superseded by the new tier rollout; leave it open for owner disposition. Deep targets pm-local-arm64. Inspecting model depth, docs/pack/privacy inputs and process watchdogs."
   "2026-11-15T14:55:36.762Z",codex-sol,"Baseline main run 43653447844: Node 22 wall 45m48s including queue, 2m execution; Node 26 wall 54m52s including queue, 4m10s execution. Quick uses the original first 50 model sequences with generated-count assertions. Hardware-sensitive privacy CPU assertion replaced with twelve bounded adversarial iterations and a scaled runner watchdog. Product budgets unchanged. Cheap tier includes documentation/privacy, identity and actual packed inventory checks; packed acceptance already covers Bun and bunx."
   "2026-11-15T14:56:04.670Z",codex-sol,"Job-log API recovered timings after the combined run log was empty: full 500-sequence model 41.18s; packed acceptance 23.22s; full coverage test phases 54.47s and 54.07s on hosted Node 26. Typecheck and lint passed; strict unique-key YAML parsing passed; actionlint unavailable. Local touched quick suites are running; full depth remains deferred to deep CI."
@@ -22,15 +22,20 @@ comments[13]{created_at,author,text}:
   "2026-11-15T15:10:15.071Z",codex-sol,"Final quick coverage passed: 142 tests, 99.33s test phase, ten emitted production files, 100 percent statements/branches/functions/lines with no exclusions. Corrected touched suites passed in 146.76s and behavioral revert corpus in 428.16s. Hosted baseline full coverage test phases were 54.47s/54.07s on different hardware. PR #20 required jobs remain queued; no completed PR wall-time measurement. Claim released; item stays open for owner verification."
   "2026-11-15T15:40:55.754Z",codex-sol,"Cheap-path audit correction: build.test.ts reads tracked PM feature entries, and real-data.test.ts reads Markdown corpus fixtures. Added both to the docs/tracker command alongside review and identity suites. Both already passed in the final touched run and full quick coverage. No product code, thresholds, release workflows or release verifiers changed."
   "2026-11-15T15:42:46.288Z",codex-sol,"The corrected docs/tracker command passed through pm test in 51.28s: review, identity, tracker-linked build and Markdown corpus suites. Strict YAML parsing passed. Earlier quick coverage remains 142 tests at 100 percent in all four dimensions; source code and test files are unchanged by this correction. PR CI remains delegated to the owner without waiting."
-files[7]{path,scope}:
+  "2026-11-16T08:24:27.669Z",codex-sol,"Batch 2 template follow-up: split deep validation into Node 22/26 x npm/Bun with one conditional full release gate per job; preserve runner selection and full depth/time scale; disable deep cancellation; extend executable tracker/docs routing. Required CodeQL check remains unfiltered. Existing hosted-only npm cache restoration and Bun installation plus version logging already conform. Release callers, sync workflows, verifier scripts, protection and variables stay unchanged."
+  "2026-11-16T08:29:03.415Z",codex-sol,"Latest successful PR run https://github.com/unbraind/pm-glossary/actions/runs/43813709734: Node 22/26 execution 1m03s/3m32s; created-to-completed including queue 6m43s/9m32s. Both executions fit the approximately 15-minute target, so item 6 needs no quick-depth or sharding change. Items 1, 2 and 5 changed; item 3 exempt because CodeQL is required; item 4 already conforms. Added strict unique-key YAML, one-gate matrix, runner setup and executable-path behavioral contracts."
+  "2026-11-16T08:29:29.875Z",codex-sol,"Final local proof passed through pm test --run --only-last --progress: strict unique-key YAML parsing of every workflow, workflow contracts, npm run typecheck and npm run lint. actionlint is unavailable. Initial helper annotation/build setup issues were corrected before the passing rerun. No full-depth run attempted locally; deep certification remains after merge. PR observation is bounded to 30 minutes after the final push."
+  "2026-11-16T08:36:24.682Z",codex-sol,"PR https://github.com/unbraind/pm-glossary/pull/23, implementation head eec12fbccddb379a79507f70dfa98304ea0b1236: all required checks passed. codeql: execution 0m50s, created-to-completed 3m29s; test (26): execution 2m23s, created-to-completed 2m26s; test (22): execution 1m08s, created-to-completed 4m31s. Job API timestamps include queue in wall time. Slowest logged tests: one packed artifact works with npm, bun, npx, bunx and native SDK without Git 23.47s; receipt failures are typed on fresh and replayed create define and alias calls 6.98s; receipt failures are typed on fresh and replayed create define and alias calls 6.79s; seeded random operation sequences agree with an independent exact scope oracle 4.56s; clean-checkout CI and standalone typecheck build before checking emitted test imports 4.10s. Local workflow contracts, strict YAML, typecheck, lint and committed identity/private-path gates passed. Full-depth certification remains after merge. Final tracker-only receipt will be pushed with claim released; final-head CI is recorded in the PR body during the bounded watch."
+files[8]{path,scope}:
   .github/workflows/ci-deep.yml,project
   .github/workflows/ci.yml,project
   .github/workflows/codeql.yml,project
+  test/ci-template.test.ts,project
   test/model.test.ts,project
   test/review.test.ts,project
   test/support/depth.ts,project
   test/support/time.ts,project
-tests[6]:
+tests[7]:
   - command: npm run typecheck
     scope: project
     provenance:
@@ -77,6 +82,13 @@ tests[6]:
       created_at: "2026-11-15T15:40:56.986Z"
       source_kind: local_mutation
       source_ref: ci/quick-pr-tier-deep-local-tier
+  - command: PM_TEST_DEPTH=quick node --test test/ci-template.test.ts test/release-workflow.test.ts test/workflow.test.ts && npm run typecheck && npm run lint
+    scope: project
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-16T08:26:24.161Z"
+      source_kind: local_mutation
+      source_ref: ci/v2-template-followup
 docs[1]{path,scope}:
   docs/ci-tiers.md,project
 body: ""
