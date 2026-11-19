@@ -1,6 +1,6 @@
 {
   "name": "pm-glossary",
-  "version": "2026.11.5",
+  "version": "2026.11.19",
   "description": "Scoped explicit domain meanings for agent context",
   "author": "@unbraind",
   "entry": "./dist/index.js",
