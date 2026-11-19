@@ -28,7 +28,7 @@ To evaluate a source commit, start in the checkout. Choose either block to pack 
 
 ```sh
 npm ci
-tarball=$(npm pack --silent)
+tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
 archive="$(pwd)/$tarball"
 consumer=$(mktemp -d -t pm-glossary.XXXXXX)
 cd "$consumer"
@@ -40,7 +40,7 @@ npx --no-install pm glossary --help
 
 ```sh
 npm ci
-tarball=$(npm pack --silent)
+tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
 archive="$(pwd)/$tarball"
 consumer=$(mktemp -d -t pm-glossary.XXXXXX)
 cd "$consumer"
@@ -156,4 +156,9 @@ Exit codes:
 | 4 | Revision/operation conflict, contention, stale cursor or unresolved binding decision |
 | 5 | Unsupported backend, permission/completeness or I/O failure, or unknown write outcome |
 
-Run `npm run release:check` and `bun run release:check` before review. The gate inventories every emitted production file and independently counts statements, branches, functions and lines at exactly 100%, without ignores or rounded passes. Tests include 500 seeded operation sequences, each public interleaving boundary, crash/replay convergence and two real OS writers. Release automation derives CHANGELOG.md and notes from native tracker context, validates the exact packed bytes and uses OIDC provenance. Its main-only daily schedule and manual dispatch remain gated on `vars.PM_RELEASE_APPROVED == 'true'`; the maintainer controls release approval.
+Run `npm run release:check` and `bun run release:check` before review. The gate inventories every emitted production file and independently counts statements, branches, functions and lines at exactly 100%, without ignores or rounded passes. Tests include 500 seeded operation sequences, each public interleaving boundary, crash/replay convergence and two real OS writers. Release automation derives CHANGELOG.md and notes from native tracker context, validates the exact packed bytes and uses OIDC provenance.
+
+Automated npm publication requires the maintainer to configure a GitHub Actions
+[trusted publisher](https://docs.npmjs.com/trusted-publishers/) for this repository
+with workflow filename `release.yml`. `PM_RELEASE_APPROVED=true` gates daily and manual
+releases on `main`. The trusted publisher authorizes the workflow to publish to npm through OIDC.

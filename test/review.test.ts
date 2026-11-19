@@ -41,16 +41,19 @@ test('pack inventory accepts nested emitted modules and rejects undeclared asset
 });
 
 test('installation docs bootstrap local runners and declare source corpus prerequisites',()=>{
-  const readme=readFileSync('README.md','utf8').split(/^## Install\r?$/m)[1].split(/^## /m)[0];
-  const blocks=[...readme.matchAll(/```sh\n([\s\S]*?)```/g)].map(match=>match[1]);
-  for(const [install,activate] of [
-    ['npm install pm-glossary @unbrained/pm-cli','npx --no-install pm package install npm:pm-glossary'],
-    ['bun add pm-glossary @unbrained/pm-cli','bunx --bun --no-install pm package install npm:pm-glossary'],
-  ]){
-    const block=blocks.find(block=>block.includes(install));
-    assert.ok(block);assert.ok(block.includes(activate));assert.ok(block.indexOf(install)<block.indexOf(activate));
+  const source = readFileSync('README.md', 'utf8').replaceAll('\r\n', '\n');
+  for (const fixture of [source, source.replaceAll('\n', '\r\n')]) {
+    const readme = fixture.replaceAll('\r\n', '\n').split(/^## Install$/m)[1].split(/^## /m)[0];
+    const blocks=[...readme.matchAll(/```sh\n([\s\S]*?)```/g)].map(match=>match[1]);
+    for(const [install,activate] of [
+      ['npm install pm-glossary @unbrained/pm-cli','npx --no-install pm package install npm:pm-glossary'],
+      ['bun add pm-glossary @unbrained/pm-cli','bunx --bun --no-install pm package install npm:pm-glossary'],
+    ]){
+      const block=blocks.find(block=>block.includes(install));
+      assert.ok(block);assert.ok(block.includes(activate));assert.ok(block.indexOf(install)<block.indexOf(activate));
+    }
+    assert.doesNotMatch(readme,/^pm package install/m);
   }
-  assert.doesNotMatch(readme,/^pm package install/m);
   const prerequisites=readFileSync('docs/real-data.md','utf8').split('| Public input |')[0];
   assert.match(prerequisites,/source checkout/);assert.match(prerequisites,/`\.\.\/pm-vcs`/);
   assert.match(prerequisites,/revision pinned in `test\/fixtures\/public-corpus.json`/);
@@ -119,4 +122,49 @@ test('reviewed revision meaning describes repository snapshots',()=>{
   const source=readFileSync('test/fixtures/pm-vcs.md','utf8');
   assert.match(source,/diff \[from\] \[to\].*two revisions' trees/);
   assert.match(source,/branch \[name\].*--at/);assert.match(source,/merge <rev>.*Three-way merge/);
+});
+
+test('documented archive installs stop before installation when packing fails or yields no archive', t => {
+  const readme = readFileSync('README.md', 'utf8').replaceAll('\r\n', '\n');
+  const blocks = [...readme.matchAll(/^```sh\n([\s\S]*?)^```$/gm)]
+    .map(match => match[1])
+    .filter(block => /^tarball=|^(?:npm install|bun add) "\$archive"/m.test(block));
+  assert.ok(blocks.length > 0, 'The README must document an archive installation');
+  const source = mkdtempSync(join(tmpdir(), 'readme-pack-'));
+  t.after(() => rmSync(source, { recursive: true, force: true }));
+  writeFileSync(join(source, 'package.tgz'), 'synthetic archive');
+
+  const stubs = String.raw`
+pack_result=$1
+npm() {
+  case "$1" in
+    ci) return 0 ;;
+    pack)
+      printf 'pack\n' >&2
+      case "$pack_result" in
+        failed) printf '%s\n' package.tgz; return 33 ;;
+        empty) return 0 ;;
+        missing) printf '%s\n' missing.tgz; return 0 ;;
+      esac
+      ;;
+    *) printf 'npm %s\n' "$1" >&2; return 90 ;;
+  esac
+}
+bun() { printf 'bun %s\n' "$1" >&2; return 90; }
+npx() { printf 'npx\n' >&2; return 90; }
+bunx() { printf 'bunx\n' >&2; return 90; }
+mkdir() { printf 'mkdir\n' >&2; return 90; }
+mktemp() { printf 'mktemp\n' >&2; return 90; }
+`;
+  for (const block of blocks) {
+    for (const packResult of ['failed', 'empty', 'missing']) {
+      const result = spawnSync('sh', ['-c', `${stubs}\n${block}`, 'readme-pack', packResult], {
+        cwd: source,
+        encoding: 'utf8',
+      });
+      assert.ifError(result.error);
+      assert.equal(result.stderr, 'pack\n', `${packResult}: only packing should run\n${block}`);
+      assert.equal(result.status, 1, `${packResult}: the snippet must exit with a failure`);
+    }
+  }
 });
