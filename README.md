@@ -27,27 +27,31 @@ bunx --bun --no-install pm glossary --help
 To evaluate a source commit, start in the checkout. Choose either block to pack and install it in its own fresh consumer directory.
 
 ```sh
-npm ci
-tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
-archive="$(pwd)/$tarball"
-consumer=$(mktemp -d -t pm-glossary.XXXXXX)
-cd "$consumer"
-npm install "$archive" @unbrained/pm-cli
-npx --no-install pm init terminology --defaults --agent-guidance skip
-npx --no-install pm package install ./node_modules/pm-glossary
-npx --no-install pm glossary --help
+(
+  npm ci
+  tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
+  archive="$(pwd)/$tarball"
+  consumer=$(mktemp -d -t pm-glossary.XXXXXX)
+  cd "$consumer"
+  npm install "$archive" @unbrained/pm-cli
+  npx --no-install pm init terminology --defaults --agent-guidance skip
+  npx --no-install pm package install ./node_modules/pm-glossary
+  npx --no-install pm glossary --help
+)
 ```
 
 ```sh
-npm ci
-tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
-archive="$(pwd)/$tarball"
-consumer=$(mktemp -d -t pm-glossary.XXXXXX)
-cd "$consumer"
-bun add "$archive" @unbrained/pm-cli
-bunx --bun --no-install pm init terminology --defaults --agent-guidance skip
-bunx --bun --no-install pm package install ./node_modules/pm-glossary
-bunx --bun --no-install pm glossary --help
+(
+  npm ci
+  tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
+  archive="$(pwd)/$tarball"
+  consumer=$(mktemp -d -t pm-glossary.XXXXXX)
+  cd "$consumer"
+  bun add "$archive" @unbrained/pm-cli
+  bunx --bun --no-install pm init terminology --defaults --agent-guidance skip
+  bunx --bun --no-install pm package install ./node_modules/pm-glossary
+  bunx --bun --no-install pm glossary --help
+)
 ```
 
 Dependency installation alone does not activate the extension. `npx --no-install pm package install` is the explicit activation step. Both npm and Bun packed acceptance exercise installed SDK imports and native CLI dispatch with Git absent from PATH.
