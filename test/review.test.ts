@@ -41,12 +41,14 @@ test('pack inventory accepts nested emitted modules and rejects undeclared asset
 });
 
 test('installation docs bootstrap local runners and declare source corpus prerequisites',()=>{
-  const readme=readFileSync('README.md','utf8').split('# After the owner approves initial publication:')[1].split('```')[0];
+  const readme=readFileSync('README.md','utf8').split(/^## Install\r?$/m)[1].split(/^## /m)[0];
+  const blocks=[...readme.matchAll(/```sh\n([\s\S]*?)```/g)].map(match=>match[1]);
   for(const [install,activate] of [
     ['npm install pm-glossary @unbrained/pm-cli','npx --no-install pm package install npm:pm-glossary'],
     ['bun add pm-glossary @unbrained/pm-cli','bunx --bun --no-install pm package install npm:pm-glossary'],
   ]){
-    assert.ok(readme.includes(install)&&readme.includes(activate));assert.ok(readme.indexOf(install)<readme.indexOf(activate));
+    const block=blocks.find(block=>block.includes(install));
+    assert.ok(block);assert.ok(block.includes(activate));assert.ok(block.indexOf(install)<block.indexOf(activate));
   }
   assert.doesNotMatch(readme,/^pm package install/m);
   const prerequisites=readFileSync('docs/real-data.md','utf8').split('| Public input |')[0];

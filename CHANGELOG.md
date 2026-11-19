@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Other
+
+- Adopt the released reusable Daily Release caller ([pm-glossary-release-caller-rollout](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/tasks/pm-glossary-release-caller-rollout.toon))
+
 ## 2026.11.19 - 2026-11-19
 
 ### Fixed
