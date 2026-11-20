@@ -2,32 +2,66 @@
 
 Project management is context management. A word retrieved from prose is not a meaning: “gate” can be a release condition, a physical barrier, or a team's local jargon. pm-glossary records reviewed, scoped term-to-sense choices so stateless agents can resolve exactly or explicitly abstain. Definitions are submitted data, never instructions, authorization or universal truth.
 
-This is an unpublished first release under local review. It implements create, define, direct aliases, resolution, diagnostics and bounded packets. Exact use-site bindings and freshness adapters are deferred in `pm-glossary-3jep`; publication and additional-provider conformance are tracked in `pm-glossary-h5rj`. No binding command or freshness guarantee is claimed.
+The extension implements create, define, direct aliases, resolution, diagnostics and bounded packets. Exact use-site bindings and freshness adapters are deferred in `pm-glossary-3jep`; additional-provider conformance is tracked in `pm-glossary-h5rj`. No binding command or freshness guarantee is claimed.
 
 Requires Node **22.19+**, Bun **1.3+**, and **pm-cli 2026.11.4+**. The package has no standalone binary. Its default export is the pm extension and its named exports are the SDK.
 
+## Install
+
+Install from the npm registry in a fresh consumer project. Choose npm or Bun.
+
 ```sh
-# Local review: choose npm or Bun in a fresh consumer.
-# npm:
-npm install ./pm-glossary-2026.11.5.tgz @unbrained/pm-cli
-npx --no-install pm init terminology --defaults --agent-guidance skip
-npx --no-install pm package install ./node_modules/pm-glossary
-
-# Alternatively, Bun:
-bun add ./pm-glossary-2026.11.5.tgz @unbrained/pm-cli
-bunx --bun --no-install pm init terminology --defaults --agent-guidance skip
-bunx --bun --no-install pm package install ./node_modules/pm-glossary
-
-# After the owner approves initial publication:
 npm install pm-glossary @unbrained/pm-cli
 npx --no-install pm init terminology --defaults --agent-guidance skip
 npx --no-install pm package install npm:pm-glossary
-# Alternatively, Bun:
+npx --no-install pm glossary --help
+```
+
+```sh
 bun add pm-glossary @unbrained/pm-cli
 bunx --bun --no-install pm init terminology --defaults --agent-guidance skip
 bunx --bun --no-install pm package install npm:pm-glossary
-npx --no-install pm glossary --help
 bunx --bun --no-install pm glossary --help
+```
+
+To evaluate a source commit, start in the checkout. Choose either block to pack and install it in its own fresh consumer directory.
+
+```sh
+(
+  npm ci || exit 1
+  tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
+  packed_version=$(node -p 'require("./package.json").version') || exit 1
+  archive="$(pwd)/$tarball"
+  consumer=$(mktemp -d -t pm-glossary.XXXXXX) && test -n "$consumer" && cd "$consumer" || exit 1
+  npm install "$archive" @unbrained/pm-cli || exit 1
+  npx --no-install pm init terminology --defaults --agent-guidance skip || exit 1
+  npx --no-install pm package install ./node_modules/pm-glossary || exit 1
+  npx --no-install pm glossary --help || exit 1
+  installed_version=$(node -p 'require("./node_modules/pm-glossary/package.json").version') || exit 1
+  test "$installed_version" = "$packed_version" || {
+    printf 'Expected version %s, installed %s.\n' "$packed_version" "$installed_version" >&2
+    exit 1
+  }
+)
+```
+
+```sh
+(
+  npm ci || exit 1
+  tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
+  packed_version=$(node -p 'require("./package.json").version') || exit 1
+  archive="$(pwd)/$tarball"
+  consumer=$(mktemp -d -t pm-glossary.XXXXXX) && test -n "$consumer" && cd "$consumer" || exit 1
+  bun add "$archive" @unbrained/pm-cli || exit 1
+  bunx --bun --no-install pm init terminology --defaults --agent-guidance skip || exit 1
+  bunx --bun --no-install pm package install ./node_modules/pm-glossary || exit 1
+  bunx --bun --no-install pm glossary --help || exit 1
+  installed_version=$(node -p 'require("./node_modules/pm-glossary/package.json").version') || exit 1
+  test "$installed_version" = "$packed_version" || {
+    printf 'Expected version %s, installed %s.\n' "$packed_version" "$installed_version" >&2
+    exit 1
+  }
+)
 ```
 
 Dependency installation alone does not activate the extension. `npx --no-install pm package install` is the explicit activation step. Both npm and Bun packed acceptance exercise installed SDK imports and native CLI dispatch with Git absent from PATH.
@@ -136,4 +170,11 @@ Exit codes:
 | 4 | Revision/operation conflict, contention, stale cursor or unresolved binding decision |
 | 5 | Unsupported backend, permission/completeness or I/O failure, or unknown write outcome |
 
-Run `npm run release:check` and `bun run release:check` before review. The gate inventories every emitted production file and independently counts statements, branches, functions and lines at exactly 100%, without ignores or rounded passes. Tests include 500 seeded operation sequences, each public interleaving boundary, crash/replay convergence and two real OS writers. Release automation derives CHANGELOG.md and notes from native tracker context, validates the exact packed bytes and uses OIDC provenance. Its main-only daily schedule and manual dispatch remain gated on `vars.PM_RELEASE_APPROVED == 'true'`; enabling it and creating the public repository are owner work.
+Run `npm run release:check` and `bun run release:check` before review. The gate inventories every emitted production file and independently counts statements, branches, functions and lines at exactly 100%, without ignores or rounded passes. Tests include 500 seeded operation sequences, each public interleaving boundary, crash/replay convergence and two real OS writers. Release automation derives CHANGELOG.md and notes from native tracker context, validates the exact packed bytes and uses OIDC provenance.
+
+Automated npm publication requires the maintainer to configure a GitHub Actions
+[trusted publisher](https://docs.npmjs.com/trusted-publishers/) for this repository
+with workflow filename `release.yml` and select `npm publish` under **Allowed actions**.
+Trusted publishers created after September 3, 2026 default to
+`npm stage publish` only. `PM_RELEASE_APPROVED=true` gates daily and manual
+releases on `main`. The trusted publisher authorizes the workflow to publish to npm through OIDC.
