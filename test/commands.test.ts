@@ -7,11 +7,11 @@ import type { GlossaryOutput } from '../dist/index.js';
 import type { CommandHandlerContext } from '@unbrained/pm-cli/sdk/authoring';
 import { GlossaryRefusal } from '../dist/src/errors.js';
 import { fitRefusal, glossaryOutputSchema } from '../dist/src/output.js';
-import { fitOutputEnvelope, createPmCliExpectedError } from '@unbrained/pm-cli/sdk';
+import { createExtensionCommandSdk, fitOutputEnvelope, createPmCliExpectedError } from '@unbrained/pm-cli/sdk';
 import { fixture, harnessFixture, request } from './helpers.ts';
 
 test('native extension harness executes every command, contracts and scoped renderers',async t=>{
-  const {pmRoot,id,ext}=await harnessFixture(t);
+  const {pmRoot,id,ext,native}=await harnessFixture(t);
   for(const name of ['create','define','alias','resolve','check','packet'])ext.assertCommandContract({command:`glossary ${name}`});
   ext.assertItemField({name:'glossary_state',type:'object'});ext.assertItemType({name:'Glossary',folder:'glossary'});
   const run=(command:string,args:string[]=[],options:Record<string,unknown>={},global:Record<string,unknown>={})=>ext.runCommand({command:`glossary ${command}`,args,options,global,pmRoot}).then(value=>{if(value.cause)throw value.cause;if(value.exitCode){const result=value.result as GlossaryOutput;assert.ok(result.refusal);throw new Error(result.refusal.code);}assert.equal(value.handled,true);return value.result;});
@@ -28,8 +28,14 @@ test('native extension harness executes every command, contracts and scoped rend
   assert.equal((await run('resolve',['corpus-cli'],{term:'gate',scope:'root'},{outputBudget:'unbounded'}) as {ok:boolean}).ok,true);
   const paged=await run('packet',['corpus-cli'],{scope:'root',limit:1}) as {continuation:string};assert.ok(paged.continuation);await run('packet',['corpus-cli'],{scope:'root',limit:1},{outputCursor:paged.continuation});await run('packet',['corpus-cli'],{scope:'root',limit:1,cursor:paged.continuation});
   for(const [command,args,options,global,expected] of [
-    ['resolve',[id],{term:'gate'},{},'invalid_input'],['packet',[id],{scope:'root',limit:'1.5'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'[]'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'"x"'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'x'.repeat(32769)},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{"id":"other"}'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{}'},{outputBudget:'1'},'output_budget'],['resolve',[id],{term:'gate',scope:'root'},{outputBudget:'broken'},'invalid_input'],['resolve',[id],{term:'gate',scope:'root'},{outputInclude:'data'},'invalid_input'],['resolve',[id],{term:'gate',scope:'root'},{outputCursor:'unusable'},'invalid_input'],['resolve',[id],{term:['gate'],scope:'root'},{},'invalid_input'],
+    ['resolve',[id],{term:'gate'},{},'invalid_input'],['packet',[id],{scope:'root',limit:'1.5'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'[]'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'"x"'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'x'.repeat(32769)},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{"id":"other"}'},{},'invalid_input'],['create',[],{id:'corpus-fail',op:'fail',input:'{}'},{outputBudget:'1'},'output_budget'],['resolve',[id],{term:'gate',scope:'root'},{outputBudget:'broken'},'invalid_input'],['resolve',[id],{term:'gate',scope:'root'},{outputInclude:'data'},'invalid_input'],['resolve',[id],{term:'gate',scope:'root'},{outputCursor:'unusable'},'invalid_input'],
   ] as const)await assert.rejects(run(command,[...args],options,global),{message:expected});
+  const options = { term: ['gate'], scope: 'root' };
+  await assert.rejects(run('resolve', [id], options), { code: 'extension_flag_value_invalid', exitCode: 2 });
+  const sdk = createExtensionCommandSdk(pmRoot, native);
+  const direct = await runCommand('resolve', { command: 'glossary resolve', args: [id], options, global: {}, pm_root: pmRoot, sdk }) as GlossaryOutput;
+  assert.equal(direct.refusal?.code, 'invalid_input');
+  assert.equal(direct.exit_code, 2);
   assert.equal((await runCommand('resolve',{args:[],options:{},global:{},pm_root:pmRoot,command:'glossary resolve'} as CommandHandlerContext) as {ok:boolean}).ok,false);
 });
 

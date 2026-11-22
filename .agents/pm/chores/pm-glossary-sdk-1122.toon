@@ -1,0 +1,24 @@
+id: pm-glossary-sdk-1122
+title: Adopt pm-cli 2026.11.22 host-aligned SDK behaviour
+description: Migrate the package toolchain and verify glossary command behaviour under the native-aligned extension harness. Companion item pm-cli-website-spus.
+type: Chore
+status: in_progress
+priority: 2
+tags: []
+created_at: "2026-11-22T20:40:14.742Z"
+updated_at: "2026-11-22T22:05:26.539Z"
+author: codex-agent
+acceptance_criteria: "Pin all first-party development tools at npm latest and refresh tracked locks; Preserve package continuation, budget and input validation under the installed SDK; Run the unchanged release gates and open the migration PR"
+comments[1]{created_at,author,text}:
+  "2026-11-22T22:05:25.089Z",codex-agent,"## Host behavior\n\n- `not ok 16 - native extension harness executes every command, contracts and scoped renderers`. The old harness delivered package `invalid_input` when `--term` was an array. The host now rejects the scalar flag before dispatch with `extension_flag_value_invalid` and exit 2. The test checks that code at the host boundary and the original package refusal directly through the real SDK.\n- `not ok 41 - an explicit budget is not refused by an invalid stored budget setting`. An array-valued `--budget` used to reach the package and receive `invalid_input`. The host now returns the same scalar flag refusal. The test checks the host code and retains the package refusal, valid explicit budgets, malformed scalar budgets, and settings-shape validation.\n\n## Reproduction for the pm-cli SDK\n\nWith pm-cli 2026.11.22, register `probe echo` without `read_output` and have its handler return `{ok: true}`. Call `createExtensionTestHarness(extension, {capabilities: ['commands']})`, then `runCommand({command: 'probe echo', global: {outputBudget: '1'}})`. It reports `handled: true` with `{ok: true}`. Install that same extension in a scratch tracker and run `pm probe echo --output-budget 1 --json`. The native command exits 2 and emits `command_failed` with `probe echo is not a read surface` on stderr.\n\n## Verification\n\n- Baseline build and typecheck passed. The full baseline passed 149 of 151 tests. On 2026.11.14 the updated term assertion receives package `invalid_input`, and the updated budget assertion fails because the harness does not reject the invocation.\n- `pm test pm-glossary-sdk-1122 --run --progress` passed 11 of 11 contract tests.\n- `npm run release:check` and `bun run release:check` each passed 151 of 151 tests and 51 behavioral reverts. Coverage is 470/470 statements, 299/299 branches, 114/114 functions, and 403/403 lines. The gates include typecheck, lint, identity and privacy, tracker health, changelog, production audit, and packed npm and Bun acceptance.\n\nCI for this branch is tracked in the Actions run list. [Branch runs](https://github.com/unbraind/pm-glossary/actions?query=branch%3Adeps%2Fadopt-pm-cli-host-alignment-1122)"
+files[4]{path,scope}:
+  package-lock.json,project
+  package.json,project
+  test/commands.test.ts,project
+  test/contracts.test.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test --test-concurrency=2 test/commands.test.ts test/contracts.test.ts,project,codex-agent,"2026-11-22T21:46:27.737Z",local_mutation,deps/adopt-pm-cli-host-alignment-1122
+docs[2]{path,scope}:
+  ARCHITECTURE.md,project
+  README.md,project
+body: ""
