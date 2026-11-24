@@ -7,6 +7,10 @@
 - Keep published dependency updates in the generated changelog ([pm-glossary-mx01](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/chores/pm-glossary-mx01.toon))
 - Adopt pm-cli 2026.11.22 host-aligned SDK behaviour ([pm-glossary-sdk-1122](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/chores/pm-glossary-sdk-1122.toon))
 
+### Dependencies
+
+- Bump @babel/parser
+
 ## 2026.11.20 - 2026-11-20
 
 No changes.
