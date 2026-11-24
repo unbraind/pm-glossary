@@ -9,7 +9,7 @@
 
 ### Dependencies
 
-- Bump @babel/parser
+- Bump @babel/parser from 8.1.2 to 8.1.3 in the dependencies group ([#38](https://github.com/unbraind/pm-glossary/pull/38))
 
 ## 2026.11.20 - 2026-11-20
 
