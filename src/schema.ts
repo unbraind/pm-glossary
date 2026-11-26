@@ -17,22 +17,31 @@ export const provenanceSchema = z.strictObject({ item_id: key, item_hash: hash, 
 export const senseSchema = z.strictObject({ sense_id: key, term: text, scope_key: key, language: key, definition: text.refine(value => [...value].length <= 2000), entity_ref: text.optional(), contrast_sense_ids: z.array(key).max(128).default([]), provenance: z.array(provenanceSchema).max(8).default([]) });
 /** Aliases address senses directly; no chain traversal exists. */
 export const aliasSchema = z.strictObject({ alias_id: key, term: text, scope_key: key, language: key, sense_id: key });
+/** Native source revision and an exact half-open UTF-8 byte range. */
+export const bindingSourceSchema = z.strictObject({
+  item_id: key, item_hash: hash, field_pointer: z.enum(['/title', '/description', '/body']),
+  start_byte: z.int().nonnegative(), end_byte: z.int().positive(), span_sha256: hash,
+}).refine(source => source.start_byte < source.end_byte, { path: ['end_byte'] });
+/** One immutable choice of sense at a pinned use site. */
+export const useSiteBindingSchema = z.strictObject({ binding_id: key, sense_id: key, source: bindingSourceSchema });
 /** Stable committed semantic result, retained independently from later truth. */
-export const committedResultSchema = z.strictObject({ kind: z.enum(['create', 'define', 'alias']), sequence: z.number().int().positive(), identity: key });
+export const committedResultSchema = z.strictObject({ kind: z.enum(['create', 'define', 'alias', 'bind']), sequence: z.number().int().positive(), identity: key });
 /** Replay records never evict successful operation keys. */
 export const replaySchema = z.strictObject({ operation_id: key, request_digest: hash, result: committedResultSchema, result_digest: hash });
-/** Complete first-slice persisted state; bindings are reserved for a later version. */
-export const glossaryStateSchema = z.strictObject({ version: z.literal(1), domain_key: key, language_policy: z.literal('exact'), scopes: z.array(scopeSchema).min(1).max(64), senses: z.array(senseSchema).max(128), aliases: z.array(aliasSchema).max(256), bindings: z.array(z.never()).max(0), operations: z.array(replaySchema).min(1).max(256) });
+/** Complete native state, including owners created with an empty binding collection. */
+export const glossaryStateSchema = z.strictObject({ version: z.literal(1), domain_key: key, language_policy: z.literal('exact'), scopes: z.array(scopeSchema).min(1).max(64), senses: z.array(senseSchema).max(128), aliases: z.array(aliasSchema).max(256), bindings: z.array(useSiteBindingSchema).max(128), operations: z.array(replaySchema).min(1).max(256) });
 /** Explicit owner and stable operation identity for native create-if-absent. */
 export const createGlossaryInputSchema = z.strictObject({ id: key, op: key, title: text, domain_key: key, scopes: z.array(scopeSchema).min(1).max(64), related: z.array(key).max(20).default([]) });
 /** An explicit edit uses the native revision that the caller reviewed. */
 export const defineSenseInputSchema = z.strictObject({ id: key, op: key, revision: hash, sense: senseSchema });
 /** Direct alias addition or revision-checked replacement. */
 export const addAliasInputSchema = z.strictObject({ id: key, op: key, revision: hash, alias: aliasSchema });
+/** Explicit binding admission against the reviewed native owner revision. */
+export const bindUseSiteInputSchema = z.strictObject({ id: key, op: key, revision: hash, binding: useSiteBindingSchema });
 /** Exact resolution query without implicit language fallback. */
 export const resolveTermInputSchema = z.strictObject({ id: key, term: text, scope_key: key, language: key.default('en') });
 /** Diagnostic query is owner-scoped and never enumerates the workspace. */
-export const checkGlossaryInputSchema = z.strictObject({ id: key, scope_key: key.optional() });
+export const checkGlossaryInputSchema = z.strictObject({ id: key, scope_key: key.optional(), binding_id: key.optional() });
 /** Revision-bound page request retaining all witnesses for each emitted term. */
 export const glossaryPacketInputSchema = z.strictObject({ id: key, scope_key: key, language: key.default('en'), limit: z.number().int().min(1).max(100).default(20), cursor: z.string().max(2048).optional() });
 /** Supported persisted glossary representation. */
@@ -45,6 +54,10 @@ export type CreateGlossaryInput = z.input<typeof createGlossaryInputSchema>;
 export type DefineSenseInput = z.input<typeof defineSenseInputSchema>;
 /** Native alias mutation request. */
 export type AddAliasInput = z.input<typeof addAliasInputSchema>;
+/** Native use-site evidence with no source excerpt. */
+export type UseSiteBinding = z.infer<typeof useSiteBindingSchema>;
+/** Explicit native binding mutation request. */
+export type BindUseSiteInput = z.input<typeof bindUseSiteInputSchema>;
 /** Explicit scoped exact resolution query. */
 export type ResolveTermInput = z.input<typeof resolveTermInputSchema>;
 /** Explicit scoped glossary diagnostic request. */

@@ -2,10 +2,11 @@ import { isItemAlreadyExistsError } from '@unbrained/pm-cli/sdk';
 import { capable } from './host.ts';
 import type { Host, Snapshot } from './host.ts';
 import { GlossaryRefusal, insist, refusal } from './errors.ts';
-import { parse, digest, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema, resolveTermInputSchema, checkGlossaryInputSchema, glossaryPacketInputSchema } from './schema.ts';
-import type { CreateGlossaryInput, DefineSenseInput, AddAliasInput, ResolveTermInput, CheckGlossaryInput, GlossaryPacketInput, GlossaryState } from './schema.ts';
+import { parse, digest, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema, bindUseSiteInputSchema, resolveTermInputSchema, checkGlossaryInputSchema, glossaryPacketInputSchema } from './schema.ts';
+import type { CreateGlossaryInput, DefineSenseInput, AddAliasInput, BindUseSiteInput, ResolveTermInput, CheckGlossaryInput, GlossaryPacketInput, GlossaryState } from './schema.ts';
 import { readState, validateScopes, resolveInValidState } from './kernel.ts';
 import { packetPage } from './packet.ts';
+import { inspectBindingSource, requireBindingSource, useSiteKey } from './bindings.ts';
 
 /** Versioned semantic write receipt; original result is distinct from the current revision. */
 export interface GlossaryMutationReceipt {
@@ -52,7 +53,7 @@ async function receipt(host: Host, snapshot: Snapshot, operation: GlossaryState[
   } catch (error) { throw refusal(error); }
 }
 /** Append one bounded replay record before admitting the owner update. */
-function record(state: GlossaryState, op: string, request: unknown, kind: 'create' | 'define' | 'alias', identity: string): GlossaryState['operations'][number] {
+function record(state: GlossaryState, op: string, request: unknown, kind: GlossaryMutationReceipt['result']['kind'], identity: string): GlossaryState['operations'][number] {
   const result = { kind, sequence: state.operations.length + 1, identity }; const operation = { operation_id: op, request_digest: digest(request), result, result_digest: digest(result) };
   state.operations.push(operation);
   capacity(state);
@@ -84,52 +85,93 @@ export async function createGlossary(host: Host, raw: CreateGlossaryInput): Prom
     }
   } catch (error) { throw refusal(error); }
 }
+/** Normalized mutations that share the native owner CAS and replay path. */
+type Edit =
+  | ReturnType<typeof defineSenseInputSchema.parse>
+  | ReturnType<typeof addAliasInputSchema.parse>
+  | ReturnType<typeof bindUseSiteInputSchema.parse>;
+
+/** Stage one normalized edit, retaining its immutable binding target across CAS retries. */
+function stageEdit(snapshot: Snapshot, state: GlossaryState, input: Edit, attempt: number, bindingTarget: string | undefined) {
+  if ('binding' in input) {
+    const { binding } = input;
+    insist(binding.source.item_id !== snapshot.id, 'invalid_input', 'A glossary cannot bind its own revision');
+    const sense = state.senses.find(value => value.sense_id === binding.sense_id);
+    insist(sense, 'invalid_input', 'Binding target must be an existing sense');
+    const target = digest(sense);
+    insist(attempt === 1 || target === bindingTarget, 'revision_conflict', 'The binding target sense changed during admission');
+    const site = useSiteKey(binding.source);
+    const exists = state.bindings.some(value => value.binding_id === binding.binding_id || useSiteKey(value.source) === site);
+    insist(!exists, 'binding_conflict', 'Binding identity or exact use site already has a decision', 'Replay the original operation or select a different reviewed use site');
+    state.bindings.push(binding);
+    return { kind: 'bind' as const, identity: binding.binding_id, addition: true, target };
+  }
+
+  const sense = 'sense' in input ? input.sense : undefined;
+  const alias = 'alias' in input ? input.alias : undefined;
+  const exists = sense ? state.senses.some(value => value.sense_id === sense.sense_id) : state.aliases.some(value => value.alias_id === alias!.alias_id);
+  insist(attempt === 1 || !exists, 'revision_conflict', 'Concurrent addition now owns this identity', 'Reread and review the existing identity before editing it');
+  if (sense) {
+    insist(sense.contrast_sense_ids.every(id => id !== sense.sense_id && state.senses.some(value => value.sense_id === id)), 'invalid_input', 'Contrast must name another existing sense');
+    state.senses = state.senses.filter(value => value.sense_id !== sense.sense_id); state.senses.push(sense);
+  } else {
+    insist(state.senses.some(value => value.sense_id === alias!.sense_id), 'alias_cycle', 'Alias target must be a direct existing sense', 'Select a sense ID; alias chains, cycles and missing targets are forbidden');
+    state.aliases = state.aliases.filter(value => value.alias_id !== alias!.alias_id); state.aliases.push(alias!);
+  }
+  insist(state.scopes.some(value => value.scope_key === (sense ?? alias!).scope_key), 'invalid_scope', 'Meaning scope is not declared');
+  return { kind: sense ? 'define' as const : 'alias' as const, identity: sense ? sense.sense_id : alias!.alias_id, addition: !exists, target: undefined };
+}
+
 /** Apply a native revision-checked edit; only a still-absent commutative addition can retry. */
-async function mutate(host: Host, input: ReturnType<typeof defineSenseInputSchema.parse> | ReturnType<typeof addAliasInputSchema.parse>, kind: 'define' | 'alias'): Promise<GlossaryMutationReceipt> {
-  let addition = false;
+async function mutate(host: Host, input: Edit): Promise<GlossaryMutationReceipt> {
+  let bindingTarget: string | undefined;
   for (let attempt = 1; attempt <= 3; attempt++) {
     const snapshot = await readGlossary(host, input.id); await boundary(host, 'after_read');
     const normalized = { ...input, id: snapshot.id };
     const previous = replay(snapshot.state, input.op, normalized);
     if (previous) return receipt(host, snapshot, previous, true, attempt);
     const state = structuredClone(snapshot.state);
-    const sense = 'sense' in input ? input.sense : undefined; const alias = 'alias' in input ? input.alias : undefined;
-    const exists = sense ? state.senses.some(value => value.sense_id === sense.sense_id) : state.aliases.some(value => value.alias_id === alias!.alias_id);
-    if (attempt === 1) { insist(snapshot.revision === input.revision, 'revision_conflict', 'Caller revision is stale', 'Reread the glossary and explicitly review a new request'); addition = !exists; }
-    else insist(!exists, 'revision_conflict', 'Concurrent addition now owns this identity', 'Reread and review the existing identity before editing it');
-    if (sense) {
-      insist(sense.contrast_sense_ids.every(id => id !== sense.sense_id && state.senses.some(value => value.sense_id === id)), 'invalid_input', 'Contrast must name another existing sense');
-      state.senses = state.senses.filter(value => value.sense_id !== sense.sense_id); state.senses.push(sense);
-    } else {
-      insist(state.senses.some(value => value.sense_id === alias!.sense_id), 'alias_cycle', 'Alias target must be a direct existing sense', 'Select a sense ID; alias chains, cycles and missing targets are forbidden');
-      state.aliases = state.aliases.filter(value => value.alias_id !== alias!.alias_id); state.aliases.push(alias!);
-    }
-    insist(state.scopes.some(value => value.scope_key === (sense ?? alias!).scope_key), 'invalid_scope', 'Meaning scope is not declared');
-    const operation = record(state, input.op, normalized, kind, sense ? sense.sense_id : alias!.alias_id);
+    if (attempt === 1) insist(snapshot.revision === input.revision, 'revision_conflict', 'Caller revision is stale', 'Reread the glossary and explicitly review a new request');
+    const edit = stageEdit(snapshot, state, input, attempt, bindingTarget);
+    bindingTarget = edit.target;
+    const { kind, identity } = edit;
+    const operation = record(state, input.op, normalized, kind, identity);
     try {
       await boundary(host, 'before_guard');
       await boundary(host, 'before_update');
+      if ('binding' in input) await requireBindingSource(host, input.binding.source);
       const checked = await host.client.withExpectedItemRevisions([{ id: snapshot.id, itemHash: snapshot.revision }], () => host.client.update(snapshot.id, { field: [`glossary_state=${JSON.stringify(state)}`], comment: [`glossary:${kind} explicit reviewed terminology`] }));
       await boundary(host, 'after_update');
       insist(checked.checked.includes(snapshot.id) && checked.unchecked.length === 0, 'backend_unsupported', 'Host did not prove the locked owner expectation', 'Select a conforming host and reconcile the original operation key before retrying');
       await boundary(host, 'after_guard'); return await receipt(host, snapshot, operation, false, attempt);
     } catch (error) {
       const failed = refusal(error);
-      if (failed.code !== 'revision_conflict' || !addition) throw failed;
+      if (failed.code !== 'revision_conflict' || !edit.addition) throw failed;
     }
   }
   throw new GlossaryRefusal('contention', 'Concurrent changes exhausted the retry limit', 'Reread and retry the original request and operation key; no write was acknowledged');
 }
 /** Define or explicitly redefine a reviewed sense at a native revision. */
-export async function defineSense(host: Host, input: DefineSenseInput): Promise<GlossaryMutationReceipt> { return mutate(host, parse(defineSenseInputSchema, input), 'define'); }
+export async function defineSense(host: Host, input: DefineSenseInput): Promise<GlossaryMutationReceipt> { return mutate(host, parse(defineSenseInputSchema, input)); }
 /** Add a direct alias, preserving equal-level ambiguity instead of hidden precedence. */
-export async function addAlias(host: Host, input: AddAliasInput): Promise<GlossaryMutationReceipt> { return mutate(host, parse(addAliasInputSchema, input), 'alias'); }
+export async function addAlias(host: Host, input: AddAliasInput): Promise<GlossaryMutationReceipt> { return mutate(host, parse(addAliasInputSchema, input)); }
+/** Bind one reviewed sense to exact source bytes using only authorized native item access. */
+export async function bindUseSite(host: Host, raw: BindUseSiteInput): Promise<GlossaryMutationReceipt> {
+  try {
+    const input = parse(bindUseSiteInputSchema, raw);
+    capable(host);
+    const source = input.binding.source;
+    const item_id = await host.normalizeId?.(source.item_id) ?? source.item_id;
+    const normalized = parse(bindUseSiteInputSchema, { ...input, binding: { ...input.binding, source: { ...source, item_id } } });
+    return await mutate(host, normalized);
+  } catch (error) { throw refusal(error); }
+}
 /** Resolve one exact scoped term through the same pure kernel used by packets. */
 export async function resolveTerm(host: Host, raw: ResolveTermInput) {
   const input = parse(resolveTermInputSchema, raw); const owner = await readGlossary(host, input.id);
   return { owner_id: owner.id, revision: owner.revision, ...resolveInValidState(owner.state, input) };
 }
-/** Diagnose duplicate alias tuples and broken contrast references without rewriting prose. */
+/** Diagnose glossary consistency and optionally revalidate one source without writing history. */
 export async function checkGlossary(host: Host, raw: CheckGlossaryInput) {
   const input = parse(checkGlossaryInputSchema, raw); const owner = await readGlossary(host, input.id);
   if (input.scope_key !== undefined) insist(owner.state.scopes.some(scope => scope.scope_key === input.scope_key), 'invalid_scope', 'Diagnostic scope is not declared');
@@ -139,7 +181,13 @@ export async function checkGlossary(host: Host, raw: CheckGlossaryInput) {
     if (tuples.has(tuple)) findings.push({ code: 'duplicate_alias', identity: alias.alias_id }); tuples.add(tuple);
   }
   for (const sense of owner.state.senses.filter(row => input.scope_key === undefined || row.scope_key === input.scope_key)) for (const contrast of sense.contrast_sense_ids) if (!owner.state.senses.some(value => value.sense_id === contrast)) findings.push({ code: 'broken_contrast', identity: sense.sense_id });
-  return { owner_id: owner.id, revision: owner.revision, findings, freshness: 'unknown' as const, bindings: 'deferred_first_slice' as const };
+  let binding_evidence = null;
+  if (input.binding_id !== undefined) {
+    const binding = owner.state.bindings.find(value => value.binding_id === input.binding_id);
+    insist(binding, 'not_found', 'Requested binding was not found', 'Select an existing binding on the glossary owner');
+    binding_evidence = { binding, ...await inspectBindingSource(host, binding.source) };
+  }
+  return { owner_id: owner.id, revision: owner.revision, findings, freshness: 'unknown' as const, bindings: owner.state.bindings.length, binding_evidence };
 }
 /** Build a revision-bound page whose rows retain complete ambiguity witnesses. */
 export async function glossaryPacket(host: Host, raw: GlossaryPacketInput) {
@@ -148,5 +196,5 @@ export async function glossaryPacket(host: Host, raw: GlossaryPacketInput) {
 
 /** Enforce independent aggregate resource ceilings before a native owner mutation. */
 export function capacity(state: GlossaryState): void {
-  insist(state.operations.length <= 256 && state.senses.length <= 128 && state.aliases.length <= 256 && Buffer.byteLength(JSON.stringify(state)) <= 65536, 'capacity', 'Glossary aggregate limit reached', 'Create a successor glossary or partition the domain; receipts are never evicted');
+  insist(state.operations.length <= 256 && state.senses.length <= 128 && state.aliases.length <= 256 && state.bindings.length <= 128 && Buffer.byteLength(JSON.stringify(state)) <= 65536, 'capacity', 'Glossary aggregate limit reached', 'Create a successor glossary or partition the domain; receipts are never evicted');
 }

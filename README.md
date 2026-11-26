@@ -2,7 +2,7 @@
 
 Project management is context management. A word retrieved from prose is not a meaning: “gate” can be a release condition, a physical barrier, or a team's local jargon. pm-glossary records reviewed, scoped term-to-sense choices so stateless agents can resolve exactly or explicitly abstain. Definitions are submitted data, never instructions, authorization or universal truth.
 
-The extension implements create, define, direct aliases, resolution, diagnostics and bounded packets. Exact use-site bindings and freshness adapters are deferred in `pm-glossary-3jep`; additional-provider conformance is tracked in `pm-glossary-h5rj`. No binding command or freshness guarantee is claimed.
+The extension implements create, define, direct aliases, exact native use-site bindings, resolution, diagnostics and bounded packets. Binding freshness checks use authorized native item reads. Additional-provider conformance is tracked in `pm-glossary-h5rj`.
 
 Requires Node **22.19+**, Bun **1.3+**, and **pm-cli 2026.11.4+**. The package has no standalone binary. Its default export is the pm extension and its named exports are the SDK.
 
@@ -73,8 +73,9 @@ Every command defaults to TOON, accepts native `--json`, and returns the same ve
 | `glossary create` | Create one explicit owner ID | `npx --no-install pm glossary create --id terminology-lexicon --op birth --input -` |
 | `glossary define <id>` | Add or explicitly redefine a sense | `npx --no-install pm glossary define terminology-lexicon --revision <hash> --op define-release --input -` |
 | `glossary alias <id>` | Add a direct scoped alias | `npx --no-install pm glossary alias terminology-lexicon --revision <hash> --op alias-ship --input -` |
+| `glossary bind <id>` | Pin a reviewed sense to exact UTF-8 bytes | `npx --no-install pm glossary bind terminology-lexicon --revision <owner-hash> --op bind-release --input -` |
 | `glossary resolve <id>` | Resolve exactly, or abstain | `npx --no-install pm glossary resolve terminology-lexicon --term release --scope delivery --language en --json` |
-| `glossary check <id>` | Diagnose aliases and contrasts | `npx --no-install pm glossary check terminology-lexicon --scope delivery` |
+| `glossary check <id>` | Diagnose consistency and optionally revalidate a source | `npx --no-install pm glossary check terminology-lexicon --binding release-use --json` |
 | `glossary packet <id>` | Read complete meanings and ambiguity witnesses in a bounded page | `npx --no-install pm glossary packet terminology-lexicon --scope delivery --limit 10 --budget 1600` |
 
 Create input:
@@ -96,6 +97,20 @@ Alias input:
 ```
 
 Senses optionally accept `entity_ref` and immutable native provenance references `{item_id,item_hash,field_pointer,citation_id?}`. Each reference identifies evidence independently; a group is not an atomic cross-item snapshot. Creation accepts `related: ["terminology-task"]` to link consuming tasks using native related dependencies. Other item fields, comments, body, claims and relationships survive owner updates.
+
+### Binding a reviewed use site
+
+Read the source with `npx --no-install pm get release-task --fields body,item_hash --json` and the glossary owner to obtain their separate revisions. For a source body beginning with `ship release`, the bytes for `release` occupy offsets 5 through 11. Replace `<source-hash>` with the source item's `item_hash` and pass the glossary owner's hash as `--revision`.
+
+```json
+{"binding":{"binding_id":"release-use","sense_id":"release-package","source":{"item_id":"release-task","item_hash":"<source-hash>","field_pointer":"/body","start_byte":5,"end_byte":12,"span_sha256":"a4d451ec23463726f72c43d64c710968f6b602cd653b4de8adee1b556240a829"}}}
+```
+
+The field can be `/title`, `/description` or `/body`. Offsets count UTF-8 bytes from zero with an exclusive end. Hash the selected bytes directly with SHA-256, preserving whitespace, case and Unicode normalization. The tracker stores the canonical source ID, revision, coordinates and digest with the reviewed sense ID. The source prose stays on the source item. Each binding ID and exact site at a given revision accepts one decision. Use a fresh binding ID and operation key for a different reviewed revision.
+
+A new bind refuses a stale glossary revision, changed source revision, missing or inaccessible source, and invalid byte range or digest. Its receipt records the committed choice. Retrying the original request and key returns that same outcome even if the source changed after admission. Run `glossary check --binding` for a new observation. `binding_evidence.status` is `current`, `changed`, `missing`, `inaccessible` or `span_mismatch`. `changed` means the item revision differs, even when the selected text happens to match. `missing` includes a deleted current item with retained history. The check reports the observed hash when the native read supplies one and makes no durable changes. `bindings` counts the stored decisions. The general `freshness` field still describes sense provenance and remains `unknown`.
+
+### Resolution and output
 
 Resolution preserves exact Unicode, case and whitespace. Language defaults to `en`, without fallback or case folding. The first scope level with any direct or alias match wins. All different matching sense IDs at that level are returned. Parent aliases do not outrank nearer explicit terms. `resolution=ambiguous` and `resolution=unknown` are successful diagnostics with `usable=false`; choose a narrower declared scope or submit a reviewed definition. Timestamps and popularity never break ties.
 
@@ -142,8 +157,9 @@ const same = resolveTermInState(glossaryStateSchema.parse(current.state), {
 | `createGlossary(host, input)` | `{id,op,title,domain_key,scopes,related?}` → committed or replayed receipt |
 | `defineSense(host, input)` | `{id,op,revision,sense}` → revision-checked receipt |
 | `addAlias(host, input)` | `{id,op,revision,alias}` → direct-alias receipt |
+| `bindUseSite(host, input)` | `{id,op,revision,binding}` → native binding receipt |
 | `resolveTerm(host, input)` | `{id,term,scope_key,language?}` → resolved, ambiguous or unknown |
-| `checkGlossary(host, input)` | `{id,scope_key?}` → read-only findings and explicit unknown freshness |
+| `checkGlossary(host, input)` | `{id,scope_key?,binding_id?}` → read-only findings and optional binding evidence |
 | `glossaryPacket(host, input)` | `{id,scope_key,language?,limit?,cursor?}` → complete witness rows and continuation |
 | `readGlossary(host, id)` | Selected native owner ID, hash and validated state |
 | `resolveTermInState(state, query)` | Pure exact scoped resolver; no tracker access |
@@ -158,7 +174,7 @@ Without git, every runtime glossary command and SDK kernel works in plain tracke
 
 Submit only reviewed shareable text. The SDK secret scanner rejects token-shaped values; additional checks reject absolute home paths, email-like strings, malformed Unicode, control and bidi sequences, prototype keys, cyclic inputs and expression-shaped injection. Email detection is a heuristic: addresses such as `a@b` without a public suffix may pass. Do not rely on it to prevent personal data from entering retained history. Terms and definitions are rendered as inert data. Native immutable history retains earlier submissions; removing a current value cannot erase historical sensitive content. Use the host's history-redaction and retention policy when needed.
 
-Real-data evidence ([full receipt](docs/real-data.md)): a non-git scratch copy of the public pm-vcs tracker contained **173 items**. The reviewed corpus covered **38 terms / 48 senses**, with **46/46** correct declared-scope probes and **10/10** ambiguity/unknown abstentions. Four bounded packets totaled **40,217 bytes / 10,056 estimated tokens** versus **132,732 bytes / 33,183 tokens** for the same selected public source passages: **69.70% fewer bytes**. Raw copied item text was **1,530,456 bytes / 382,614 tokens**. Wall time was **18.880 s**. One ambiguity was resolved by narrowing scope; **0 bindings** were made because bindings belong to the deferred slice. These numbers measure this explicit corpus, not universal semantic correctness or a model benchmark.
+Real-data evidence ([full receipt](docs/real-data.md)): a non-git scratch copy of the public pm-vcs tracker contained **173 items**. The reviewed corpus covered **38 terms / 48 senses**, with **46/46** correct declared-scope probes and **10/10** ambiguity/unknown abstentions. Four bounded packets totaled **40,217 bytes / 10,056 estimated tokens** versus **132,732 bytes / 33,183 tokens** for the same selected public source passages: **69.70% fewer bytes**. Raw copied item text was **1,530,456 bytes / 382,614 tokens**. Wall time was **18.880 s**. One ambiguity was resolved by narrowing scope. The historical corpus run predates binding support and recorded **0 bindings**. These numbers measure this explicit corpus, not universal semantic correctness or a model benchmark.
 
 Exit codes:
 
@@ -166,7 +182,7 @@ Exit codes:
 | --- | --- |
 | 0 | Completed, including explicit ambiguity or unknown results |
 | 2 | Invalid input/record, unsupported version, scope, capacity or output budget |
-| 3 | Authorized owner not found |
+| 3 | Authorized owner, binding or source not found |
 | 4 | Revision/operation conflict, contention, stale cursor or unresolved binding decision |
 | 5 | Unsupported backend, permission/completeness or I/O failure, or unknown write outcome |
 

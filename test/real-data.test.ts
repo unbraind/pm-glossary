@@ -21,6 +21,8 @@ test('corpus sibling checkout paths decode spaces Unicode and URL delimiters',()
 
 test('public gold corpus resolves 42 meanings, abstains on ten probes and saves at least half the bytes',async()=>{
   const report=await realData();assert.equal(report.terms,38);assert.equal(report.senses,44);assert.ok(report.reduction_percent>=50);for(const source of report.sources){assert.equal(source.source_sha256,undefined);assert.match(source.unverified_source_sha256!,/^[a-f0-9]{64}$/);}
+  assert.equal(report.bindings,0);
+  assert.equal(report.bindings_status,'not_exercised');
 });
 test('non-software research and physics terminology uses explicit scopes',async t=>{
   const {host,id}=await fixture(t);

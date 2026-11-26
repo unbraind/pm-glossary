@@ -4,13 +4,36 @@ description: Deferred by companion first-slice plan. Add authorized byte spans a
 type: Feature
 status: open
 priority: 2
-tags: []
+tags[1]: "gh:unbraind/pm-glossary#40"
 created_at: "2026-11-05T10:29:55.150Z"
-updated_at: "2026-11-05T11:20:39.970Z"
+updated_at: "2026-11-26T01:59:37.251Z"
 author: codex-agent
 acceptance_criteria: Pinned source spans; explicit stale binding refusals; missing inaccessible changed historical source receipts; concurrent binding conformance
 parent: pm-glossary-gjws
-docs[2]{path,scope}:
+comments[4]{created_at,author,text}:
+  "2026-11-26T01:34:07.427Z",codex-agent,"Reusing the Feature explicitly linked from GitHub issue #40 and adding its sync tag. Baseline builds but exposes neither a bind command nor a binding SDK operation, and the persisted contract accepts only an empty bindings array. Plan: native immutable binding evidence and replay, plus an explicit read-only per-binding freshness check through the shared CLI/SDK contract."
+  "2026-11-26T01:42:55.967Z",codex-agent,"Design uses existing native owner CAS and idempotency receipts. The admission read selects one authorized source field and its item hash, verifies UTF-8 boundaries and direct SHA-256, and runs again on an eligible CAS retry. Freshness is an explicit point-in-time observation. Deleted and absent current sources report missing, while historical commit replay remains source-independent."
+  "2026-11-26T01:48:08.219Z",codex-agent,"Packed test:install passed one archive acceptance test across two fresh no-Git consumers, npm/npx with Node and Bun/bunx. Both bound a multibyte source, read freshness in JSON and TOON, and replayed through the exported SDK. The linked pm test passed 9 assertions suites in a scratch tracker; runtime execution evidence was kept out of this tracker."
+  "2026-11-26T01:59:35.218Z",codex-agent,"Final behavioral revert proof: npm run test:revert produced 68 expected failures (17 binding-specific) and 112 passing fixed-state tests. Isolated reversions removed the native append or replay, stale owner and source revision checks, missing/deleted/inaccessible classifications, UTF-8 boundary, byte length and SHA-256 guards, native CAS and use-site exclusion, target and source retry checks, capacity, and shared CLI bind/check dispatch. The fixed staged tree passed 153 referenced tests with two workers, 9 linked binding tests, one packed acceptance test across npm and Bun with no Git, typecheck, lint, 84 documented declarations, 0% duplication, and strict tracker health with an isolated home. The PR CI is the coverage and release-gate evidence."
+files[14]{path,scope}:
+  index.ts,project
+  src/api.ts,project
+  src/bindings.ts,project
+  src/commands.ts,project
+  src/errors.ts,project
+  src/kernel.ts,project
+  src/output.ts,project
+  src/schema.ts,project
+  test/bindings.test.ts,project
+  test/corpus.ts,project
+  test/install.acceptance.ts,project
+  test/real-data.test.ts,project
+  test/revert.acceptance.ts,project
+  test/review.test.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  npm run build && node --test --test-concurrency=2 test/bindings.test.ts,project,codex-agent,"2026-11-26T01:45:19.301Z",local_mutation,feat/use-site-bindings
+docs[3]{path,scope}:
   ARCHITECTURE.md,project
+  docs/real-data.md,project
   README.md,project
 body: ""
