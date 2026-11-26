@@ -5,7 +5,7 @@ const extension = defineExtension({ name: 'pm-glossary', version: "2026.11.23", 
 /** Activate this package through the native pm extension host. */
 export default extension;
 /** Storage-independent native lifecycle API; the host supplies authorization and capability evidence. */
-export { createGlossary, defineSense, addAlias, resolveTerm, checkGlossary, glossaryPacket, readGlossary } from './src/api.ts';
+export { createGlossary, defineSense, addAlias, bindUseSite, resolveTerm, checkGlossary, glossaryPacket, readGlossary } from './src/api.ts';
 /** Native write receipt retains the original committed result separately from current state. */
 export type { GlossaryMutationReceipt } from './src/api.ts';
 /** Public portable host and native directory adapter. */
@@ -13,15 +13,15 @@ export { createDirectoryHost } from './src/host.ts';
 /** Host-owned client and capability contracts. */
 export type { Host, Snapshot } from './src/host.ts';
 /** Strict input/state contracts and content fingerprints for in-process consumers. */
-export { glossaryStateSchema, scopeSchema, senseSchema, aliasSchema, provenanceSchema, replaySchema, committedResultSchema, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema, resolveTermInputSchema, checkGlossaryInputSchema, glossaryPacketInputSchema, digest } from './src/schema.ts';
+export { glossaryStateSchema, scopeSchema, senseSchema, aliasSchema, provenanceSchema, bindingSourceSchema, useSiteBindingSchema, replaySchema, committedResultSchema, createGlossaryInputSchema, defineSenseInputSchema, addAliasInputSchema, bindUseSiteInputSchema, resolveTermInputSchema, checkGlossaryInputSchema, glossaryPacketInputSchema, digest } from './src/schema.ts';
 /** Input and state types for embedding agents. */
-export type { GlossaryState, Sense, CreateGlossaryInput, DefineSenseInput, AddAliasInput, ResolveTermInput, CheckGlossaryInput, GlossaryPacketInput } from './src/schema.ts';
+export type { GlossaryState, Sense, CreateGlossaryInput, DefineSenseInput, AddAliasInput, UseSiteBinding, BindUseSiteInput, ResolveTermInput, CheckGlossaryInput, GlossaryPacketInput } from './src/schema.ts';
 /** Shared deterministic resolver and strict stored-state validation. */
 export { resolveTermInState, readState } from './src/kernel.ts';
 /** Explicit usable/abstaining resolution result. */
 export type { TermResolution } from './src/kernel.ts';
 /** Strict output contracts and native self-inclusive serialized fitting. */
-export { termResolutionSchema, glossaryMutationReceiptSchema, glossaryCheckSchema, glossaryPacketSchema, glossaryDataSchema, glossaryRefusalSchema, glossaryOutputSchema, envelope, fitEnvelope, refusalEnvelope } from './src/output.ts';
+export { termResolutionSchema, glossaryMutationReceiptSchema, bindingEvidenceSchema, glossaryCheckSchema, glossaryPacketSchema, glossaryDataSchema, glossaryRefusalSchema, glossaryOutputSchema, envelope, fitEnvelope, refusalEnvelope } from './src/output.ts';
 /** Public common output shape. */
 export type { GlossaryData, GlossaryOutput } from './src/output.ts';
 /** Typed privacy-safe refusals and documented exit categories. */

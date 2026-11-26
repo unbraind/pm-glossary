@@ -794,7 +794,7 @@ Measured result:
 
 The baseline is the same deduplicated public prose passages supporting these manually reviewed meanings. It is not a repeated per-term baseline. The four packet envelopes each satisfy the hard size bound; their combined bytes are reported above. The evidence scope includes a retained root ambiguity in the evidence-domain packet. No candidate was dropped to achieve compression. Native token estimates count the greatest exact JSON/TOON serialization including framing and self-accounting receipts.
 
-Binding count is zero because the companion first-slice plan explicitly defers exact usage bindings and freshness adapters. The ambiguity was resolved by an explicit narrower scope, not by guessing or changing source prose. Research/physics “power” is also covered in the functional suite.
+This historical corpus run predates exact use-site bindings and recorded zero. The ambiguity was resolved by narrowing the requested scope. Research/physics “power” is also covered in the functional suite.
 
 Wall time is one local sample, including scratch setup, source-copy reading and all definitions/probes/packets. Native item IDs and hashes generated in the scratch project are not a multi-item atomic snapshot. No hosted provider or external reviewer conformance is claimed.
 

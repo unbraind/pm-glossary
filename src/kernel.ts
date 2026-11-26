@@ -1,6 +1,7 @@
 import { glossaryStateSchema, parse, digest } from './schema.ts';
 import type { GlossaryState, Sense } from './schema.ts';
 import { insist } from './errors.ts';
+import { useSiteKey } from './bindings.ts';
 
 /** A scoped outcome retains every distinguishing candidate and never guesses. */
 export interface TermResolution {
@@ -34,9 +35,12 @@ export function readState(raw: unknown): GlossaryState {
   insist(typeof raw === 'object' && raw !== null && 'version' in raw, 'invalid_record', 'Glossary state is missing');
   insist(raw.version === 1, 'unsupported_version', 'Glossary state version is unsupported', 'Upgrade pm-glossary; reads never migrate stored state');
   const state = parse(glossaryStateSchema, raw, true); validateScopes(state.scopes);
-  for (const values of [state.senses.map(sense => sense.sense_id), state.aliases.map(alias => alias.alias_id), state.operations.map(operation => operation.operation_id)]) insist(new Set(values).size === values.length, 'invalid_record', 'Duplicate durable identities require review');
+  const bindingIds = state.bindings.map(binding => binding.binding_id);
+  const useSites = state.bindings.map(binding => useSiteKey(binding.source));
+  for (const values of [state.senses.map(sense => sense.sense_id), state.aliases.map(alias => alias.alias_id), bindingIds, useSites, state.operations.map(operation => operation.operation_id)]) insist(new Set(values).size === values.length, 'invalid_record', 'Duplicate durable identities require review');
   const scopes = new Set(state.scopes.map(scope => scope.scope_key)); const senses = new Set(state.senses.map(sense => sense.sense_id));
   insist(state.senses.every(sense => scopes.has(sense.scope_key)) && state.aliases.every(alias => scopes.has(alias.scope_key) && senses.has(alias.sense_id)), 'invalid_record', 'Sense scope or alias target is invalid');
+  insist(state.bindings.every(binding => senses.has(binding.sense_id)), 'invalid_record', 'Binding target is invalid');
   insist(state.operations.every(operation => operation.result_digest === digest(operation.result)), 'invalid_record', 'Replay result digest does not match');
   insist(Buffer.byteLength(JSON.stringify(state)) <= 65536, 'invalid_record', 'Stored glossary exceeds 64 KiB');
   return state;

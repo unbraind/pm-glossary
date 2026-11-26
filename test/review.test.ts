@@ -85,8 +85,10 @@ test('npm and Bun setup each initialize before activating in fresh consumers',()
 test('README glossary examples use the installed local CLI',()=>{
   const readme=readFileSync('README.md','utf8');
   const examples=[...readme.matchAll(/`([^`\n]*\bpm glossary [^`\n]+)`/g)].map(match=>match[1]);
-  assert.equal(examples.length,7);
+  assert.equal(examples.length,8);
   for(const example of examples)assert.match(example,/^(?:npx --no-install|bunx --bun --no-install) pm glossary /);
+  assert.ok(examples.some(example=>/pm glossary bind \S+ --revision <owner-hash> --op bind-release --input -$/.test(example)));
+  assert.ok(examples.some(example=>/pm glossary check \S+ --binding release-use --json$/.test(example)));
   assert.match(readme,/`npx --no-install pm package install` is the explicit activation step/);
 });
 

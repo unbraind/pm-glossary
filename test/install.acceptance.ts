@@ -41,6 +41,15 @@ test('one packed artifact works with npm, bun, npx, bunx and native SDK without 
       const defined=JSON.parse(run(['glossary','define','packed-lexicon','--revision',birth.revision,'--op','gate','--input','-','--json'],JSON.stringify({sense:{sense_id:'gate',term:'gate',scope_key:'root',language:'en',definition:'Reviewed condition.'}})));
       assert.equal(defined.ok,true);
       const alias=JSON.parse(run(['glossary','alias','packed-lexicon','--revision',defined.revision,'--op','alias-gate','--input','-','--json'],JSON.stringify({alias:{alias_id:'door',term:'door',scope_key:'root',language:'en',sense_id:'gate'}})));assert.equal(alias.ok,true);
+      run(['create','Reviewed use site','--id','packed-source','--body','é gate']);
+      const source=JSON.parse(run(['get','packed-source','--fields','body,item_hash','--json']));
+      const binding={binding_id:'first-use',sense_id:'gate',source:{item_id:'packed-source',item_hash:source.item_hash,field_pointer:'/body',start_byte:3,end_byte:7,span_sha256:createHash('sha256').update('gate').digest('hex')}};
+      const bindArgs=['glossary','bind','packed-lexicon','--revision',alias.revision,'--op','bind-gate','--input','-'];
+      const bound=JSON.parse(run([...bindArgs,'--json'],JSON.stringify({binding})));assert.equal(bound.data.result.kind,'bind');
+      assert.match(run(bindArgs,JSON.stringify({binding})),/replayed: true/);
+      const evidence=JSON.parse(run(['glossary','check','packed-lexicon','--binding','first-use','--json']));
+      assert.deepEqual(evidence.data.binding_evidence,{binding,status:'current',observed_item_hash:source.item_hash});
+      assert.match(run(['glossary','check','packed-lexicon','--binding','first-use']),/status: "?current"?/);
       const checked=JSON.parse(run(['glossary','check','packed-lexicon','--json']));assert.equal(checked.ok,true,JSON.stringify(checked));assert.equal(checked.data.findings.length,0);
       const projection=JSON.parse(run(['glossary','resolve','packed-lexicon','--term','gate','--scope','root','--output-include','data','--json'],undefined,2));assert.match(projection.detail,/not a read surface/);
       const page=JSON.parse(run(['glossary','packet','packed-lexicon','--scope','root','--limit','1','--budget','1600','--json']));assert.ok(page.continuation);
@@ -52,7 +61,16 @@ test('one packed artifact works with npm, bun, npx, bunx and native SDK without 
       assert.match(run(['glossary','resolve','packed-lexicon','--term','gate','--scope','root']),/resolved/);
       const refused=JSON.parse(run(['glossary','define','packed-lexicon','--revision',birth.revision,'--op','stale','--input','-','--json'],JSON.stringify({sense:{sense_id:'gate',term:'gate',scope_key:'root',language:'en',definition:'Other.'}}),4));assert.equal(refused.refusal.code,'revision_conflict');
       const malformed=JSON.parse(run(['glossary','define','packed-lexicon','--revision',defined.revision,'--op','bad','--input','-','--json'],'\u001b[31m',2));assert.equal(malformed.refusal.code,'invalid_input');
-      writeFileSync(join(cwd,'sdk.mjs'),"import assert from 'node:assert/strict';import {createDirectoryHost,resolveTerm,defineSense,readGlossary} from 'pm-glossary';const host=createDirectoryHost(process.cwd()+'/.agents/pm','consumer');const result=await resolveTerm(host,{id:'packed-lexicon',term:'gate',scope_key:'root'});assert.equal(result.resolution,'resolved');assert.equal((await readGlossary(host,'packed-lexicon')).state.senses.length,1);console.log('SDK OK');\n");
+      const bindingRequest={id:'packed-lexicon',op:'bind-gate',revision:alias.revision,binding};
+      writeFileSync(join(cwd,'sdk.mjs'),`import assert from 'node:assert/strict';
+import {bindUseSite,checkGlossary,createDirectoryHost,resolveTerm,readGlossary} from 'pm-glossary';
+const host=createDirectoryHost(process.cwd()+'/.agents/pm','consumer');
+const result=await resolveTerm(host,{id:'packed-lexicon',term:'gate',scope_key:'root'});
+assert.equal(result.resolution,'resolved');
+assert.equal((await readGlossary(host,'packed-lexicon')).state.senses.length,1);
+assert.equal((await bindUseSite(host,${JSON.stringify(bindingRequest)})).replayed,true);
+assert.deepEqual((await checkGlossary(host,{id:'packed-lexicon',binding_id:'first-use'})).binding_evidence,${JSON.stringify(evidence.data.binding_evidence)});
+console.log('SDK OK');\n`);
       assert.match(execute(manager==='npm'?'node':'bun',['sdk.mjs'],cwd,safe),/SDK OK/);
     }
     assert.equal(createHash('sha256').update(readFileSync(archive)).digest('hex'),digest);

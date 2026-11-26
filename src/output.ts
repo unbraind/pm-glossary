@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { encode, escapeString, rawString } from '@toon-format/toon';
 import { fitOutputEnvelope, OutputEnvelopeFitError } from '@unbrained/pm-cli/sdk';
-import { senseSchema, committedResultSchema, parse } from './schema.ts';
+import { bindingSourceSchema, senseSchema, useSiteBindingSchema, committedResultSchema, parse } from './schema.ts';
 import { GlossaryRefusal, insist, exitCode } from './errors.ts';
 import type { Host } from './host.ts';
 
@@ -9,8 +9,14 @@ import type { Host } from './host.ts';
 export const termResolutionSchema = z.strictObject({ resolution: z.enum(['resolved', 'ambiguous', 'unknown']), usable: z.boolean(), term: z.string(), scope: z.string(), matched_scope: z.string().nullable(), candidates: z.array(senseSchema) });
 /** Stable write result available to SDK consumers. */
 export const glossaryMutationReceiptSchema = z.strictObject({ owner_id: z.string(), revision: z.string(), operation_id: z.string(), replayed: z.boolean(), attempts: z.number().int().positive(), result: committedResultSchema, result_digest: z.string(), outcome: z.literal('committed') });
-/** Read-only diagnostics explicitly disclaim evidence freshness and deferred bindings. */
-export const glossaryCheckSchema = z.strictObject({ owner_id: z.string(), revision: z.string(), findings: z.array(z.strictObject({ code: z.string(), identity: z.string() })), freshness: z.literal('unknown'), bindings: z.literal('deferred_first_slice') });
+/** Point-in-time evidence for one selected binding, including the pinned and observed revisions. */
+export const bindingEvidenceSchema = z.strictObject({
+  binding: useSiteBindingSchema,
+  status: z.enum(['current', 'changed', 'missing', 'inaccessible', 'span_mismatch']),
+  observed_item_hash: bindingSourceSchema.shape.item_hash.nullable(),
+});
+/** Read-only glossary findings and optional revalidation of one exact binding. */
+export const glossaryCheckSchema = z.strictObject({ owner_id: z.string(), revision: z.string(), findings: z.array(z.strictObject({ code: z.string(), identity: z.string() })), freshness: z.literal('unknown'), bindings: z.int().min(0).max(128), binding_evidence: bindingEvidenceSchema.nullable() });
 /** A complete page preserves every candidate for each requested surface. */
 export const glossaryPacketSchema = z.strictObject({ owner_id: z.string(), revision: z.string(), rows: z.array(termResolutionSchema), returned: z.number().int(), omitted: z.number().int(), total: z.number().int(), continuation: z.string().nullable() });
 /** Public success payload union; no unknown nested object bypasses the contract. */

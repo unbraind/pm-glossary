@@ -38,8 +38,8 @@ export function refusal(error: unknown): GlossaryRefusal {
 /** Map domain categories onto the documented process exit contract. */
 export function exitCode(code: string, nativeExit?: number): number {
   if (nativeExit !== undefined) return nativeExit;
-  if (code === 'not_found') return 3;
-  if (['revision_conflict', 'operation_conflict', 'stale_cursor', 'contention', 'ambiguous_term', 'stale_binding'].includes(code)) return 4;
-  if (['backend_unsupported', 'permission_denied', 'incomplete_read', 'outcome_unknown', 'io_error'].includes(code)) return 5;
+  if (['not_found', 'source_missing'].includes(code)) return 3;
+  if (['revision_conflict', 'operation_conflict', 'stale_cursor', 'contention', 'ambiguous_term', 'stale_binding', 'binding_conflict'].includes(code)) return 4;
+  if (['backend_unsupported', 'permission_denied', 'incomplete_read', 'outcome_unknown', 'io_error', 'source_inaccessible'].includes(code)) return 5;
   return 2;
 }
