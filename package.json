@@ -1,6 +1,6 @@
 {
   "name": "pm-glossary",
-  "version": "2026.11.23",
+  "version": "2026.11.26",
   "description": "Scoped explicit domain meanings for agent context",
   "repository": {
     "type": "git",
