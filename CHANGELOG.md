@@ -2,6 +2,10 @@
 
 ## 2026.11.26 - 2026-11-26
 
+### Closed
+
+- Closed: Unmet spec criteria: exact use-site bindings and freshness evidence ([pm-glossary-github-79fd2ba382d9-40](https://github.com/unbraind/pm-glossary/blob/main/.agents/pm/issues/pm-glossary-github-79fd2ba382d9-40.toon))
+
 ### Dependencies
 
 - Bump @unbrained/pm-cli from 2026.11.22 to 2026.11.23 in the pm-toolchain group ([#46](https://github.com/unbraind/pm-glossary/pull/46))
